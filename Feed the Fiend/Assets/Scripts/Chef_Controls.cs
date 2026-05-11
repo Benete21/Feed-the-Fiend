@@ -1,16 +1,42 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Chef_Controls : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    [Header("Movment")]
+    [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float jumpStep = 1f;
+    [SerializeField] private float rotateSpeed = 180f;
+    private Vector2 lookInput;
+    private Vector2 moveInput;
+
+    [Header("Pickup")]
+    [SerializeField] private float pickupRange = 3f;
+
+    private void Update()
     {
-        
+        float yaw = lookInput.x * rotateSpeed * Time.deltaTime;
+        transform.Rotate(0f, yaw, 0f, Space.World);
+
+        Vector3 move3 = new Vector3(moveInput.x, 0f, moveInput.y) * moveSpeed;
+        transform.position += move3;
+
     }
 
-    // Update is called once per frame
-    void Update()
+    public void OnMovment(InputAction.CallbackContext context)
     {
-        
+        moveInput = context.ReadValue<Vector2>();
     }
+
+    public void OnLook(InputAction.CallbackContext context)
+    {
+        lookInput = context.ReadValue<Vector2>();
+    }
+
+    public void OnJump(InputAction.CallbackContext context)
+    {
+        if (!context.performed) return;
+        transform.position += Vector3.up * jumpStep;
+    }
+
 }
