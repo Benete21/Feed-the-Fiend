@@ -557,6 +557,7 @@ GameObject:
   - component: {fileID: 1642685822}
   - component: {fileID: 1642685821}
   - component: {fileID: 1642685820}
+  - component: {fileID: 1642685824}
   m_Layer: 0
   m_Name: Waiter
   m_TagString: Untagged
@@ -659,6 +660,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1642685824
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1642685819}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed78f1340a584af4385f4ef48add6223, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Waiter_Controls
+  moveSpeed: 5
+  jumpStep: 1
+  rotateSpeed: 180
+  pickupRange: 3
 --- !u!1 &1660470050
 GameObject:
   m_ObjectHideFlags: 0
@@ -671,6 +688,7 @@ GameObject:
   - component: {fileID: 1660470053}
   - component: {fileID: 1660470052}
   - component: {fileID: 1660470051}
+  - component: {fileID: 1660470055}
   m_Layer: 0
   m_Name: Chef
   m_TagString: Untagged
@@ -773,6 +791,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1660470055
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1660470050}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70cbf0cab2b260546bef5306f0c66850, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Chef_Controls
+  moveSpeed: 5
+  jumpStep: 1
+  rotateSpeed: 180
+  pickupRange: 3
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

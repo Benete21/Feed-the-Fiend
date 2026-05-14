@@ -33,10 +33,4 @@ public class Chef_Controls : MonoBehaviour
         lookInput = context.ReadValue<Vector2>();
     }
 
-    public void OnJump(InputAction.CallbackContext context)
-    {
-        if (!context.performed) return;
-        transform.position += Vector3.up * jumpStep;
-    }
-
 }
