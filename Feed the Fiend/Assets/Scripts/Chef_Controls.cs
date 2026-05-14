@@ -65,7 +65,7 @@ public class Chef_Controls : MonoBehaviour
         {
             heldrb = pick.GetComponent<Rigidbody>();
             heldrb.useGravity = false;
-            heldrb.drag = 10;
+            heldrb.linearDamping = 10;
             heldrb.constraints = RigidbodyConstraints.FreezeRotation;
 
             heldrb.transform.parent = hold;
@@ -76,7 +76,7 @@ public class Chef_Controls : MonoBehaviour
     public void DropObj()
     {
         heldrb.useGravity = true;
-        heldrb.drag = 1;
+        heldrb.linearDamping = 1;
         heldrb.constraints = RigidbodyConstraints.FreezeRotation;
 
         heldrb.transform.parent = null;
