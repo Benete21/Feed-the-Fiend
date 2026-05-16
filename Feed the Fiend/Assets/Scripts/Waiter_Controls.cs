@@ -14,6 +14,7 @@ public class Waiter_Controls : MonoBehaviour
     private Rigidbody heldrb;
 
     [SerializeField] private float pickupRange = 3f;
+    [SerializeField] private float pickupForce = 150.0f;
 
 
     private void Update()
@@ -41,6 +42,10 @@ public class Waiter_Controls : MonoBehaviour
         if (heldObj == null)
         {
             RaycastHit hit;
+
+            Vector3 rayStart = transform.position + Vector3.up;
+            Debug.DrawRay(rayStart, transform.forward * pickupRange, Color.red);
+
             if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, pickupRange))
             {
                 PickUp(hit.transform.gameObject);
@@ -50,34 +55,42 @@ public class Waiter_Controls : MonoBehaviour
         {
             DropObj();
         }
+        if (heldObj != null)
+        {
+            MoveObj();
+        }
     }
 
     public void PickUp(GameObject pick)
     {
-        if (pick.TryGetComponent(out Rigidbody rb))
+        if (pick.GetComponent<Rigidbody>())
         {
-            heldrb = rb;
-            heldObj = pick;
-
+            heldrb = pick.GetComponent<Rigidbody>();
             heldrb.useGravity = false;
-            heldrb.linearDamping = 10f;
+            heldrb.linearDamping = 10;
             heldrb.constraints = RigidbodyConstraints.FreezeRotation;
 
-            heldObj.transform.SetParent(hold);
+            heldrb.transform.parent = hold;
+            heldObj = pick;
 
-            heldObj.transform.localPosition = Vector3.zero;
-            heldObj.transform.localRotation = Quaternion.identity;
         }
     }
     public void DropObj()
     {
         heldrb.useGravity = true;
-        heldrb.linearDamping = 1f;
-        heldrb.constraints = RigidbodyConstraints.None;
+        heldrb.linearDamping = 1;
+        heldrb.constraints = RigidbodyConstraints.FreezeRotation;
 
-        heldObj.transform.SetParent(null);
-
+        heldrb.transform.parent = null;
         heldObj = null;
-        heldrb = null;
     }
+    public void MoveObj()
+    {
+        if (Vector3.Distance(heldObj.transform.position, hold.position) > 0.1f)
+        {
+            Vector3 moveDir = (hold.position - heldObj.transform.position).normalized;
+            heldrb.AddForce(moveDir * pickupForce);
+        }
+    }
+
 }

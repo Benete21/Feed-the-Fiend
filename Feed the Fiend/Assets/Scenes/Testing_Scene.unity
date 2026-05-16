@@ -9762,7 +9762,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Waiter_Controls
   moveSpeed: 7
   rotateSpeed: 300
-  deadzone: 0.1
   hold: {fileID: 1989486474}
   pickupRange: 3
   pickupForce: 150
@@ -10015,7 +10014,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Chef_Controls
   moveSpeed: 5
   rotateSpeed: 180
-  deadzone: 0.1
   hold: {fileID: 1155758643}
   pickupRange: 3
   pickupForce: 150
@@ -12747,7 +12745,7 @@ GameObject:
   - component: {fileID: 2104924042}
   m_Layer: 0
   m_Name: Item
-  m_TagString: Untagged
+  m_TagString: Item
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -12866,7 +12864,7 @@ Transform:
   m_GameObject: {fileID: 2104924041}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 6.68832, y: 1.36, z: 2.18175}
+  m_LocalPosition: {x: 16.04, y: 1.36, z: 2.18175}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
