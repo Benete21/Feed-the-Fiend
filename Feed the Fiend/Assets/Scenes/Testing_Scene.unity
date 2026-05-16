@@ -274,7 +274,7 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
-  m_Mesh: {fileID: 985177765}
+  m_Mesh: {fileID: 1918751638}
 --- !u!33 &190013441
 MeshFilter:
   m_ObjectHideFlags: 10
@@ -2173,7 +2173,7 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
-  m_Mesh: {fileID: 624830421}
+  m_Mesh: {fileID: 1192376684}
 --- !u!33 &680019442
 MeshFilter:
   m_ObjectHideFlags: 10
@@ -2971,7 +2971,7 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
-  m_Mesh: {fileID: 1557359699}
+  m_Mesh: {fileID: 960951116}
 --- !u!33 &860656133
 MeshFilter:
   m_ObjectHideFlags: 10
@@ -5086,7 +5086,7 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
-  m_Mesh: {fileID: 960951116}
+  m_Mesh: {fileID: 622548625}
 --- !u!33 &1198850227
 MeshFilter:
   m_ObjectHideFlags: 10
@@ -6409,7 +6409,7 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
-  m_Mesh: {fileID: 768693017}
+  m_Mesh: {fileID: 1557359699}
 --- !u!33 &1375811608
 MeshFilter:
   m_ObjectHideFlags: 10
@@ -9204,6 +9204,8 @@ GameObject:
   - component: {fileID: 1642685821}
   - component: {fileID: 1642685820}
   - component: {fileID: 1642685824}
+  - component: {fileID: 1642685825}
+  - component: {fileID: 1642685826}
   m_Layer: 0
   m_Name: Waiter
   m_TagString: Untagged
@@ -9325,6 +9327,63 @@ MonoBehaviour:
   hold: {fileID: 1989486474}
   pickupRange: 3
   pickupForce: 150
+--- !u!114 &1642685825
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1642685819}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.PlayerInput
+  m_Actions: {fileID: -944628639613478452, guid: aa78f1e39d966f74f8504ced00aae072, type: 3}
+  m_NotificationBehavior: 2
+  m_UIInputModule: {fileID: 0}
+  m_DeviceLostEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_DeviceRegainedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ControlsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ActionEvents: []
+  m_NeverAutoSwitchControlSchemes: 0
+  m_DefaultControlScheme: Gamepad
+  m_DefaultActionMap: Waiter
+  m_SplitScreenIndex: -1
+  m_Camera: {fileID: 0}
+--- !u!54 &1642685826
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1642685819}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &1660470050
 GameObject:
   m_ObjectHideFlags: 0
@@ -9338,6 +9397,8 @@ GameObject:
   - component: {fileID: 1660470052}
   - component: {fileID: 1660470051}
   - component: {fileID: 1660470055}
+  - component: {fileID: 1660470056}
+  - component: {fileID: 1660470057}
   m_Layer: 0
   m_Name: Chef
   m_TagString: Untagged
@@ -9459,6 +9520,63 @@ MonoBehaviour:
   hold: {fileID: 1155758643}
   pickupRange: 3
   pickupForce: 150
+--- !u!114 &1660470056
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1660470050}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.PlayerInput
+  m_Actions: {fileID: -944628639613478452, guid: aa78f1e39d966f74f8504ced00aae072, type: 3}
+  m_NotificationBehavior: 2
+  m_UIInputModule: {fileID: 0}
+  m_DeviceLostEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_DeviceRegainedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ControlsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ActionEvents: []
+  m_NeverAutoSwitchControlSchemes: 0
+  m_DefaultControlScheme: Gamepad
+  m_DefaultActionMap: Chef
+  m_SplitScreenIndex: -1
+  m_Camera: {fileID: 0}
+--- !u!54 &1660470057
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1660470050}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &1767677160
 GameObject:
   m_ObjectHideFlags: 0
@@ -9501,7 +9619,7 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
-  m_Mesh: {fileID: 1192376684}
+  m_Mesh: {fileID: 1110721194}
 --- !u!33 &1767677162
 MeshFilter:
   m_ObjectHideFlags: 10
@@ -10391,7 +10509,7 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
-  m_Mesh: {fileID: 538054435}
+  m_Mesh: {fileID: 624830421}
 --- !u!33 &1932632905
 MeshFilter:
   m_ObjectHideFlags: 10

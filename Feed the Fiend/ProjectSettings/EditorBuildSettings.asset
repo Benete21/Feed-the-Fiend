@@ -12,5 +12,5 @@ EditorBuildSettings:
     path: Assets/Scenes/Langa Level.unity
     guid: 1f3f8965b4d8d73459f4412d0894ee2b
   m_configObjects:
-    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: aa78f1e39d966f74f8504ced00aae072, type: 3}
   m_UseUCBPForAssetBundles: 0

@@ -5,7 +5,6 @@ public class Chef_Controls : MonoBehaviour
 {
     [Header("Movment")]
     [SerializeField] private float moveSpeed = 5f;
-    [SerializeField] private float jumpStep = 1f;
     [SerializeField] private float rotateSpeed = 180f;
     private Vector2 lookInput;
     private Vector2 moveInput;
