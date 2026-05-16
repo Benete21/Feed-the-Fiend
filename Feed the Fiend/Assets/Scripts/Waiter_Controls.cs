@@ -9,12 +9,12 @@ public class Waiter_Controls : MonoBehaviour
     private Vector2 moveInput;
 
     [Header("Pickup")]
+    public float pickupRange = 2f;
+    public float pickupRadius = 1f;
     [SerializeField] Transform hold;
     private GameObject heldObj;
-    private Rigidbody heldrb;
+    private Rigidbody heldRb;
 
-    [SerializeField] private float pickupRange = 3f;
-    [SerializeField] private float pickupForce = 150.0f;
 
 
     private void Update()
@@ -28,6 +28,11 @@ public class Waiter_Controls : MonoBehaviour
             Quaternion targetRotation = Quaternion.LookRotation(move);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotateSpeed * Time.deltaTime);
         }
+        if (heldObj != null)
+        {
+            heldObj.transform.position = hold.position;
+            heldObj.transform.rotation = hold.rotation;
+        }
     }
 
     public void OnMovement(InputAction.CallbackContext context)
@@ -37,60 +42,58 @@ public class Waiter_Controls : MonoBehaviour
     }
     public void OnPickup(InputAction.CallbackContext context)
     {
-        print("P Wokr");
         if (!context.performed) return;
+
         if (heldObj == null)
         {
-            RaycastHit hit;
-
-            Vector3 rayStart = transform.position + Vector3.up;
-            Debug.DrawRay(rayStart, transform.forward * pickupRange, Color.red);
-
-            if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, pickupRange))
-            {
-                PickUp(hit.transform.gameObject);
-            }
+            TryPickup();
         }
         else
         {
-            DropObj();
-        }
-        if (heldObj != null)
-        {
-            MoveObj();
+            Drop();
         }
     }
 
-    public void PickUp(GameObject pick)
+    void TryPickup()
     {
-        if (pick.GetComponent<Rigidbody>())
+        Vector3 origin = transform.position + Vector3.up * 0.5f;
+
+        Debug.DrawRay(origin, transform.forward * pickupRange, Color.red, 1f);
+
+        if (Physics.SphereCast(origin, pickupRadius, transform.forward, out RaycastHit hit, pickupRange))
         {
-            heldrb = pick.GetComponent<Rigidbody>();
-            heldrb.useGravity = false;
-            heldrb.linearDamping = 10;
-            heldrb.constraints = RigidbodyConstraints.FreezeRotation;
-
-            heldrb.transform.parent = hold;
-            heldObj = pick;
-
+            if (hit.collider.attachedRigidbody != null)
+            {
+                Pickup(hit.collider.gameObject);
+            }
         }
     }
-    public void DropObj()
-    {
-        heldrb.useGravity = true;
-        heldrb.linearDamping = 1;
-        heldrb.constraints = RigidbodyConstraints.FreezeRotation;
 
-        heldrb.transform.parent = null;
+    void Pickup(GameObject obj)
+    {
+        heldObj = obj;
+        heldRb = obj.GetComponent<Rigidbody>();
+
+        heldRb.useGravity = false;
+        heldRb.linearDamping = 10f;
+        heldRb.constraints = RigidbodyConstraints.FreezeRotation;
+
+        heldRb.transform.SetParent(hold);
+        heldRb.transform.localPosition = Vector3.zero;
+        heldRb.transform.localRotation = Quaternion.identity;
+        Physics.IgnoreCollision(heldRb.GetComponent<Collider>(), GetComponent<Collider>(), true);
+    }
+
+    void Drop()
+    {
+        Physics.IgnoreCollision( heldRb.GetComponent<Collider>(),GetComponent<Collider>(),false);
+        heldRb.useGravity = true;
+        heldRb.linearDamping = 1f;
+        heldRb.constraints = RigidbodyConstraints.None;
+
+        heldRb.transform.SetParent(null);
+
         heldObj = null;
+        heldRb = null;
     }
-    public void MoveObj()
-    {
-        if (Vector3.Distance(heldObj.transform.position, hold.position) > 0.1f)
-        {
-            Vector3 moveDir = (hold.position - heldObj.transform.position).normalized;
-            heldrb.AddForce(moveDir * pickupForce);
-        }
-    }
-
 }
