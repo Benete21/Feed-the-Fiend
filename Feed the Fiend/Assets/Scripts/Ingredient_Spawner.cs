@@ -1,20 +1,27 @@
+using System.Collections;
 using UnityEngine;
 
 public class Ingredient_Spawner : MonoBehaviour
 {
-    public GameObject [] typeFood = new GameObject[6];
-    public GameObject objectToSpawn;
-    public Transform player;
-    public float spawnDistance = 5.0f;
-    private bool hasSpawned = false;
+    public GameObject ingredientPrefab;
+    public Transform spawnPoint;
 
-    void Update()
+    private GameObject currentIngredient;
+
+    private void OnTriggerEnter(Collider other)
     {
-        if (!hasSpawned && Vector3.Distance(transform.position, player.position) < spawnDistance)
-        {
-            Instantiate(objectToSpawn, transform.position, Quaternion.identity);
-            hasSpawned = true;
-        }
+        if (!other.CompareTag("Chef")) return;
+
+            SpawnIngredient();
+    }
+
+    void SpawnIngredient()
+    {
+        currentIngredient = Instantiate( ingredientPrefab, spawnPoint.position, spawnPoint.rotation);
+    }
+    public void IngredientTaken()
+    {
+        currentIngredient = null;
     }
 }
 
