@@ -6,8 +6,6 @@ public class Waiter_Controls : MonoBehaviour
     [Header("Movment")]
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float rotateSpeed = 180f;
-    [SerializeField] private float deadzone = 0.1f;
-    private Vector2 lookInput;
     private Vector2 moveInput;
 
     [Header("Pickup")]
@@ -16,34 +14,25 @@ public class Waiter_Controls : MonoBehaviour
     private Rigidbody heldrb;
 
     [SerializeField] private float pickupRange = 3f;
-    [SerializeField] private float pickupForce = 150.0f;
 
 
     private void Update()
     {
-        if (lookInput.magnitude < deadzone)
-        {
-            lookInput = Vector2.zero;
-        }
-
-        float yaw = lookInput.x * rotateSpeed * Time.deltaTime;
-        transform.Rotate(0f, yaw, 0f);
-
-        Vector3 move = transform.forward * moveInput.y + transform.right * moveInput.x;
+        Vector3 move = new Vector3(moveInput.x, 0, moveInput.y);
 
         transform.position += move * moveSpeed * Time.deltaTime;
+
+        if (move != Vector3.zero)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(move);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotateSpeed * Time.deltaTime);
+        }
     }
 
     public void OnMovement(InputAction.CallbackContext context)
     {
         moveInput = context.ReadValue<Vector2>();
         print("Move Wokr");
-    }
-
-    public void OnLook(InputAction.CallbackContext context)
-    {
-        lookInput = context.ReadValue<Vector2>();
-        print("Look Wokr");
     }
     public void OnPickup(InputAction.CallbackContext context)
     {
@@ -61,42 +50,34 @@ public class Waiter_Controls : MonoBehaviour
         {
             DropObj();
         }
-        if(heldObj != null)
-        {
-            MoveObj();
-        }
     }
 
     public void PickUp(GameObject pick)
     {
-        if(pick.GetComponent<Rigidbody>()) 
+        if (pick.TryGetComponent(out Rigidbody rb))
         {
-            heldrb = pick.GetComponent<Rigidbody>();
+            heldrb = rb;
+            heldObj = pick;
+
             heldrb.useGravity = false;
-            heldrb.linearDamping = 10;
+            heldrb.linearDamping = 10f;
             heldrb.constraints = RigidbodyConstraints.FreezeRotation;
 
-            heldrb.transform.parent = hold;
-            heldObj = pick;
-        
+            heldObj.transform.SetParent(hold);
+
+            heldObj.transform.localPosition = Vector3.zero;
+            heldObj.transform.localRotation = Quaternion.identity;
         }
     }
     public void DropObj()
     {
-            heldrb.useGravity = true;
-            heldrb.linearDamping = 1;
-            heldrb.constraints = RigidbodyConstraints.FreezeRotation;
+        heldrb.useGravity = true;
+        heldrb.linearDamping = 1f;
+        heldrb.constraints = RigidbodyConstraints.None;
 
-            heldrb.transform.parent = null;
-            heldObj = null;
-    }
-    public void MoveObj()
-    {
-        if(Vector3.Distance(heldObj.transform.position, hold.position) > 0.1f)
-        {
-            Vector3 moveDir = (hold.position - heldObj.transform.position).normalized;
-            heldrb.AddForce(moveDir*pickupForce); 
-        }
-    }
+        heldObj.transform.SetParent(null);
 
+        heldObj = null;
+        heldrb = null;
+    }
 }

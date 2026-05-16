@@ -6,8 +6,6 @@ public class Chef_Controls : MonoBehaviour
     [Header("Movment")]
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float rotateSpeed = 180f;
-    [SerializeField] private float deadzone = 0.1f;
-    private Vector2 lookInput;
     private Vector2 moveInput;
 
     [Header("Pickup")]
@@ -20,29 +18,21 @@ public class Chef_Controls : MonoBehaviour
 
     private void Update()
     {
-        if (lookInput.magnitude < deadzone)
-        {
-            lookInput = Vector2.zero;
-        }
-
-        float yaw = lookInput.x * rotateSpeed * Time.deltaTime;
-        transform.Rotate(0f, yaw, 0f);
-
-        Vector3 move = transform.forward * moveInput.y + transform.right * moveInput.x;
+        Vector3 move = new Vector3 (moveInput.x, 0, moveInput.y);
 
         transform.position += move * moveSpeed * Time.deltaTime;
+
+        if(move != Vector3.zero)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(move);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotateSpeed * Time.deltaTime);
+        }
     }
 
     public void OnMovement(InputAction.CallbackContext context)
     {
         moveInput = context.ReadValue<Vector2>();
         print("Move Wokr");
-    }
-
-    public void OnLook(InputAction.CallbackContext context)
-    {
-        lookInput = context.ReadValue<Vector2>();
-        print("Look Wokr");
     }
 
     public void OnPickup(InputAction.CallbackContext context)

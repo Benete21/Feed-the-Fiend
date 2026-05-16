@@ -104,7 +104,7 @@
                 {
                     "name": "",
                     "id": "e2570af9-1d7d-4e58-a85a-2d1af7a0a99d",
-                    "path": "<Gamepad>/rightStick",
+                    "path": "<Gamepad>/leftStick",
                     "interactions": "",
                     "processors": "StickDeadzone",
                     "groups": ";Gamepad",
@@ -216,7 +216,7 @@
                 {
                     "name": "",
                     "id": "9e25c036-d75f-4743-a4ac-0b0e73acb3dd",
-                    "path": "<Gamepad>/rightStick",
+                    "path": "<Gamepad>/leftStick",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
