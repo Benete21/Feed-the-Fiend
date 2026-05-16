@@ -9202,10 +9202,10 @@ GameObject:
   - component: {fileID: 1642685823}
   - component: {fileID: 1642685822}
   - component: {fileID: 1642685821}
-  - component: {fileID: 1642685820}
-  - component: {fileID: 1642685824}
   - component: {fileID: 1642685825}
+  - component: {fileID: 1642685827}
   - component: {fileID: 1642685826}
+  - component: {fileID: 1642685828}
   m_Layer: 0
   m_Name: Waiter
   m_TagString: Untagged
@@ -9213,29 +9213,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!136 &1642685820
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1642685819}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &1642685821
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -9309,24 +9286,6 @@ Transform:
   - {fileID: 1989486474}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1642685824
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1642685819}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ed78f1340a584af4385f4ef48add6223, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Waiter_Controls
-  moveSpeed: 5
-  jumpStep: 1
-  rotateSpeed: 180
-  hold: {fileID: 1989486474}
-  pickupRange: 3
-  pickupForce: 150
 --- !u!114 &1642685825
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9351,13 +9310,96 @@ MonoBehaviour:
   m_ControlsChangedEvent:
     m_PersistentCalls:
       m_Calls: []
-  m_ActionEvents: []
+  m_ActionEvents:
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: d4c24a28-a8ce-40ee-a97d-3ab83706eeb8
+    m_ActionName: 'Chef/Movement[/SwitchProControllerHID/leftStick/up,/SwitchProControllerHID/leftStick/down,/SwitchProControllerHID/leftStick/left,/SwitchProControllerHID/leftStick/right]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: b8c7e573-4081-4bed-b17b-05d7370eaa84
+    m_ActionName: 'Chef/Pickup[/SwitchProControllerHID/buttonEast]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 47c2b4e9-b49c-4284-9f08-1de75a82c25b
+    m_ActionName: 'Chef/Look[/SwitchProControllerHID/rightStick]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1642685828}
+        m_TargetAssemblyTypeName: Waiter_Controls, Assembly-CSharp
+        m_MethodName: OnMovement
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: d01cb2b7-cb11-4dac-b978-98064e5b6bb5
+    m_ActionName: 'Waiter/Movement[/SwitchProControllerHID/leftStick/up,/SwitchProControllerHID/leftStick/down,/SwitchProControllerHID/leftStick/left,/SwitchProControllerHID/leftStick/right]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1642685828}
+        m_TargetAssemblyTypeName: Waiter_Controls, Assembly-CSharp
+        m_MethodName: OnPickup
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 01184bfd-631c-4c5e-985f-c0f6b0ab28fb
+    m_ActionName: 'Waiter/Pickup[/SwitchProControllerHID/buttonEast]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1642685828}
+        m_TargetAssemblyTypeName: Waiter_Controls, Assembly-CSharp
+        m_MethodName: OnLook
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: d7c0f2fd-e4bd-430f-8f3f-45d2185a0e15
+    m_ActionName: 'Waiter/Look[/SwitchProControllerHID/rightStick]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: Gamepad
   m_DefaultActionMap: Waiter
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
---- !u!54 &1642685826
+--- !u!136 &1642685826
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1642685819}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!54 &1642685827
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -9382,8 +9424,25 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 80
   m_CollisionDetection: 0
+--- !u!114 &1642685828
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1642685819}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed78f1340a584af4385f4ef48add6223, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Waiter_Controls
+  moveSpeed: 5
+  rotateSpeed: 180
+  hold: {fileID: 1989486474}
+  pickupRange: 3
+  pickupForce: 150
 --- !u!1 &1660470050
 GameObject:
   m_ObjectHideFlags: 0
@@ -9395,10 +9454,10 @@ GameObject:
   - component: {fileID: 1660470054}
   - component: {fileID: 1660470053}
   - component: {fileID: 1660470052}
-  - component: {fileID: 1660470051}
-  - component: {fileID: 1660470055}
   - component: {fileID: 1660470056}
+  - component: {fileID: 1660470058}
   - component: {fileID: 1660470057}
+  - component: {fileID: 1660470059}
   m_Layer: 0
   m_Name: Chef
   m_TagString: Untagged
@@ -9406,29 +9465,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!136 &1660470051
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1660470050}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &1660470052
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -9502,24 +9538,6 @@ Transform:
   - {fileID: 1155758643}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1660470055
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1660470050}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 70cbf0cab2b260546bef5306f0c66850, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Chef_Controls
-  moveSpeed: 5
-  jumpStep: 1
-  rotateSpeed: 180
-  hold: {fileID: 1155758643}
-  pickupRange: 3
-  pickupForce: 150
 --- !u!114 &1660470056
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9544,13 +9562,96 @@ MonoBehaviour:
   m_ControlsChangedEvent:
     m_PersistentCalls:
       m_Calls: []
-  m_ActionEvents: []
+  m_ActionEvents:
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1660470059}
+        m_TargetAssemblyTypeName: Chef_Controls, Assembly-CSharp
+        m_MethodName: OnMovement
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: d4c24a28-a8ce-40ee-a97d-3ab83706eeb8
+    m_ActionName: 'Chef/Movement[/SwitchProControllerHID/leftStick/up,/SwitchProControllerHID/leftStick/down,/SwitchProControllerHID/leftStick/left,/SwitchProControllerHID/leftStick/right]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1660470059}
+        m_TargetAssemblyTypeName: Chef_Controls, Assembly-CSharp
+        m_MethodName: OnPickup
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: b8c7e573-4081-4bed-b17b-05d7370eaa84
+    m_ActionName: 'Chef/Pickup[/SwitchProControllerHID/buttonEast]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1660470059}
+        m_TargetAssemblyTypeName: Chef_Controls, Assembly-CSharp
+        m_MethodName: OnLook
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 47c2b4e9-b49c-4284-9f08-1de75a82c25b
+    m_ActionName: 'Chef/Look[/SwitchProControllerHID/rightStick]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: d01cb2b7-cb11-4dac-b978-98064e5b6bb5
+    m_ActionName: 'Waiter/Movement[/SwitchProControllerHID/leftStick/up,/SwitchProControllerHID/leftStick/down,/SwitchProControllerHID/leftStick/left,/SwitchProControllerHID/leftStick/right]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 01184bfd-631c-4c5e-985f-c0f6b0ab28fb
+    m_ActionName: 'Waiter/Pickup[/SwitchProControllerHID/buttonEast]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: d7c0f2fd-e4bd-430f-8f3f-45d2185a0e15
+    m_ActionName: 'Waiter/Look[/SwitchProControllerHID/rightStick]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: Gamepad
   m_DefaultActionMap: Chef
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
---- !u!54 &1660470057
+--- !u!136 &1660470057
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1660470050}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!54 &1660470058
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -9575,8 +9676,25 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 80
   m_CollisionDetection: 0
+--- !u!114 &1660470059
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1660470050}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70cbf0cab2b260546bef5306f0c66850, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Chef_Controls
+  moveSpeed: 5
+  rotateSpeed: 180
+  hold: {fileID: 1155758643}
+  pickupRange: 3
+  pickupForce: 150
 --- !u!1 &1767677160
 GameObject:
   m_ObjectHideFlags: 0

@@ -20,25 +20,28 @@ public class Chef_Controls : MonoBehaviour
     private void Update()
     {
         float yaw = lookInput.x * rotateSpeed * Time.deltaTime;
-        transform.Rotate(0f, yaw, 0f, Space.World);
+        transform.Rotate(0f, yaw, 0f);
 
-        Vector3 move3 = new Vector3(moveInput.x, 0f, moveInput.y) * moveSpeed;
-        transform.position += move3;
+        Vector3 move = transform.forward * moveInput.y + transform.right * moveInput.x;
 
+        transform.position += move * moveSpeed * Time.deltaTime;
     }
 
-    public void OnMovment(InputAction.CallbackContext context)
+    public void OnMovement(InputAction.CallbackContext context)
     {
         moveInput = context.ReadValue<Vector2>();
+        print("Move Wokr");
     }
 
     public void OnLook(InputAction.CallbackContext context)
     {
         lookInput = context.ReadValue<Vector2>();
+        print("Look Wokr");
     }
 
-    public void OnPickUp(InputAction.CallbackContext context)
+    public void OnPickup(InputAction.CallbackContext context)
     {
+        print("P Wokr");
         if (!context.performed) return;
         if (heldObj == null)
         {
