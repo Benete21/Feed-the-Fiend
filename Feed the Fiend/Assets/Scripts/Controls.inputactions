@@ -106,7 +106,7 @@
                     "id": "e2570af9-1d7d-4e58-a85a-2d1af7a0a99d",
                     "path": "<Gamepad>/rightStick",
                     "interactions": "",
-                    "processors": "",
+                    "processors": "StickDeadzone",
                     "groups": ";Gamepad",
                     "action": "Look",
                     "isComposite": false,
@@ -141,7 +141,7 @@
                     "type": "Value",
                     "id": "d7c0f2fd-e4bd-430f-8f3f-45d2185a0e15",
                     "expectedControlType": "Vector2",
-                    "processors": "",
+                    "processors": "StickDeadzone",
                     "interactions": "",
                     "initialStateCheck": true
                 }

@@ -6,6 +6,7 @@ public class Waiter_Controls : MonoBehaviour
     [Header("Movment")]
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float rotateSpeed = 180f;
+    [SerializeField] private float deadzone = 0.1f;
     private Vector2 lookInput;
     private Vector2 moveInput;
 
@@ -20,6 +21,11 @@ public class Waiter_Controls : MonoBehaviour
 
     private void Update()
     {
+        if (lookInput.magnitude < deadzone)
+        {
+            lookInput = Vector2.zero;
+        }
+
         float yaw = lookInput.x * rotateSpeed * Time.deltaTime;
         transform.Rotate(0f, yaw, 0f);
 
