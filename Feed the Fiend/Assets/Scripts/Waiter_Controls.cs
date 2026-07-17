@@ -44,17 +44,36 @@ public class Waiter_Controls : MonoBehaviour
     {
         if (!context.performed) return;
 
-        if (heldObj == null)
+        Vector3 origin = transform.position + Vector3.up * 0.5f;
+
+        if (Physics.SphereCast(origin, pickupRadius, transform.forward,
+            out RaycastHit hit, pickupRange))
         {
-            TryPickup();
+            IInteractable interactable = hit.collider.GetComponent<IInteractable>();
+
+            if (interactable != null)
+            {
+                interactable.Interact();
+                return;
+            }
+
+            // Otherwise pick up objects
+            if (hit.collider.attachedRigidbody != null)
+            {
+                Pickup(hit.collider.gameObject);
+            }
         }
         else
         {
-            Drop();
+            if (heldObj != null)
+            {
+                Drop();
+                return;
+            }
         }
     }
 
-    void TryPickup()
+  /*  void TryPickup()
     {
         Vector3 origin = transform.position + Vector3.up * 0.5f;
 
@@ -67,7 +86,7 @@ public class Waiter_Controls : MonoBehaviour
                 Pickup(hit.collider.gameObject);
             }
         }
-    }
+    }*/
 
     void Pickup(GameObject obj)
     {
