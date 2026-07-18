@@ -1,5 +1,4 @@
 using System.Collections;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,29 +6,81 @@ public class CustomerOrder : MonoBehaviour, IInteractable
 {
 
     public Canvas loadingCanvas;
-    public GameObject orderPanel;
     public Slider loadingBar;
 
     bool hasOrdered = false;
 
     public Food_Types[] currentOrder;
-    public TMP_Text food1;
-    public TMP_Text food2;
-    public TMP_Text food3;
+
+    public float maxWait = 30f;
+    public float waitTime;
+    public bool waiting;
 
 
-    public void Interact()
+    void Update()
     {
-        if (hasOrdered)
+        if (!waiting)
             return;
 
-        StartCoroutine(OrderRoutine());
+        waitTime -= Time.deltaTime;
+
+        if (waitTime <= 0)
+        {
+            waiting = false;
+
+            Debug.Log("Start Berskering");
+        }
+    }
+    public void Interact(Waiter_Controls waiter)
+    {
+        if (!hasOrdered)
+        {
+            StartCoroutine(OrderRoutine(waiter));
+            return;
+        }
+        if (!waiting)
+            return;
+
+        GameObject held = waiter.GetHeldObject();
+
+        if (held == null)
+        {
+            return;
+        }
+
+        FoodItems food = held.GetComponent<FoodItems>();
+
+        if (food == null)
+        {
+            return;
+        }
+
+        if (food.foodType == currentOrder[0])
+        {
+            Debug.Log("Correct food!");
+
+            waiting = false;
+
+            Destroy(held);
+
+            waiter.RemoveHeldObject();
+
+            waiter.RemoveOrderSlip();
+
+            Satisfied();
+        }
+        else
+        {
+            Debug.Log("Wrong food!");
+        }
     }
 
-    IEnumerator OrderRoutine()
+    IEnumerator OrderRoutine(Waiter_Controls waiter)
     {
         hasOrdered = true;
+
         loadingCanvas.gameObject.SetActive(true);
+
         float timer = 0f;
         float duration = 3f;
 
@@ -38,7 +89,9 @@ public class CustomerOrder : MonoBehaviour, IInteractable
             timer += Time.deltaTime;
 
             if (loadingBar != null)
+            {
                 loadingBar.value = timer / duration;
+            }
 
             yield return null;
         }
@@ -47,7 +100,10 @@ public class CustomerOrder : MonoBehaviour, IInteractable
 
         GenerateRandomOrder();
 
-        orderPanel.SetActive(true);
+        waiter.GiveOrderSlip(currentOrder);
+
+        waitTime = maxWait;
+        waiting = true;
     }
 
     void GenerateRandomOrder()
@@ -60,23 +116,13 @@ public class CustomerOrder : MonoBehaviour, IInteractable
         {
             currentOrder[i] = (Food_Types)Random.Range(0, System.Enum.GetValues(typeof(Food_Types)).Length);
         }
-
-        DisplayOrder();
     }
-    void DisplayOrder()
+
+    void Satisfied()
     {
-        food1.text = "";
-        food2.text = "";
-        food3.text = "";
+        Debug.Log("OrderCorrect");
 
-        if (currentOrder.Length > 0)
-            food1.text = currentOrder[0].ToString();
-
-        if (currentOrder.Length > 1)
-            food2.text = currentOrder[1].ToString();
-
-        if (currentOrder.Length > 2)
-            food3.text = currentOrder[2].ToString();
+        Destroy(gameObject, 2f);
     }
 }
 

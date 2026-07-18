@@ -15,7 +15,11 @@ public class Waiter_Controls : MonoBehaviour
     private GameObject heldObj;
     private Rigidbody heldRb;
 
+    [Header("Order Slip")]
+    [SerializeField] private Transform slipHolder;
+    [SerializeField] private Order_Slip orderSlipPrefab;
 
+    private Order_Slip currentSlip;
 
     private void Update()
     {
@@ -46,18 +50,16 @@ public class Waiter_Controls : MonoBehaviour
 
         Vector3 origin = transform.position + Vector3.up * 0.5f;
 
-        if (Physics.SphereCast(origin, pickupRadius, transform.forward,
-            out RaycastHit hit, pickupRange))
+        if (Physics.SphereCast(origin, pickupRadius, transform.forward,out RaycastHit hit, pickupRange))
         {
             IInteractable interactable = hit.collider.GetComponent<IInteractable>();
 
             if (interactable != null)
             {
-                interactable.Interact();
+                interactable.Interact(this);
                 return;
             }
 
-            // Otherwise pick up objects
             if (hit.collider.attachedRigidbody != null)
             {
                 Pickup(hit.collider.gameObject);
@@ -72,21 +74,6 @@ public class Waiter_Controls : MonoBehaviour
             }
         }
     }
-
-  /*  void TryPickup()
-    {
-        Vector3 origin = transform.position + Vector3.up * 0.5f;
-
-        Debug.DrawRay(origin, transform.forward * pickupRange, Color.red, 1f);
-
-        if (Physics.SphereCast(origin, pickupRadius, transform.forward, out RaycastHit hit, pickupRange))
-        {
-            if (hit.collider.attachedRigidbody != null)
-            {
-                Pickup(hit.collider.gameObject);
-            }
-        }
-    }*/
 
     void Pickup(GameObject obj)
     {
@@ -114,5 +101,34 @@ public class Waiter_Controls : MonoBehaviour
 
         heldObj = null;
         heldRb = null;
+    }
+    public GameObject GetHeldObject()
+    {
+        return heldObj;
+    }
+
+    public void RemoveHeldObject()
+    {
+        heldObj = null;
+        heldRb = null;
+    }
+    public void GiveOrderSlip(Food_Types[] order)
+    {
+        if (currentSlip != null)
+        {
+            Destroy(currentSlip.gameObject);
+        }
+
+        currentSlip = Instantiate(orderSlipPrefab, slipHolder);
+        currentSlip.SetOrder(order);
+    }
+
+    public void RemoveOrderSlip()
+    {
+        if (currentSlip != null)
+        {
+            Destroy(currentSlip.gameObject);
+            currentSlip = null;
+        }
     }
 }
