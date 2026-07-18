@@ -12,8 +12,7 @@ public class CustomerOrder : MonoBehaviour, IInteractable
 
     bool hasOrdered = false;
 
-    public string[] Food ={"A", "B", "C", "D", "E"};
-    private string[] currentOrder;
+    public Food_Types[] currentOrder;
     public TMP_Text food1;
     public TMP_Text food2;
     public TMP_Text food3;
@@ -55,11 +54,11 @@ public class CustomerOrder : MonoBehaviour, IInteractable
     {
         int amount = Random.Range(1, 4);
 
-        currentOrder = new string[amount];
+        currentOrder = new Food_Types[amount];
 
         for (int i = 0; i < amount; i++)
         {
-            currentOrder[i] = Food[Random.Range(0, Food.Length)];
+            currentOrder[i] = (Food_Types)Random.Range(0, System.Enum.GetValues(typeof(Food_Types)).Length);
         }
 
         DisplayOrder();
@@ -71,13 +70,13 @@ public class CustomerOrder : MonoBehaviour, IInteractable
         food3.text = "";
 
         if (currentOrder.Length > 0)
-            food1.text = currentOrder[0];
+            food1.text = currentOrder[0].ToString();
 
         if (currentOrder.Length > 1)
-            food2.text = currentOrder[1];
+            food2.text = currentOrder[1].ToString();
 
         if (currentOrder.Length > 2)
-            food3.text = currentOrder[2];
+            food3.text = currentOrder[2].ToString();
     }
 }
 
