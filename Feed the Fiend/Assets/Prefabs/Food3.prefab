@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 1495340086877643597}
   - component: {fileID: -5970490964660551737}
   m_Layer: 0
-  m_Name: Food2
+  m_Name: Food3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -69,7 +69,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 6d4ee25cde4f8ee4b93369fb2e098e5f, type: 2}
+  - {fileID: 2100000, guid: e0a69cf37bfbb614ab63b83159364d38, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -153,4 +153,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f57ac25ec1350245a4754d2bd20bc2f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FoodItems
-  foodType: 1
+  foodType: 2

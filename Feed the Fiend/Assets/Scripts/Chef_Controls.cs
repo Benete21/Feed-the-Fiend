@@ -14,7 +14,7 @@ public class Chef_Controls : MonoBehaviour
     [SerializeField] Transform hold;
     private GameObject heldObj;
     private Rigidbody heldRb;
-
+     public PrepFoodStation prepStation;
 
 
     private void Update()
@@ -50,6 +50,7 @@ public class Chef_Controls : MonoBehaviour
         }
         else
         {
+            prepStation.AddIngredient(heldObj);
             Drop();
         }
     }

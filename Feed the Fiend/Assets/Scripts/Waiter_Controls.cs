@@ -15,7 +15,7 @@ public class Waiter_Controls : MonoBehaviour
     private GameObject heldObj;
     private Rigidbody heldRb;
 
-    [Header("Order Slip")]
+[Header("Order Slip")]
     [SerializeField] private Transform slipHolder;
     [SerializeField] private Order_Slip orderSlipPrefab;
 
