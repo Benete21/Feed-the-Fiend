@@ -16,6 +16,9 @@ public class CustomerOrder : MonoBehaviour, IInteractable
     public float waitTime;
     public bool waiting;
 
+    public MonsterAI monsterAI;
+    public bool isBerserk = false;
+
 
     void Update()
     {
@@ -27,7 +30,7 @@ public class CustomerOrder : MonoBehaviour, IInteractable
         if (waitTime <= 0)
         {
             waiting = false;
-
+            Berserk();
             Debug.Log("Start Berskering");
         }
     }
@@ -124,5 +127,16 @@ public class CustomerOrder : MonoBehaviour, IInteractable
 
         Destroy(gameObject, 2f);
     }
+
+    void Berserk()
+    {
+
+        isBerserk = true;
+
+        Debug.Log("MONSTER HAS GONE BERSERK!");
+
+        monsterAI.StartBerserk();
+    }
 }
+
 
