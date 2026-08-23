@@ -8,9 +8,12 @@ public class MonsterAI : MonoBehaviour
     public float walkSpeed = 2f;
     public float berserkSpeed = 5f;
 
-    [Header("Wander")]
-    public float wanderRadius = 10f;
-    public float wanderInterval = 4f;
+    [Header("Restaurant Tables")]
+    public RestrauntTable[] tables;
+
+    public int assignedTableNumber = -1;
+
+    private RestrauntTable assignedTable;
 
     [Header("Player Detection")]
     public float detectionRange = 20f;
@@ -24,9 +27,7 @@ public class MonsterAI : MonoBehaviour
     [Header("Berserk")]
     public bool isBerserk = false;
 
-    private float wanderTimer;
     private float attackTimer;
-
     private Transform currentTarget;
 
 
@@ -37,10 +38,8 @@ public class MonsterAI : MonoBehaviour
 
         agent.speed = walkSpeed;
 
-        wanderTimer = wanderInterval;
-
-        // Start walking around
-        SetRandomWanderPoint();
+        // Choose a restaurant table
+        ChooseRandomTable();
     }
 
 
@@ -52,51 +51,77 @@ public class MonsterAI : MonoBehaviour
         }
         else
         {
-            WanderUpdate();
+            RestaurantUpdate();
         }
     }
 
-
-    // =========================
-    // NORMAL WANDERING
-    // =========================
-
-    void WanderUpdate()
+    void RestaurantUpdate()
     {
-        wanderTimer -= Time.deltaTime;
+        if (assignedTable == null)
+            return;
 
-        if (wanderTimer <= 0f || agent.remainingDistance <= 0.5f)
+        // Walk toward the assigned table
+        if (agent.remainingDistance <= 0.5f)
         {
-            SetRandomWanderPoint();
+            agent.isStopped = true;
 
-            wanderTimer = wanderInterval;
+            // Monster has arrived at its table
+            return;
         }
+
+        agent.isStopped = false;
+        agent.SetDestination(assignedTable.transform.position);
     }
 
 
-    void SetRandomWanderPoint()
+    void ChooseRandomTable()
     {
-        Vector3 randomDirection =
-            Random.insideUnitSphere * wanderRadius;
-
-        randomDirection += transform.position;
-
-        NavMeshHit hit;
-
-        if (NavMesh.SamplePosition(
-            randomDirection,
-            out hit,
-            wanderRadius,
-            NavMesh.AllAreas))
+        if (tables == null || tables.Length == 0)
         {
-            agent.SetDestination(hit.position);
+            Debug.LogWarning("No restaurant tables assigned to " + gameObject.name);
+            return;
         }
+
+        // Create a list of tables that aren't occupied
+        System.Collections.Generic.List<RestrauntTable> availableTables =
+            new System.Collections.Generic.List<RestrauntTable>();
+
+        foreach (RestrauntTable table in tables)
+        {
+            if (table != null && !table.isOccupied)
+            {
+                availableTables.Add(table);
+            }
+        }
+
+        // No available tables
+        if (availableTables.Count == 0)
+        {
+            Debug.Log("No available tables for " + gameObject.name);
+            return;
+        }
+
+        // Pick a random available table
+        int randomIndex = Random.Range(0, availableTables.Count);
+
+        assignedTable = availableTables[randomIndex];
+
+        // Reserve the table
+        assignedTable.isOccupied = true;
+
+        // Store the table number
+        assignedTableNumber = assignedTable.tableNumber;
+
+        Debug.Log(
+            gameObject.name +
+            " has been assigned to Table " +
+            assignedTableNumber
+        );
+
+        // Start walking there
+        agent.isStopped = false;
+        agent.SetDestination(assignedTable.transform.position);
     }
-
-
-    // =========================
-    // BERSERK
-    // =========================
 
     public void StartBerserk()
     {
@@ -108,6 +133,9 @@ public class MonsterAI : MonoBehaviour
         Debug.Log("MONSTER HAS GONE BERSERK!");
 
         agent.speed = berserkSpeed;
+
+        // Free the table
+        LeaveTable();
 
         // Find a player immediately
         FindNearestPlayer();
@@ -130,7 +158,10 @@ public class MonsterAI : MonoBehaviour
         }
 
         float distance =
-            Vector3.Distance(transform.position, currentTarget.position);
+            Vector3.Distance(
+                transform.position,
+                currentTarget.position
+            );
 
         // Player is too far away
         if (distance > detectionRange)
@@ -155,17 +186,12 @@ public class MonsterAI : MonoBehaviour
     }
 
 
-    // =========================
-    // FIND PLAYER
-    // =========================
-
     void FindNearestPlayer()
     {
         GameObject[] players =
             GameObject.FindGameObjectsWithTag(playerTag);
 
         float closestDistance = Mathf.Infinity;
-
         Transform closestPlayer = null;
 
         foreach (GameObject player in players)
@@ -188,10 +214,6 @@ public class MonsterAI : MonoBehaviour
     }
 
 
-    // =========================
-    // ATTACK
-    // =========================
-
     void AttackPlayer()
     {
         if (attackTimer > 0f)
@@ -208,5 +230,20 @@ public class MonsterAI : MonoBehaviour
         {
             playerHealth.TakeDamage(attackDamage);
         }
+    }
+
+    void LeaveTable()
+    {
+        if (assignedTable != null)
+        {
+            assignedTable.isOccupied = false;
+            assignedTable = null;
+            assignedTableNumber = -1;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        LeaveTable();
     }
 }
