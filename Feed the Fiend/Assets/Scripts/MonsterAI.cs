@@ -38,7 +38,6 @@ public class MonsterAI : MonoBehaviour
 
         agent.speed = walkSpeed;
 
-        // Choose a restaurant table
         ChooseRandomTable();
     }
 

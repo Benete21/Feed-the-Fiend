@@ -13264,6 +13264,7 @@ GameObject:
   - component: {fileID: 1642685827}
   - component: {fileID: 1642685826}
   - component: {fileID: 1642685828}
+  - component: {fileID: 1642685829}
   m_Layer: 0
   m_Name: Waiter
   m_TagString: Waiter
@@ -13505,6 +13506,19 @@ MonoBehaviour:
   hold: {fileID: 1989486474}
   slipHolder: {fileID: 694611179}
   orderSlipPrefab: {fileID: 1763076267427154549, guid: e197aed7de8efcf44b49cba0ef977b4d, type: 3}
+--- !u!114 &1642685829
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1642685819}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fdaee5db9fc42e41a8017efd856ce2a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerHP
+  maxHealth: 100
 --- !u!1 &1660470050
 GameObject:
   m_ObjectHideFlags: 0
@@ -13520,6 +13534,7 @@ GameObject:
   - component: {fileID: 1660470058}
   - component: {fileID: 1660470057}
   - component: {fileID: 1660470059}
+  - component: {fileID: 1660470060}
   m_Layer: 0
   m_Name: Chef
   m_TagString: Chef
@@ -13759,6 +13774,19 @@ MonoBehaviour:
   pickupRadius: 1
   hold: {fileID: 1155758643}
   prepStation: {fileID: 680019447}
+--- !u!114 &1660470060
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1660470050}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fdaee5db9fc42e41a8017efd856ce2a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerHP
+  maxHealth: 100
 --- !u!1 &1751874283
 GameObject:
   m_ObjectHideFlags: 0

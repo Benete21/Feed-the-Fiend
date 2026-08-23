@@ -28,9 +28,6 @@ public class PlayerHP : MonoBehaviour
     {
         Debug.Log("PLAYER DIED!");
 
-        // Add your death logic here
-        // Example:
-        // Destroy(gameObject);
     }
 }
 
