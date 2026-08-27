@@ -1,6 +1,9 @@
 using System.Collections;
+using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
+using TMPro;
 
 public class MonsterSpawner : MonoBehaviour
 {
@@ -15,6 +18,8 @@ public class MonsterSpawner : MonoBehaviour
     public int startingMonsterCount = 4;
     public int monstersAddedPerDay = 1;
 
+    public GameObject Day1Finish;
+
     [Header("Time")]
     public float minSpawn = 10f;
     public float maxSpawn = 30f;
@@ -26,6 +31,12 @@ public class MonsterSpawner : MonoBehaviour
     public float navMeshSearchRadius = 3f;
     private Coroutine spawnCoroutine;
 
+    [Header("UI")]
+    public TMP_Text dayText;
+    public TMP_Text monsterText;
+    public Image monsterProgressBar;
+    private int totalMonsters;
+    private int monstersLeft;
 
     void Start()
     {
@@ -40,6 +51,11 @@ public class MonsterSpawner : MonoBehaviour
         {
             StopCoroutine(spawnCoroutine);
         }
+
+        totalMonsters = startingMonsterCount + ((currentDay - 1) * monstersAddedPerDay);
+        monstersLeft = totalMonsters;
+
+        UpdateUI();
 
         spawnCoroutine = StartCoroutine(SpawnMonstersOverTime());
     }
@@ -58,6 +74,7 @@ public class MonsterSpawner : MonoBehaviour
                 yield return new WaitForSeconds(randomDelay);
             }
         }
+        spawnCoroutine = null;
     }
     void SpawnMonster()
     {
@@ -73,15 +90,7 @@ public class MonsterSpawner : MonoBehaviour
             return;
         }
 
-
-        // Pick a random monster type
-        GameObject randomPrefab =
-            monsterPrefabs[
-                Random.Range(0, monsterPrefabs.Length)
-            ];
-
-
-        // Find the closest valid NavMesh position
+        GameObject randomPrefab =monsterPrefabs[Random.Range(0, monsterPrefabs.Length)];
         NavMeshHit hit;
 
         if (!NavMesh.SamplePosition(entranceSpawnPoint.position,out hit,navMeshSearchRadius,NavMesh.AllAreas))
@@ -99,13 +108,49 @@ public class MonsterSpawner : MonoBehaviour
             return;
         }
 
-
-        // Give monster access to the tables
         monsterAI.tables = tables;
+    }
+    public void Served()
+    {
+        monstersLeft--;
+        monstersLeft = Mathf.Max(monstersLeft, 0);
+
+        UpdateUI();
+
+        if(monstersLeft == 0)
+        {
+            Day1Finish.SetActive(true);
+        }
+    }
+
+    public void UpdateUI()
+    {
+        if(dayText != null)
+        {
+            dayText.text = "Day" + currentDay;
+        }
+        if (monsterText != null)
+        {
+            monsterText.text =
+                monstersLeft + " / " + totalMonsters;
+        }
+
+        if (monsterProgressBar != null)
+        {
+            if (totalMonsters > 0)
+            {
+                monsterProgressBar.fillAmount = (float) monstersLeft / totalMonsters;
+            }
+            else
+            {
+                monsterProgressBar.fillAmount = 0;
+            }
+        }
     }
 
 
-    public void NextDay()
+
+public void NextDay()
     {
         currentDay++;
 

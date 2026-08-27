@@ -17,6 +17,7 @@ public class CustomerOrder : MonoBehaviour, IInteractable
     public bool waiting;
 
     public MonsterAI monsterAI;
+    public MonsterSpawner satisfied;
     public bool isBerserk = false;
 
 
@@ -125,6 +126,7 @@ public class CustomerOrder : MonoBehaviour, IInteractable
     {
         Debug.Log("OrderCorrect");
 
+        satisfied.Served();
         Destroy(gameObject, 2f);
     }
 
