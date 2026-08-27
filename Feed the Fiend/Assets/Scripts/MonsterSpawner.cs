@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -14,11 +15,16 @@ public class MonsterSpawner : MonoBehaviour
     public int startingMonsterCount = 4;
     public int monstersAddedPerDay = 1;
 
+    [Header("Time")]
+    public float minSpawn = 10f;
+    public float maxSpawn = 30f;
+
     [Header("Restaurant Tables")]
     public RestrauntTable[] tables;
 
     [Header("NavMesh")]
     public float navMeshSearchRadius = 3f;
+    private Coroutine spawnCoroutine;
 
 
     void Start()
@@ -30,15 +36,29 @@ public class MonsterSpawner : MonoBehaviour
     {
         currentDay = day;
 
-        int monsterCount = startingMonsterCount + ((currentDay - 1) * monstersAddedPerDay);
+        if (spawnCoroutine != null)
+        {
+            StopCoroutine(spawnCoroutine);
+        }
+
+        spawnCoroutine = StartCoroutine(SpawnMonstersOverTime());
+    }
+
+    IEnumerator SpawnMonstersOverTime()
+    {
+        int monsterCount = startingMonsterCount +((currentDay - 1) * monstersAddedPerDay);
 
         for (int i = 0; i < monsterCount; i++)
         {
             SpawnMonster();
+
+            if (i < monsterCount - 1)
+            {
+                float randomDelay = Random.Range( minSpawn,maxSpawn);
+                yield return new WaitForSeconds(randomDelay);
+            }
         }
     }
-
-
     void SpawnMonster()
     {
         if (monsterPrefabs == null || monsterPrefabs.Length == 0)
