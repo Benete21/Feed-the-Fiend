@@ -32,6 +32,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "Instructions",
+                    "type": "Value",
+                    "id": "b0d4834d-60a1-4b3a-8042-e8c377f53a97",
+                    "expectedControlType": "Dpad",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -111,6 +120,17 @@
                     "action": "Look",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "fd6b37ca-12ae-4abc-b258-f04aab3a4435",
+                    "path": "<Gamepad>/dpad",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "Instructions",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
@@ -142,6 +162,15 @@
                     "id": "d7c0f2fd-e4bd-430f-8f3f-45d2185a0e15",
                     "expectedControlType": "Vector2",
                     "processors": "StickDeadzone",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Instructions",
+                    "type": "Value",
+                    "id": "862c0ade-3bd8-4a1c-9fe9-abfe18d74582",
+                    "expectedControlType": "Dpad",
+                    "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
                 }
@@ -221,6 +250,50 @@
                     "processors": "",
                     "groups": ";Gamepad",
                     "action": "Look",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a1ef403b-e982-4e31-bfeb-ad0346a62e2b",
+                    "path": "<Gamepad>/dpad",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "Instructions",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4096871d-792a-47c5-9b64-f26e9264e69c",
+                    "path": "<Gamepad>/dpad/down",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "Instructions",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1fa9118b-fffc-4f98-b56e-b649fd555142",
+                    "path": "<Gamepad>/dpad/left",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "Instructions",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7be8d764-d196-4e11-ada8-13a558e4d13d",
+                    "path": "<Gamepad>/dpad/right",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "Instructions",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -2419,7 +2419,6 @@ GameObject:
   - component: {fileID: 290959377}
   - component: {fileID: 290959376}
   - component: {fileID: 290959375}
-  - component: {fileID: 290959374}
   m_Layer: 0
   m_Name: Chef Create Food
   m_TagString: Untagged
@@ -2442,20 +2441,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 281059904}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
---- !u!114 &290959374
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 290959372}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a4f3f992c29f6a4baca641e2a84d106, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  instructionText: {fileID: 581382421}
-  displayTime: 5
 --- !u!65 &290959375
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2555,7 +2540,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &338814152
 Transform:
   m_ObjectHideFlags: 0
@@ -2582,9 +2567,9 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a21389f4040bbe04295031550e9d5439, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: '::'
+  m_EditorClassIdentifier: Assembly-CSharp::ShowTextAtStart
   instructionText: {fileID: 906937764}
-  displayTime: 15
+  displayTime: 5
 --- !u!4 &391919060 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 5014a8caf30df4447a0baec1bd4dbcfc, type: 3}
@@ -3480,7 +3465,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &581382420
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4929,7 +4914,6 @@ GameObject:
   - component: {fileID: 775892327}
   - component: {fileID: 775892326}
   - component: {fileID: 775892325}
-  - component: {fileID: 775892324}
   m_Layer: 0
   m_Name: Waiter Collect Food
   m_TagString: Untagged
@@ -4952,20 +4936,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 281059904}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &775892324
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 775892322}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a4f3f992c29f6a4baca641e2a84d106, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  instructionText: {fileID: 49124434}
-  displayTime: 5
 --- !u!65 &775892325
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5084,6 +5054,7 @@ MonoBehaviour:
   waitTime: 0
   waiting: 0
   monsterAI: {fileID: 0}
+  satisfied: {fileID: 0}
   isBerserk: 0
 --- !u!54 &791132800
 Rigidbody:
@@ -6953,7 +6924,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &906937763
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6993,8 +6964,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Use a gamepad left stick to move, approach the ingredients to collect and
-    mix them, approach the stove with ingredients to cook.
+  m_text: Press Q to show instructions, E to hide them and the buttons A and S to
+    cycle between instructions.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2100000, guid: e73a58f6e2794ae7b1b7e50b7fb811b0, type: 2}
@@ -7226,6 +7197,7 @@ MonoBehaviour:
   waitTime: 0
   waiting: 0
   monsterAI: {fileID: 0}
+  satisfied: {fileID: 0}
   isBerserk: 0
 --- !u!54 &931712134
 Rigidbody:
@@ -11352,7 +11324,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1387062049}
-  - component: {fileID: 1387062050}
   m_Layer: 0
   m_Name: Waiter START game text
   m_TagString: Untagged
@@ -11375,20 +11346,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 281059904}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1387062050
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1387062048}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a21389f4040bbe04295031550e9d5439, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  instructionText: {fileID: 1583838217}
-  displayTime: 15
 --- !u!1 &1400344138
 GameObject:
   m_ObjectHideFlags: 0
@@ -12976,7 +12933,6 @@ GameObject:
   - component: {fileID: 1497855942}
   - component: {fileID: 1497855941}
   - component: {fileID: 1497855940}
-  - component: {fileID: 1497855943}
   m_Layer: 0
   m_Name: Waiter Collect Order
   m_TagString: Untagged
@@ -13077,20 +13033,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1497855938}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &1497855943
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1497855938}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a4f3f992c29f6a4baca641e2a84d106, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  instructionText: {fileID: 2070509724}
-  displayTime: 5
 --- !u!1 &1500724641
 GameObject:
   m_ObjectHideFlags: 0
@@ -13413,7 +13355,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1551274221
 RectTransform:
   m_ObjectHideFlags: 0
@@ -13751,6 +13693,7 @@ MonoBehaviour:
   waitTime: 0
   waiting: 0
   monsterAI: {fileID: 0}
+  satisfied: {fileID: 0}
   isBerserk: 0
 --- !u!54 &1558589140
 Rigidbody:
@@ -15391,9 +15334,9 @@ GameObject:
   - component: {fileID: 1876760212}
   - component: {fileID: 1876760211}
   - component: {fileID: 1876760210}
-  - component: {fileID: 1876760209}
+  - component: {fileID: 1876760213}
   m_Layer: 0
-  m_Name: Chef Mix Ingredients
+  m_Name: Chef All Instructions
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15414,20 +15357,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 281059904}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1876760209
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1876760207}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a4f3f992c29f6a4baca641e2a84d106, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  instructionText: {fileID: 1551274222}
-  displayTime: 5
 --- !u!65 &1876760210
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -15506,6 +15435,23 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1876760207}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1876760213
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1876760207}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a4f3f992c29f6a4baca641e2a84d106, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShowInstructions
+  panels:
+  - {fileID: 906937762}
+  - {fileID: 1551274220}
+  - {fileID: 581382419}
+  startingPanel: 0
 --- !u!1 &1882159011
 GameObject:
   m_ObjectHideFlags: 0
