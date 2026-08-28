@@ -1,44 +1,136 @@
 using UnityEngine;
-using TMPro;
-using System.Collections;
+using System.Collections.Generic;
 
 public class ShowInstructions : MonoBehaviour
 {
-    [Header("Instruction Text")]
-    public TextMeshProUGUI instructionText;
+    [Header("UI Panels")]
+    [Tooltip("Add all instruction panels here")]
+    public List<GameObject> panels = new List<GameObject>();
 
-    [Header("How long the text stays visible")]
-    public float displayTime = 5;
+    [Header("Starting Panel")]
+    [Tooltip("Which panel should be enabled when the game starts?")]
+    public int startingPanel = 0;
 
-    private Coroutine currentCoroutine;
+    private int currentPanelIndex = -1;
+    private int lastDisabledPanelIndex = -1;
 
     private void Start()
     {
-        if (instructionText != null)
+        DisableAllPanels();
+
+        if (panels.Count > 0)
         {
-            instructionText.gameObject.SetActive(false);
+            currentPanelIndex = Mathf.Clamp(startingPanel, 0, panels.Count - 1);
+            EnablePanel(currentPanelIndex);
         }
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void Update()
     {
-        if (other.CompareTag("Waiter") || other.CompareTag("Chef"))
+        if (Input.GetKeyDown(KeyCode.Q))
         {
-            if (currentCoroutine != null)
+            EnableLastDisabledPanel();
+        }
+
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            DisableCurrentPanel();
+        }
+
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            PreviousPanel();
+        }
+
+        if (Input.GetKeyDown(KeyCode.S))
+        {
+            NextPanel();
+        }
+    }
+
+    public void EnablePanel(int index)
+    {
+        if (index < 0 || index >= panels.Count)
+            return;
+
+        DisableAllPanels();
+
+        if (panels[index] != null)
+        {
+            panels[index].SetActive(true);
+            currentPanelIndex = index;
+        }
+    }
+
+    public void DisableCurrentPanel()
+    {
+        if (currentPanelIndex >= 0 && currentPanelIndex < panels.Count)
+        {
+            if (panels[currentPanelIndex] != null)
             {
-                StopCoroutine(currentCoroutine);
+                panels[currentPanelIndex].SetActive(false);
             }
 
-            currentCoroutine = StartCoroutine(ShowText());
+            lastDisabledPanelIndex = currentPanelIndex;
+            currentPanelIndex = -1;
         }
     }
 
-    private IEnumerator ShowText()
+    public void EnableLastDisabledPanel()
     {
-        instructionText.gameObject.SetActive(true);
+        if (lastDisabledPanelIndex >= 0)
+        {
+            EnablePanel(lastDisabledPanelIndex);
+        }
+    }
 
-        yield return new WaitForSeconds(displayTime);
+    public void NextPanel()
+    {
+        if (panels.Count == 0)
+            return;
 
-        instructionText.gameObject.SetActive(false);
+        int nextIndex;
+
+        if (currentPanelIndex == -1)
+        {
+            nextIndex = 0;
+        }
+        else
+        {
+            nextIndex = (currentPanelIndex + 1) % panels.Count;
+        }
+
+        EnablePanel(nextIndex);
+    }
+
+    public void PreviousPanel()
+    {
+        if (panels.Count == 0)
+            return;
+
+        int previousIndex;
+
+
+        if (currentPanelIndex == -1)
+        {
+            previousIndex = panels.Count - 1;
+        }
+        else
+        {
+            previousIndex = (currentPanelIndex - 1 + panels.Count) % panels.Count;
+        }
+
+        EnablePanel(previousIndex);
+    }
+
+    private void DisableAllPanels()
+    {
+        foreach (GameObject panel in panels)
+        {
+            if (panel != null)
+            {
+                panel.SetActive(false);
+            }
+        }
     }
 }
