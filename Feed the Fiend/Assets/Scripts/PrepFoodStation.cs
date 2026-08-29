@@ -38,27 +38,30 @@ public class PrepFoodStation : MonoBehaviour
 
     private IEnumerator PrepareIngredient()
     {
-            isPreparing = true;
+        isPreparing = true;
 
-            progressBarObject.SetActive(true);
-            progressBar.value = 0f;
+        progressBarObject.SetActive(true);
+        progressBar.value = 0f;
 
-            float timer = 0f;
+        float timer = 0f;
 
-            while (timer < preparationTime)
-            {
-                timer += Time.deltaTime;
+        while (timer < preparationTime)
+        {
+            timer += Time.deltaTime;
 
-                progressBar.value = Mathf.Clamp01(timer / preparationTime);
+            progressBar.value = Mathf.Clamp01(timer / preparationTime);
 
-                yield return null;
-            }
-
-            CheckRecipes();
-
-            progressBarObject.SetActive(false);
-            isPreparing = false;
+            yield return null;
         }
+        progressBar.value = 1f;
+
+        CheckRecipes();
+
+        progressBarObject.SetActive(false);
+
+        isPreparing = false;
+    }
+
 
     public void AddIngredient(GameObject I)
     {

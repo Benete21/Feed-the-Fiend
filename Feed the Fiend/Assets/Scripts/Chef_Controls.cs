@@ -62,15 +62,12 @@ public class Chef_Controls : MonoBehaviour
         }
     }
 
-    public void OnPrepare(InputAction.CallbackContext context)
+    public void OnPrep(InputAction.CallbackContext context)
     {
         if (!context.performed) return;
 
         print("Preperaew");
-        if (prepStation != null)
-        {
-            prepStation.StartPreparation();
-        }
+        TryPrepare();         
     }
 
 
@@ -86,6 +83,13 @@ public class Chef_Controls : MonoBehaviour
             {
                 Pickup(hit.collider.gameObject);
             }
+        }
+    }
+    void TryPrepare()
+    {
+        if (prepStation != null)
+        {
+            prepStation.StartPreparation();
         }
     }
 

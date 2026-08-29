@@ -34,7 +34,7 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Prepare",
+                    "name": "Prep",
                     "type": "Button",
                     "id": "7491ad2e-b499-4d3f-b675-0fab4df54961",
                     "expectedControlType": "",
@@ -147,8 +147,8 @@
                     "path": "<Gamepad>/buttonSouth",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
-                    "action": "Prepare",
+                    "groups": ";Gamepad",
+                    "action": "Prep",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
