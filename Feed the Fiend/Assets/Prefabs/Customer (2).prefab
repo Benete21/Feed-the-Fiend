@@ -367,6 +367,7 @@ MonoBehaviour:
   waitTime: 0
   waiting: 0
   monsterAI: {fileID: 6097527582285230908}
+  satisfied: {fileID: 0}
   isBerserk: 0
 --- !u!114 &6097527582285230908
 MonoBehaviour:
@@ -381,7 +382,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAI
   agent: {fileID: 8155430544428041690}
-  walkSpeed: 2
+  walkSpeed: 5
   berserkSpeed: 5
   tables:
   - {fileID: 0}

@@ -422,7 +422,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAI
   agent: {fileID: 2619464325354288702}
-  walkSpeed: 2
+  walkSpeed: 4
   berserkSpeed: 5
   tables:
   - {fileID: 0}
