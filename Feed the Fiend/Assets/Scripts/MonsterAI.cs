@@ -3,6 +3,8 @@ using UnityEngine.AI;
 
 public class MonsterAI : MonoBehaviour
 {
+    private AudioManager audioManager;
+
     [Header("Movement")]
     public NavMeshAgent agent;
     public float walkSpeed = 2f;
@@ -30,6 +32,10 @@ public class MonsterAI : MonoBehaviour
     private float attackTimer;
     private Transform currentTarget;
 
+    void Awake()
+    {
+        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
+    }
 
     void Start()
     {
@@ -129,6 +135,7 @@ public class MonsterAI : MonoBehaviour
 
         isBerserk = true;
 
+
         Debug.Log("MONSTER HAS GONE BERSERK!");
 
         agent.speed = berserkSpeed;
@@ -138,6 +145,7 @@ public class MonsterAI : MonoBehaviour
 
         // Find a player immediately
         FindNearestPlayer();
+
     }
 
 
@@ -174,6 +182,7 @@ public class MonsterAI : MonoBehaviour
         {
             agent.isStopped = false;
             agent.SetDestination(currentTarget.position);
+            audioManager.PlayMonsterMove();
         }
         else
         {
@@ -181,6 +190,7 @@ public class MonsterAI : MonoBehaviour
             agent.isStopped = true;
 
             AttackPlayer();
+            audioManager.StopMonsterMove();
         }
     }
 
