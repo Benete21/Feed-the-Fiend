@@ -34,6 +34,15 @@
                     "initialStateCheck": true
                 },
                 {
+                    "name": "Prepare",
+                    "type": "Button",
+                    "id": "7491ad2e-b499-4d3f-b675-0fab4df54961",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Instructions",
                     "type": "Value",
                     "id": "b0d4834d-60a1-4b3a-8042-e8c377f53a97",
@@ -129,6 +138,17 @@
                     "processors": "",
                     "groups": ";Gamepad",
                     "action": "Instructions",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "51d24f18-13f4-4afc-ac7e-c7dc1e643976",
+                    "path": "<Gamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Prepare",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

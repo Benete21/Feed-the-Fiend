@@ -42,18 +42,37 @@ public class Chef_Controls : MonoBehaviour
     }
     public void OnPickup(InputAction.CallbackContext context)
     {
-        if (!context.performed) return;
+        if (!context.performed)
+            return;
 
         if (heldObj == null)
         {
             TryPickup();
         }
+
         else
         {
-            prepStation.AddIngredient(heldObj);
-            Drop();
+            if (prepStation != null)
+            {
+                GameObject ingredientToPlace = heldObj;
+                heldObj = null;
+                heldRb = null;
+                prepStation.AddIngredient(ingredientToPlace);
+            }
         }
     }
+
+    public void OnPrepare(InputAction.CallbackContext context)
+    {
+        if (!context.performed) return;
+
+        print("Preperaew");
+        if (prepStation != null)
+        {
+            prepStation.StartPreparation();
+        }
+    }
+
 
     void TryPickup()
     {
@@ -97,4 +116,5 @@ public class Chef_Controls : MonoBehaviour
         heldObj = null;
         heldRb = null;
     }
+
 }
