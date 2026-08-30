@@ -3,7 +3,6 @@ using UnityEngine;
 
 public class InteractionUI : MonoBehaviour
 {
-
     [SerializeField] private GameObject promptObject;
     [SerializeField] private TMP_Text promptText;
 
@@ -23,4 +22,5 @@ public class InteractionUI : MonoBehaviour
         promptObject.SetActive(false);
     }
 }
+
 

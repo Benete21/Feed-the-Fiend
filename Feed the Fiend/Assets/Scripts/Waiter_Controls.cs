@@ -23,10 +23,17 @@ public class Waiter_Controls : MonoBehaviour
     [SerializeField] private Transform slipUIHolder;
     [SerializeField] private Order_Slip orderSlipUIPrefab;
 
+    [Header("Interaction Prompt")]
+    [SerializeField] private InteractionUI interactionPrompt;
+    [SerializeField] private float interactionRange = 2.5f;
+
+
     private Order_Slip currentSlip;
 
     private void Update()
     {
+
+        CheckForInteraction();
         Vector3 move = new Vector3(moveInput.x, 0, moveInput.y);
 
         transform.position += move * moveSpeed * Time.deltaTime;
@@ -171,4 +178,31 @@ public class Waiter_Controls : MonoBehaviour
             currentSlip = null;
         }
     }
+
+    private void CheckForInteraction()
+    {
+        Vector3 origin = transform.position + Vector3.up * 0.5f;
+
+        if (Physics.Raycast(
+            origin,
+            transform.forward,
+            out RaycastHit hit,
+            interactionRange))
+        {
+            if (hit.collider.CompareTag("Item"))
+            {
+                interactionPrompt.Show("A  PICK UP");
+                return;
+            }
+
+            if (hit.collider.CompareTag("Customer"))
+            {
+                interactionPrompt.Show("A  INTERACT");
+                return;
+            }
+        }
+
+        interactionPrompt.Hide();
+    }
+
 }

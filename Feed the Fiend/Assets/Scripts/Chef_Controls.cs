@@ -19,10 +19,15 @@ public class Chef_Controls : MonoBehaviour
     [Header("Prep Station")]
     [SerializeField] private float prepStationRange = 2f;
 
+    [Header("Interaction Prompt")]
+    [SerializeField] private InteractionUI interactionPrompt;
+    [SerializeField] private float interactionRange = 2.5f;
 
 
     private void Update()
     {
+
+        CheckForInteraction();
         Vector3 move = new Vector3(moveInput.x, 0, moveInput.y);
 
         transform.position += move * moveSpeed * Time.deltaTime;
@@ -81,14 +86,13 @@ public class Chef_Controls : MonoBehaviour
         }
     }
 
-
-    public void OnPrep(InputAction.CallbackContext context)
+   /* public void OnPrep(InputAction.CallbackContext context)
     {
         if (!context.performed) return;
 
         print("Preperaew");
         TryPrepare();         
-    }
+    }*/
 
 
     void TryPickup()
@@ -150,6 +154,35 @@ public class Chef_Controls : MonoBehaviour
         heldObj = null;
         heldRb = null;
     }
+
+    private void CheckForInteraction()
+    {
+        if (heldObj != null)
+        {
+            interactionPrompt.Hide();
+            return;
+        }
+
+        Vector3 origin = transform.position + Vector3.up * 0.5f;
+
+        if (Physics.Raycast(origin,transform.forward,out RaycastHit hit,pickupRange))
+        {
+            if (hit.collider.CompareTag("Item"))
+            {
+                interactionPrompt.Show("A  PICK UP");
+                return;
+            }
+
+            if (hit.collider.CompareTag("Customer"))
+            {
+                interactionPrompt.Show("A  INTERACT");
+                return;
+            }
+        }
+
+        interactionPrompt.Hide();
+    }
+
 
 
 }
