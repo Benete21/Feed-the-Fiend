@@ -30,7 +30,7 @@ public class PrepFoodStation : MonoBehaviour
         if (isPreparing)
             return;
 
-        if (currentIngredients.Count == 0)
+        if (currentIngredients.Count < 2)
             return;
 
         StartCoroutine(PrepareIngredient());
@@ -68,6 +68,9 @@ public class PrepFoodStation : MonoBehaviour
         if (isPreparing)
             return;
 
+        if (currentIngredients.Count >= 3)
+            return;
+
         Ingredient_Item ingredient = I.GetComponent<Ingredient_Item>();
 
         if (ingredient == null)
@@ -87,14 +90,39 @@ public class PrepFoodStation : MonoBehaviour
             rb.isKinematic = true;
         }
 
-        // Snap to prep station
-        I.transform.SetParent(snapPoint1);
-        I.transform.localPosition = Vector3.zero;
-        I.transform.localRotation = Quaternion.identity;
+        Transform snapPoint = GetNextSnapPoint();
+
+        if (snapPoint != null)
+        {
+            I.transform.SetParent(snapPoint);
+            I.transform.localPosition = Vector3.zero;
+            I.transform.localRotation = Quaternion.identity;
+        }
 
         Debug.Log("Added ingredient: " + ingredient.ingredientType);
-    }
 
+        if (currentIngredients.Count >= 2)
+        {
+            StartPreparation();
+        }
+    }
+    private Transform GetNextSnapPoint()
+    {
+        switch (currentIngredients.Count)
+        {
+            case 1:
+                return snapPoint1;
+
+            case 2:
+                return snapPoint2;
+
+            case 3:
+                return snapPoint3;
+
+            default:
+                return null;
+        }
+    }
 
     void CheckRecipes()
     {
@@ -121,6 +149,7 @@ public class PrepFoodStation : MonoBehaviour
         {
             foodSpawner.SpawnFood(recipe.finishedFoodPrefab);
         }
+        ClearIngredients();
     }
 
     private void ClearIngredients()
