@@ -15,9 +15,13 @@ public class Waiter_Controls : MonoBehaviour
     private GameObject heldObj;
     private Rigidbody heldRb;
 
-[Header("Order Slip")]
-    [SerializeField] private Transform slipHolder;
-    [SerializeField] private Order_Slip orderSlipPrefab;
+    [Header("Order Slip")]
+    [SerializeField] private Transform slipSpawnPoint;
+    [SerializeField] private GameObject physicalOrderSlipPrefab;
+
+    [Header("Order Slip UI")]
+    [SerializeField] private Transform slipUIHolder;
+    [SerializeField] private Order_Slip orderSlipUIPrefab;
 
     private Order_Slip currentSlip;
 
@@ -46,11 +50,18 @@ public class Waiter_Controls : MonoBehaviour
     }
     public void OnPickup(InputAction.CallbackContext context)
     {
-        if (!context.performed) return;
+        if (!context.performed)
+            return;
 
-        Vector3 origin = transform.position + Vector3.up * 0.5f;
+        if (heldObj != null)
+        {
+            Drop();
+            return;
+        }
 
-        if (Physics.SphereCast(origin, pickupRadius, transform.forward,out RaycastHit hit, pickupRange))
+        Vector3 origin = transform.position + Vector3.down * 0.4f;
+
+        if (Physics.SphereCast(origin,pickupRadius,transform.forward,out RaycastHit hit,pickupRange))
         {
             IInteractable interactable = hit.collider.GetComponent<IInteractable>();
 
@@ -63,17 +74,11 @@ public class Waiter_Controls : MonoBehaviour
             if (hit.collider.attachedRigidbody != null)
             {
                 Pickup(hit.collider.gameObject);
-            }
-        }
-        else
-        {
-            if (heldObj != null)
-            {
-                Drop();
                 return;
             }
         }
     }
+
 
     void Pickup(GameObject obj)
     {
@@ -87,21 +92,43 @@ public class Waiter_Controls : MonoBehaviour
         heldRb.transform.SetParent(hold);
         heldRb.transform.localPosition = Vector3.zero;
         heldRb.transform.localRotation = Quaternion.identity;
-        Physics.IgnoreCollision(heldRb.GetComponent<Collider>(), GetComponent<Collider>(), true);
+
+        Physics.IgnoreCollision(heldRb.GetComponent<Collider>(),GetComponent<Collider>(),true);
+
+        // Check if the object is an order slip
+        PhysicalOrderSlip physicalSlip = obj.GetComponent<PhysicalOrderSlip>();
+
+        if (physicalSlip != null)
+        {
+            ShowOrderSlip(physicalSlip.GetOrder());
+        }
     }
+
 
     void Drop()
     {
-        Physics.IgnoreCollision( heldRb.GetComponent<Collider>(),GetComponent<Collider>(),false);
+        if (heldRb == null)
+            return;
+
+        Physics.IgnoreCollision(heldRb.GetComponent<Collider>(),GetComponent<Collider>(),false );
         heldRb.useGravity = true;
         heldRb.linearDamping = 1f;
         heldRb.constraints = RigidbodyConstraints.None;
 
         heldRb.transform.SetParent(null);
 
+        // Check if the object being dropped is an order slip
+        PhysicalOrderSlip orderSlip = heldObj.GetComponent<PhysicalOrderSlip>();
+
+        if (orderSlip != null)
+        {
+            RemoveOrderSlip();
+        }
+
         heldObj = null;
         heldRb = null;
     }
+
     public GameObject GetHeldObject()
     {
         return heldObj;
@@ -114,14 +141,27 @@ public class Waiter_Controls : MonoBehaviour
     }
     public void GiveOrderSlip(Food_Types[] order)
     {
+        GameObject slip = Instantiate(physicalOrderSlipPrefab, slipSpawnPoint.position, slipSpawnPoint.rotation);
+
+        PhysicalOrderSlip physicalSlip = slip.GetComponent<PhysicalOrderSlip>();
+
+        if (physicalSlip != null)
+        {
+            physicalSlip.SetOrder(order);
+        }
+    }
+    private void ShowOrderSlip(Food_Types[] order)
+    {
         if (currentSlip != null)
         {
             Destroy(currentSlip.gameObject);
         }
 
-        currentSlip = Instantiate(orderSlipPrefab, slipHolder);
+        currentSlip = Instantiate(orderSlipUIPrefab,slipUIHolder);
+
         currentSlip.SetOrder(order);
     }
+
 
     public void RemoveOrderSlip()
     {
