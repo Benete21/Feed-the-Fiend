@@ -14,7 +14,11 @@ public class Chef_Controls : MonoBehaviour
     [SerializeField] Transform hold;
     private GameObject heldObj;
     private Rigidbody heldRb;
-     public PrepFoodStation prepStation;
+    [SerializeField] private PrepFoodStation prepStation;
+
+    [Header("Prep Station")]
+    [SerializeField] private float prepStationRange = 2f;
+
 
 
     private void Update()
@@ -48,19 +52,35 @@ public class Chef_Controls : MonoBehaviour
         if (heldObj == null)
         {
             TryPickup();
+            return;
         }
 
-        else
+        if (prepStation != null)
         {
-            if (prepStation != null)
+            float distance = Vector3.Distance(transform.position,prepStation.transform.position);
+
+            Debug.Log("Distance to prep station: " + distance);
+
+            if (distance <= prepStationRange)
             {
                 GameObject ingredientToPlace = heldObj;
+
                 heldObj = null;
                 heldRb = null;
+
                 prepStation.AddIngredient(ingredientToPlace);
             }
+            else
+            {
+                Drop();
+            }
+        }
+        else
+        {
+            Drop();
         }
     }
+
 
     public void OnPrep(InputAction.CallbackContext context)
     {
@@ -110,7 +130,17 @@ public class Chef_Controls : MonoBehaviour
 
     void Drop()
     {
-        Physics.IgnoreCollision(heldRb.GetComponent<Collider>(), GetComponent<Collider>(), false);
+        if (heldRb == null)
+            return;
+
+        Collider heldCollider = heldRb.GetComponent<Collider>();
+        Collider playerCollider = GetComponent<Collider>();
+
+        if (heldCollider != null && playerCollider != null)
+        {
+            Physics.IgnoreCollision(heldCollider, playerCollider, false);
+        }
+
         heldRb.useGravity = true;
         heldRb.linearDamping = 1f;
         heldRb.constraints = RigidbodyConstraints.None;
@@ -120,5 +150,6 @@ public class Chef_Controls : MonoBehaviour
         heldObj = null;
         heldRb = null;
     }
+
 
 }

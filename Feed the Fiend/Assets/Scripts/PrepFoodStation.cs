@@ -14,6 +14,7 @@ public class PrepFoodStation : MonoBehaviour
     [Header("Preparation")]
     [SerializeField] private float preparationTime = 5f;
 
+
     [Header("Ingredient Placement")]
     [SerializeField] private Transform snapPoint1;
     [SerializeField] private Transform snapPoint2;
@@ -62,22 +63,45 @@ public class PrepFoodStation : MonoBehaviour
         isPreparing = false;
     }
 
-
     public void AddIngredient(GameObject I)
     {
         if (isPreparing)
+        {
+            Debug.Log("Station is currently preparing.");
             return;
+        }
 
         if (currentIngredients.Count >= 3)
+        {
+            Debug.Log("Station already has 3 ingredients.");
             return;
+        }
 
         Ingredient_Item ingredient = I.GetComponent<Ingredient_Item>();
 
         if (ingredient == null)
+        {
+            Debug.LogError(
+                I.name + " does not have an Ingredient_Item component!"
+            );
             return;
+        }
 
-        currentIngredients.Add(ingredient.ingredientType);
-        placedIngredients.Add(I);
+        Transform snapPoint = GetNextSnapPoint();
+
+        if (snapPoint == null)
+        {
+            Debug.LogError("No snap point available!");
+            return;
+        }
+
+        Debug.Log(
+            "SNAPPING " + I.name +
+            " TO " + snapPoint.name
+        );
+
+        // Remove from previous parent
+        I.transform.SetParent(null);
 
         Rigidbody rb = I.GetComponent<Rigidbody>();
 
@@ -86,26 +110,32 @@ public class PrepFoodStation : MonoBehaviour
             rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
 
-            rb.useGravity = false;
             rb.isKinematic = true;
+            rb.useGravity = false;
         }
 
-        Transform snapPoint = GetNextSnapPoint();
+        // Snap
+        I.transform.SetParent(snapPoint);
 
-        if (snapPoint != null)
-        {
-            I.transform.SetParent(snapPoint);
-            I.transform.localPosition = Vector3.zero;
-            I.transform.localRotation = Quaternion.identity;
-        }
+        I.transform.localPosition = Vector3.zero;
+        I.transform.localRotation = Quaternion.identity;
 
-        Debug.Log("Added ingredient: " + ingredient.ingredientType);
+        // Add to lists AFTER successful snap
+        currentIngredients.Add(ingredient.ingredientType);
+        placedIngredients.Add(I);
+
+        Debug.Log(
+            "Added ingredient: " +
+            ingredient.ingredientType
+        );
 
         if (currentIngredients.Count >= 2)
         {
             StartPreparation();
         }
     }
+
+
     private Transform GetNextSnapPoint()
     {
         switch (currentIngredients.Count)

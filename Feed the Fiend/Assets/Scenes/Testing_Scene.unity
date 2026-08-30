@@ -13441,6 +13441,7 @@ MonoBehaviour:
   pickupRadius: 1
   hold: {fileID: 1155758643}
   prepStation: {fileID: 680019447}
+  prepStationRange: 3
 --- !u!114 &1660470060
 MonoBehaviour:
   m_ObjectHideFlags: 0
