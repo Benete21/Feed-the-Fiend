@@ -135,24 +135,24 @@ public class PrepFoodStation : MonoBehaviour
         }
     }
 
-
     private Transform GetNextSnapPoint()
     {
         switch (currentIngredients.Count)
         {
-            case 1:
+            case 0:
                 return snapPoint1;
 
-            case 2:
+            case 1:
                 return snapPoint2;
 
-            case 3:
+            case 2:
                 return snapPoint3;
 
             default:
                 return null;
         }
     }
+
 
     void CheckRecipes()
     {
