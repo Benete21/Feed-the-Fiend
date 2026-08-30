@@ -12912,7 +12912,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!23 &1642685821
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -13662,8 +13662,9 @@ MonoBehaviour:
   background: {fileID: 0}
   winScreenMusic: {fileID: 0}
   monsterAttackingWaiter: {fileID: 0}
-  takingOrder: {fileID: 0}
+  preparingFood: {fileID: 8300000, guid: 7ffeb07f31403a142883dcb194af289d, type: 3}
   monsterMoving: {fileID: 8300000, guid: 6fa88d2cf2debcd4f9a98ed940803f19, type: 3}
+  preparingFoodSource: {fileID: 1483186735}
 --- !u!4 &1707939559
 Transform:
   m_ObjectHideFlags: 0

@@ -5,6 +5,8 @@ using System.Collections;
 
 public class PrepFoodStation : MonoBehaviour
 {
+    private AudioManager audioManager;
+
     public Recipe[] recipes;
 
     private List<Ingredient_Type> currentIngredients = new List<Ingredient_Type>();
@@ -26,6 +28,12 @@ public class PrepFoodStation : MonoBehaviour
 
 
     private bool isPreparing;
+
+    void Awake()
+    {
+        audioManager = GameObject.FindGameObjectWithTag("Audio")
+            .GetComponent<AudioManager>();
+    }
     public void StartPreparation()
     {
         if (isPreparing)
@@ -35,6 +43,7 @@ public class PrepFoodStation : MonoBehaviour
             return;
 
         StartCoroutine(PrepareIngredient());
+
     }
 
     private IEnumerator PrepareIngredient()
@@ -44,17 +53,26 @@ public class PrepFoodStation : MonoBehaviour
         progressBarObject.SetActive(true);
         progressBar.value = 0f;
 
+        // Start preparing food sound
+        audioManager.PlayPreparingFood();
+
         float timer = 0f;
 
         while (timer < preparationTime)
         {
             timer += Time.deltaTime;
 
-            progressBar.value = Mathf.Clamp01(timer / preparationTime);
+            progressBar.value = Mathf.Clamp01(
+                timer / preparationTime
+            );
 
             yield return null;
         }
+
         progressBar.value = 1f;
+
+        // Stop the sound immediately when preparation is finished
+        audioManager.StopPreparingFood();
 
         CheckRecipes();
 
