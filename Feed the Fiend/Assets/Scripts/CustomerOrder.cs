@@ -5,8 +5,10 @@ using UnityEngine.UI;
 public class CustomerOrder : MonoBehaviour, IInteractable
 {
     public Canvas loadingCanvas;
+
     public Slider loadingBar;
     public Slider berserkBar;
+    public GameObject waitingExclamation;
 
     bool hasOrdered = false;
 
@@ -18,18 +20,20 @@ public class CustomerOrder : MonoBehaviour, IInteractable
 
     public MonsterAI monsterAI;
     public MonsterSpawner satisfied;
+
     public bool isBerserk = false;
 
     void Start()
     {
-        if (berserkBar != null)
-        {
-            berserkBar.minValue = 0f;
-            berserkBar.maxValue = 1f;
-            berserkBar.value = 1f;
+        // Hide UI at the beginning
+        if (loadingBar != null)
+            loadingBar.gameObject.SetActive(false);
 
-            berserkBar.gameObject.SetActive(true);
-        }
+        if (berserkBar != null)
+            berserkBar.gameObject.SetActive(false);
+
+        if (waitingExclamation != null)
+            waitingExclamation.SetActive(false);
     }
 
     void Update()
@@ -39,20 +43,23 @@ public class CustomerOrder : MonoBehaviour, IInteractable
 
         waitTime -= Time.deltaTime;
 
+        // Update berserk timer
         if (berserkBar != null)
         {
             berserkBar.value = Mathf.Clamp01(waitTime / maxWait);
         }
 
+        // Time ran out
         if (waitTime <= 0)
         {
             waitTime = 0f;
             waiting = false;
 
             if (berserkBar != null)
-            {
-                berserkBar.value = 0f;
-            }
+                berserkBar.gameObject.SetActive(false);
+
+            if (waitingExclamation != null)
+                waitingExclamation.SetActive(false);
 
             Berserk();
 
@@ -60,11 +67,13 @@ public class CustomerOrder : MonoBehaviour, IInteractable
         }
     }
 
-
     public void Interact(Waiter_Controls waiter)
     {
+
         if (!hasOrdered)
         {
+            HideWaitingExclamation();
+
             StartCoroutine(OrderRoutine(waiter));
             return;
         }
@@ -88,10 +97,12 @@ public class CustomerOrder : MonoBehaviour, IInteractable
 
             waiting = false;
 
+            // Hide waiting UI
+            if (waitingExclamation != null)
+                waitingExclamation.SetActive(false);
+
             if (berserkBar != null)
-            {
                 berserkBar.gameObject.SetActive(false);
-            }
 
             Destroy(held);
 
@@ -100,7 +111,10 @@ public class CustomerOrder : MonoBehaviour, IInteractable
 
             Satisfied();
         }
-
+        else
+        {
+            Debug.Log("Wrong food!");
+        }
     }
 
     IEnumerator OrderRoutine(Waiter_Controls waiter)
@@ -108,7 +122,11 @@ public class CustomerOrder : MonoBehaviour, IInteractable
         hasOrdered = true;
 
         // Show loading bar
-        loadingBar.gameObject.SetActive(true);
+        if (loadingBar != null)
+        {
+            loadingBar.gameObject.SetActive(true);
+            loadingBar.value = 0f;
+        }
 
         float timer = 0f;
         float duration = 3f;
@@ -118,32 +136,30 @@ public class CustomerOrder : MonoBehaviour, IInteractable
             timer += Time.deltaTime;
 
             if (loadingBar != null)
-            {
                 loadingBar.value = timer / duration;
-            }
 
             yield return null;
         }
 
         // Hide loading bar
-        loadingBar.gameObject.SetActive(false);
+        if (loadingBar != null)
+            loadingBar.gameObject.SetActive(false);
 
         GenerateRandomOrder();
 
         waiter.GiveOrderSlip(currentOrder);
 
-        // Start waiting for the food
+        // Start waiting
         waitTime = maxWait;
         waiting = true;
 
         // Show berserk bar
         if (berserkBar != null)
         {
-            berserkBar.gameObject.SetActive(true);
             berserkBar.value = 1f;
+            berserkBar.gameObject.SetActive(true);
         }
     }
-
 
     void GenerateRandomOrder()
     {
@@ -153,10 +169,7 @@ public class CustomerOrder : MonoBehaviour, IInteractable
 
         for (int i = 0; i < amount; i++)
         {
-            currentOrder[i] = (Food_Types)Random.Range(
-                0,
-                System.Enum.GetValues(typeof(Food_Types)).Length
-            );
+            currentOrder[i] = (Food_Types)Random.Range(0,System.Enum.GetValues(typeof(Food_Types)).Length);
         }
     }
 
@@ -175,11 +188,22 @@ public class CustomerOrder : MonoBehaviour, IInteractable
 
         Debug.Log("MONSTER HAS GONE BERSERK!");
 
-        if (berserkBar != null)
-        {
-            berserkBar.value = 0f;
-        }
-
         monsterAI.StartBerserk();
     }
+    public void ShowWaitingExclamation()
+    {
+        if (waitingExclamation != null)
+        {
+            waitingExclamation.SetActive(true);
+        }
+    }
+    public void HideWaitingExclamation()
+    {
+        if (waitingExclamation != null)
+        {
+            waitingExclamation.SetActive(false);
+        }
+    }
+
+
 }

@@ -17,6 +17,9 @@ public class MonsterAI : MonoBehaviour
 
     private RestrauntTable assignedTable;
 
+    private bool hasReachedTable = false;
+    public CustomerOrder order;
+
     [Header("Player Detection")]
     public float detectionRange = 20f;
     public string playerTag = "Player";
@@ -42,10 +45,14 @@ public class MonsterAI : MonoBehaviour
         if (agent == null)
             agent = GetComponent<NavMeshAgent>();
 
+        if (order == null)
+            order = GetComponent<CustomerOrder>();
+
         agent.speed = walkSpeed;
 
         ChooseRandomTable();
     }
+
 
 
     void Update()
@@ -65,18 +72,30 @@ public class MonsterAI : MonoBehaviour
         if (assignedTable == null)
             return;
 
-        // Walk toward the assigned table
-        if (agent.remainingDistance <= 0.5f)
+        if (!agent.pathPending && agent.remainingDistance <= 0.5f)
         {
             agent.isStopped = true;
 
-            // Monster has arrived at its table
+            if (!hasReachedTable)
+            {
+                hasReachedTable = true;
+
+                Debug.Log(gameObject.name + " has arrived at Table " + assignedTableNumber);
+
+                if (order != null)
+                {
+                    order.ShowWaitingExclamation();
+                }
+            }
+
             return;
         }
+
 
         agent.isStopped = false;
         agent.SetDestination(assignedTable.transform.position);
     }
+
 
 
     void ChooseRandomTable()
