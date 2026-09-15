@@ -4,9 +4,9 @@ using UnityEngine.UI;
 
 public class CustomerOrder : MonoBehaviour, IInteractable
 {
-
     public Canvas loadingCanvas;
     public Slider loadingBar;
+    public Slider berserkBar;
 
     bool hasOrdered = false;
 
@@ -20,6 +20,17 @@ public class CustomerOrder : MonoBehaviour, IInteractable
     public MonsterSpawner satisfied;
     public bool isBerserk = false;
 
+    void Start()
+    {
+        if (berserkBar != null)
+        {
+            berserkBar.minValue = 0f;
+            berserkBar.maxValue = 1f;
+            berserkBar.value = 1f;
+
+            berserkBar.gameObject.SetActive(true);
+        }
+    }
 
     void Update()
     {
@@ -28,13 +39,28 @@ public class CustomerOrder : MonoBehaviour, IInteractable
 
         waitTime -= Time.deltaTime;
 
+        if (berserkBar != null)
+        {
+            berserkBar.value = Mathf.Clamp01(waitTime / maxWait);
+        }
+
         if (waitTime <= 0)
         {
+            waitTime = 0f;
             waiting = false;
+
+            if (berserkBar != null)
+            {
+                berserkBar.value = 0f;
+            }
+
             Berserk();
-            Debug.Log("Start Berskering");
+
+            Debug.Log("Start Berserking");
         }
     }
+
+
     public void Interact(Waiter_Controls waiter)
     {
         if (!hasOrdered)
@@ -42,22 +68,19 @@ public class CustomerOrder : MonoBehaviour, IInteractable
             StartCoroutine(OrderRoutine(waiter));
             return;
         }
+
         if (!waiting)
             return;
 
         GameObject held = waiter.GetHeldObject();
 
         if (held == null)
-        {
             return;
-        }
 
         FoodItems food = held.GetComponent<FoodItems>();
 
         if (food == null)
-        {
             return;
-        }
 
         if (food.foodType == currentOrder[0])
         {
@@ -65,25 +88,27 @@ public class CustomerOrder : MonoBehaviour, IInteractable
 
             waiting = false;
 
+            if (berserkBar != null)
+            {
+                berserkBar.gameObject.SetActive(false);
+            }
+
             Destroy(held);
 
             waiter.RemoveHeldObject();
-
             waiter.RemoveOrderSlip();
 
             Satisfied();
         }
-        else
-        {
-            Debug.Log("Wrong food!");
-        }
+
     }
 
     IEnumerator OrderRoutine(Waiter_Controls waiter)
     {
         hasOrdered = true;
 
-        loadingCanvas.gameObject.SetActive(true);
+        // Show loading bar
+        loadingBar.gameObject.SetActive(true);
 
         float timer = 0f;
         float duration = 3f;
@@ -100,15 +125,25 @@ public class CustomerOrder : MonoBehaviour, IInteractable
             yield return null;
         }
 
-        loadingCanvas.gameObject.SetActive(false);
+        // Hide loading bar
+        loadingBar.gameObject.SetActive(false);
 
         GenerateRandomOrder();
 
         waiter.GiveOrderSlip(currentOrder);
 
+        // Start waiting for the food
         waitTime = maxWait;
         waiting = true;
+
+        // Show berserk bar
+        if (berserkBar != null)
+        {
+            berserkBar.gameObject.SetActive(true);
+            berserkBar.value = 1f;
+        }
     }
+
 
     void GenerateRandomOrder()
     {
@@ -118,7 +153,10 @@ public class CustomerOrder : MonoBehaviour, IInteractable
 
         for (int i = 0; i < amount; i++)
         {
-            currentOrder[i] = (Food_Types)Random.Range(0, System.Enum.GetValues(typeof(Food_Types)).Length);
+            currentOrder[i] = (Food_Types)Random.Range(
+                0,
+                System.Enum.GetValues(typeof(Food_Types)).Length
+            );
         }
     }
 
@@ -127,18 +165,21 @@ public class CustomerOrder : MonoBehaviour, IInteractable
         Debug.Log("OrderCorrect");
 
         satisfied.Served();
+
         Destroy(gameObject, 2f);
     }
 
     void Berserk()
     {
-
         isBerserk = true;
 
         Debug.Log("MONSTER HAS GONE BERSERK!");
 
+        if (berserkBar != null)
+        {
+            berserkBar.value = 0f;
+        }
+
         monsterAI.StartBerserk();
     }
 }
-
-
