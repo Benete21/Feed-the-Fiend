@@ -84,13 +84,12 @@ public class MonsterAI : MonoBehaviour
 
                 if (order != null)
                 {
-                    order.ShowWaitingExclamation();
+                    order.StartWaitingForOrder();
                 }
             }
 
             return;
         }
-
 
         agent.isStopped = false;
         agent.SetDestination(assignedTable.transform.position);
