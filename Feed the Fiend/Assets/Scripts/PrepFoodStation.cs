@@ -34,7 +34,7 @@ public class PrepFoodStation : MonoBehaviour
         audioManager = GameObject.FindGameObjectWithTag("Audio")
             .GetComponent<AudioManager>();
     }
-    public void StartPreparation()
+   /* public void StartPreparation()
     {
         if (isPreparing)
             return;
@@ -44,16 +44,22 @@ public class PrepFoodStation : MonoBehaviour
 
         StartCoroutine(PrepareIngredient());
 
-    }
+    }*/
 
     public void StartPreparationPress()
     {
         if (isPreparing)
             return;
 
-        StartCoroutine(PrepareIngredient());
+        if (currentIngredients.Count < 2)
+        {
+            Debug.Log("Need at least 2 ingredients to prepare.");
+            return;
+        }
 
+        StartCoroutine(PrepareIngredient());
     }
+
     private IEnumerator PrepareIngredient()
     {
         isPreparing = true;
@@ -140,13 +146,13 @@ public class PrepFoodStation : MonoBehaviour
             rb.useGravity = false;
         }
 
-        // Snap
+        // Snap ingredient
         I.transform.SetParent(snapPoint);
 
         I.transform.localPosition = Vector3.zero;
         I.transform.localRotation = Quaternion.identity;
 
-        // Add to lists AFTER successful snap
+        // Add ingredient
         currentIngredients.Add(ingredient.ingredientType);
         placedIngredients.Add(I);
 
@@ -155,11 +161,9 @@ public class PrepFoodStation : MonoBehaviour
             ingredient.ingredientType
         );
 
-        if (currentIngredients.Count >= 2)
-        {
-            StartPreparation();
-        }
+        // DO NOT START PREPARATION HERE
     }
+
 
     private Transform GetNextSnapPoint()
     {
