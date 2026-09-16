@@ -9,8 +9,10 @@ public class Chef_Controls : MonoBehaviour
     private Vector2 moveInput;
 
     [Header("Pickup")]
-    public float pickupRange = 2f;
-    public float pickupRadius = 1f;
+    [SerializeField] private float pickupRange = 1.2f;
+    [SerializeField] private float pickupWidth = 0.7f;
+    [SerializeField] private float pickupHeight = 1.2f;
+
     [SerializeField] Transform hold;
     private GameObject heldObj;
     private Rigidbody heldRb;
@@ -106,21 +108,43 @@ public class Chef_Controls : MonoBehaviour
     }
 
 
-
     void TryPickup()
     {
-        Vector3 origin = transform.position + Vector3.up * 0.5f;
+        // Position the pickup area in front of the Chef
+        Vector3 center =
+            transform.position +
+            transform.forward * (pickupRange * 0.5f) +
+            Vector3.up * 0.5f;
 
-        Debug.DrawRay(origin, transform.forward * pickupRange, Color.red, 1f);
+        // Half extents of the pickup box
+        Vector3 halfExtents = new Vector3(
+            pickupWidth * 0.5f,
+            pickupHeight * 0.5f,
+            pickupRange * 0.5f
+        );
 
-        if (Physics.SphereCast(origin, pickupRadius, transform.forward, out RaycastHit hit, pickupRange))
+        // Show pickup area in Scene view
+        Collider[] hits = Physics.OverlapBox(
+            center,
+            halfExtents,
+            transform.rotation
+        );
+
+        foreach (Collider hit in hits)
         {
-            if (hit.collider.attachedRigidbody != null)
+            if (!hit.CompareTag("Item"))
+                continue;
+
+            Rigidbody rb = hit.attachedRigidbody;
+
+            if (rb != null)
             {
-                Pickup(hit.collider.gameObject);
+                Pickup(rb.gameObject);
+                return;
             }
         }
     }
+
     void TryPrepare()
     {
         if (prepStation != null)
@@ -175,17 +199,32 @@ public class Chef_Controls : MonoBehaviour
             return;
         }
 
-        Vector3 origin = transform.position + Vector3.up * 0.5f;
+        Vector3 center =
+            transform.position +
+            transform.forward * (pickupRange * 0.5f) +
+            Vector3.up * 0.5f;
 
-        if (Physics.Raycast(origin,transform.forward,out RaycastHit hit,pickupRange))
+        Vector3 halfExtents = new Vector3(
+            pickupWidth * 0.5f,
+            pickupHeight * 0.5f,
+            pickupRange * 0.5f
+        );
+
+        Collider[] hits = Physics.OverlapBox(
+            center,
+            halfExtents,
+            transform.rotation
+        );
+
+        foreach (Collider hit in hits)
         {
-            if (hit.collider.CompareTag("Item"))
+            if (hit.CompareTag("Item"))
             {
                 interactionPrompt.Show("A  PICK UP");
                 return;
             }
 
-            if (hit.collider.CompareTag("Customer"))
+            if (hit.CompareTag("Customer"))
             {
                 interactionPrompt.Show("A  INTERACT");
                 return;
@@ -194,7 +233,5 @@ public class Chef_Controls : MonoBehaviour
 
         interactionPrompt.Hide();
     }
-
-
 
 }
