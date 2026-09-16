@@ -23,6 +23,8 @@ public class Chef_Controls : MonoBehaviour
     [SerializeField] private InteractionUI interactionPrompt;
     [SerializeField] private float interactionRange = 2.5f;
 
+    [Header("Recipe")]
+    public GameObject recipe_Book;
 
     private void Update()
     {
@@ -86,13 +88,23 @@ public class Chef_Controls : MonoBehaviour
         }
     }
 
-   /* public void OnPrep(InputAction.CallbackContext context)
+    public void OnPrep(InputAction.CallbackContext context)
     {
         if (!context.performed) return;
 
         print("Preperaew");
         TryPrepare();         
-    }*/
+    }
+
+    public void OnRecipe(InputAction.CallbackContext context)
+    {
+
+        if (recipe_Book != null)
+        {
+            recipe_Book.SetActive(!recipe_Book.activeSelf);
+        }
+    }
+
 
 
     void TryPickup()
@@ -113,7 +125,7 @@ public class Chef_Controls : MonoBehaviour
     {
         if (prepStation != null)
         {
-            prepStation.StartPreparation();
+            prepStation.StartPreparationPress();
         }
     }
 

@@ -46,6 +46,14 @@ public class PrepFoodStation : MonoBehaviour
 
     }
 
+    public void StartPreparationPress()
+    {
+        if (isPreparing)
+            return;
+
+        StartCoroutine(PrepareIngredient());
+
+    }
     private IEnumerator PrepareIngredient()
     {
         isPreparing = true;
