@@ -1,6 +1,4 @@
-using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class Ingredient_Spawner : MonoBehaviour
 {
@@ -8,80 +6,42 @@ public class Ingredient_Spawner : MonoBehaviour
     [SerializeField] private GameObject ingredientPrefab;
     [SerializeField] private Transform spawnPoint;
 
-    [Header("Timer")]
-    [SerializeField] private float respawnTime = 5f;
+    private Chef_Controls chefInRange;
 
-    [Header("UI")]
-    [SerializeField] private GameObject progressBarObject;
-    [SerializeField] private Slider progressBar;
-
-    private GameObject currentIngredient;
-    private bool isRespawning;
+    public bool ChefInRange => chefInRange != null;
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!other.CompareTag("Chef"))
-            return;
+        Chef_Controls chef = other.GetComponent<Chef_Controls>();
 
-        if (currentIngredient == null && !isRespawning)
+        if (chef != null)
         {
-            SpawnIngredient();
+            chefInRange = chef;
         }
     }
 
-    private void SpawnIngredient()
+    private void OnTriggerExit(Collider other)
     {
+        Chef_Controls chef = other.GetComponent<Chef_Controls>();
+
+        if (chef != null && chefInRange == chef)
+        {
+            chefInRange = null;
+        }
+    }
+
+    public GameObject TakeIngredient()
+    {
+        if (!ChefInRange)
+            return null;
+
         if (ingredientPrefab == null || spawnPoint == null)
-            return;
+            return null;
 
-        currentIngredient = Instantiate( ingredientPrefab, spawnPoint.position,spawnPoint.rotation);
-    }
-
-    public void IngredientTaken()
-    {
-        if (currentIngredient == null)
-            return;
-
-        currentIngredient = null;
-        if (!isRespawning)
-        {
-            StartCoroutine(RespawnIngredient());
-        }
-    }
-
-    private IEnumerator RespawnIngredient()
-    {
-        isRespawning = true;
-
-        if (progressBarObject != null)
-            progressBarObject.SetActive(true);
-
-        if (progressBar != null)
-            progressBar.value = 0f;
-
-        float timer = 0f;
-
-        while (timer < respawnTime)
-        {
-            timer += Time.deltaTime;
-
-            if (progressBar != null)
-            {
-                progressBar.value =
-                    Mathf.Clamp01(timer / respawnTime);
-            }
-
-            yield return null;
-        }
-
-        if (progressBarObject != null)
-        {
-            progressBarObject.SetActive(false);
-        }
-
-        SpawnIngredient();
-
-        isRespawning = false;
+        return Instantiate(
+            ingredientPrefab,
+            spawnPoint.position,
+            spawnPoint.rotation
+        );
     }
 }
-

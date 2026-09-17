@@ -21,6 +21,12 @@ public class Chef_Controls : MonoBehaviour
     [Header("Prep Station")]
     [SerializeField] private float prepStationRange = 2f;
 
+    [Header("Ingredient Station")]
+    private System.Collections.Generic.List<Ingredient_Spawner> nearbySpawners =
+    new System.Collections.Generic.List<Ingredient_Spawner>();
+
+
+
     [Header("Interaction Prompt")]
     [SerializeField] private InteractionUI interactionPrompt;
     [SerializeField] private float interactionRange = 2.5f;
@@ -48,6 +54,28 @@ public class Chef_Controls : MonoBehaviour
         }
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        Ingredient_Spawner spawner =
+            other.GetComponent<Ingredient_Spawner>();
+
+        if (spawner != null && !nearbySpawners.Contains(spawner))
+        {
+            nearbySpawners.Add(spawner);
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        Ingredient_Spawner spawner =
+            other.GetComponent<Ingredient_Spawner>();
+
+        if (spawner != null)
+        {
+            nearbySpawners.Remove(spawner);
+        }
+    }
+
     public void OnMovement(InputAction.CallbackContext context)
     {
         moveInput = context.ReadValue<Vector2>();
@@ -58,37 +86,53 @@ public class Chef_Controls : MonoBehaviour
         if (!context.performed)
             return;
 
-        if (heldObj == null)
+        // Already holding something
+        if (heldObj != null)
         {
-            TryPickup();
+            if (prepStation != null)
+            {
+                float distance = Vector3.Distance(
+                    transform.position,
+                    prepStation.transform.position
+                );
+
+                if (distance <= prepStationRange)
+                {
+                    GameObject ingredientToPlace = heldObj;
+
+                    heldObj = null;
+                    heldRb = null;
+
+                    prepStation.AddIngredient(ingredientToPlace);
+                    return;
+                }
+            }
+
+            Drop();
             return;
         }
 
-        if (prepStation != null)
+        // Check for an ingredient station
+        Ingredient_Spawner spawner =
+            GetClosestIngredientSpawner();
+
+        if (spawner != null)
         {
-            float distance = Vector3.Distance(transform.position,prepStation.transform.position);
+            GameObject ingredient =
+                spawner.TakeIngredient();
 
-            Debug.Log("Distance to prep station: " + distance);
-
-            if (distance <= prepStationRange)
+            if (ingredient != null)
             {
-                GameObject ingredientToPlace = heldObj;
-
-                heldObj = null;
-                heldRb = null;
-
-                prepStation.AddIngredient(ingredientToPlace);
-            }
-            else
-            {
-                Drop();
+                Pickup(ingredient);
+                return;
             }
         }
-        else
-        {
-            Drop();
-        }
+
+        // Otherwise pick up an existing item
+        TryPickup();
     }
+
+
 
     public void OnPrep(InputAction.CallbackContext context)
     {
@@ -199,6 +243,14 @@ public class Chef_Controls : MonoBehaviour
             return;
         }
 
+        // Check if we are inside an ingredient station
+        if (nearbySpawners.Count > 0)
+        {
+            interactionPrompt.Show("A  PICK UP");
+            return;
+        }
+
+        // Check normal items
         Vector3 center =
             transform.position +
             transform.forward * (pickupRange * 0.5f) +
@@ -232,6 +284,32 @@ public class Chef_Controls : MonoBehaviour
         }
 
         interactionPrompt.Hide();
+    }
+
+
+    private Ingredient_Spawner GetClosestIngredientSpawner()
+    {
+        Ingredient_Spawner closest = null;
+        float closestDistance = Mathf.Infinity;
+
+        foreach (Ingredient_Spawner spawner in nearbySpawners)
+        {
+            if (spawner == null)
+                continue;
+
+            float distance = Vector3.Distance(
+                transform.position,
+                spawner.transform.position
+            );
+
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                closest = spawner;
+            }
+        }
+
+        return closest;
     }
 
 }

@@ -2859,9 +2859,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Ingredient_Spawner
   ingredientPrefab: {fileID: 6202196742703718086, guid: 5fa33b98f0215d848ac8ab10ed3a3daa, type: 3}
   spawnPoint: {fileID: 699276002}
-  respawnTime: 5
-  progressBarObject: {fileID: 0}
-  progressBar: {fileID: 0}
 --- !u!65 &402200724
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3246,9 +3243,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Ingredient_Spawner
   ingredientPrefab: {fileID: 986477869674124826, guid: ad2a724e767dca34aaebf9a2546f0695, type: 3}
   spawnPoint: {fileID: 1751874284}
-  respawnTime: 5
-  progressBarObject: {fileID: 1174448584}
-  progressBar: {fileID: 1600023541}
 --- !u!65 &436487217
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -8229,9 +8223,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Ingredient_Spawner
   ingredientPrefab: {fileID: 6417542507364571132, guid: 0e02af1209a2658478a7707c5d8ba293, type: 3}
   spawnPoint: {fileID: 664617513}
-  respawnTime: 5
-  progressBarObject: {fileID: 0}
-  progressBar: {fileID: 0}
 --- !u!1 &952398010
 GameObject:
   m_ObjectHideFlags: 0
@@ -14739,9 +14730,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Ingredient_Spawner
   ingredientPrefab: {fileID: 2908346188395139240, guid: 73c23e32ec83fda46bf7c1ec8c7a8ae7, type: 3}
   spawnPoint: {fileID: 982673085}
-  respawnTime: 5
-  progressBarObject: {fileID: 0}
-  progressBar: {fileID: 0}
 --- !u!65 &1541472212
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -15162,7 +15150,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!23 &1642685821
 MeshRenderer:
   m_ObjectHideFlags: 0
