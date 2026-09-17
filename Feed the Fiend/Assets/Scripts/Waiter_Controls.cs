@@ -9,8 +9,9 @@ public class Waiter_Controls : MonoBehaviour
     private Vector2 moveInput;
 
     [Header("Pickup")]
-    public float pickupRange = 2f;
-    public float pickupRadius = 1f;
+    [SerializeField] private float pickupRange = 1.2f;
+    [SerializeField] private float pickupWidth = 0.7f;
+    [SerializeField] private float pickupHeight = 1.2f;
     [SerializeField] Transform hold;
     private GameObject heldObj;
     private Rigidbody heldRb;
@@ -66,11 +67,28 @@ public class Waiter_Controls : MonoBehaviour
             return;
         }
 
-        Vector3 origin = transform.position + Vector3.down * 0.4f;
+        Vector3 center =
+            transform.position +
+            transform.forward * (pickupRange * 0.5f) +
+            Vector3.up * 0.5f;
 
-        if (Physics.SphereCast(origin,pickupRadius,transform.forward,out RaycastHit hit,pickupRange))
+        Vector3 halfExtents = new Vector3(
+            pickupWidth * 0.5f,
+            pickupHeight * 0.5f,
+            pickupRange * 0.5f
+        );
+
+        Collider[] hits = Physics.OverlapBox(
+            center,
+            halfExtents,
+            transform.rotation
+        );
+
+        foreach (Collider hit in hits)
         {
-            IInteractable interactable = hit.collider.GetComponent<IInteractable>();
+            // Check for customer interaction first
+            IInteractable interactable =
+                hit.GetComponent<IInteractable>();
 
             if (interactable != null)
             {
@@ -78,10 +96,16 @@ public class Waiter_Controls : MonoBehaviour
                 return;
             }
 
-            if (hit.collider.attachedRigidbody != null)
+            // Check for physical objects
+            if (hit.CompareTag("Item"))
             {
-                Pickup(hit.collider.gameObject);
-                return;
+                Rigidbody rb = hit.attachedRigidbody;
+
+                if (rb != null)
+                {
+                    Pickup(rb.gameObject);
+                    return;
+                }
             }
         }
     }
@@ -92,6 +116,12 @@ public class Waiter_Controls : MonoBehaviour
         heldObj = obj;
         heldRb = obj.GetComponent<Rigidbody>();
 
+        if (heldRb == null)
+        {
+            heldObj = null;
+            return;
+        }
+
         heldRb.useGravity = false;
         heldRb.linearDamping = 10f;
         heldRb.constraints = RigidbodyConstraints.FreezeRotation;
@@ -100,10 +130,21 @@ public class Waiter_Controls : MonoBehaviour
         heldRb.transform.localPosition = Vector3.zero;
         heldRb.transform.localRotation = Quaternion.identity;
 
-        Physics.IgnoreCollision(heldRb.GetComponent<Collider>(),GetComponent<Collider>(),true);
+        Collider heldCollider = heldRb.GetComponent<Collider>();
+        Collider playerCollider = GetComponent<Collider>();
+
+        if (heldCollider != null && playerCollider != null)
+        {
+            Physics.IgnoreCollision(
+                heldCollider,
+                playerCollider,
+                true
+            );
+        }
 
         // Check if the object is an order slip
-        PhysicalOrderSlip physicalSlip = obj.GetComponent<PhysicalOrderSlip>();
+        PhysicalOrderSlip physicalSlip =
+            obj.GetComponent<PhysicalOrderSlip>();
 
         if (physicalSlip != null)
         {
@@ -116,8 +157,17 @@ public class Waiter_Controls : MonoBehaviour
     {
         if (heldRb == null)
             return;
+        Collider heldCollider = heldRb.GetComponent<Collider>();
+        Collider playerCollider = GetComponent<Collider>();
 
-        Physics.IgnoreCollision(heldRb.GetComponent<Collider>(),GetComponent<Collider>(),false );
+        if (heldCollider != null && playerCollider != null)
+        {
+            Physics.IgnoreCollision(
+                heldCollider,
+                playerCollider,
+                false
+            );
+        }
         heldRb.useGravity = true;
         heldRb.linearDamping = 1f;
         heldRb.constraints = RigidbodyConstraints.None;
