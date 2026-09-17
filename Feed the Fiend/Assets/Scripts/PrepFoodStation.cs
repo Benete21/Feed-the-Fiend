@@ -241,5 +241,16 @@ public class PrepFoodStation : MonoBehaviour
 
         return true;
     }
+
+    public bool HasIngredients()
+    {
+        return currentIngredients.Count > 0;
+    }
+
+    public bool IsPreparing()
+    {
+        return isPreparing;
+    }
+
 }
 

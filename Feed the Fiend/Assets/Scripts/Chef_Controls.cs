@@ -25,8 +25,6 @@ public class Chef_Controls : MonoBehaviour
     private System.Collections.Generic.List<Ingredient_Spawner> nearbySpawners =
     new System.Collections.Generic.List<Ingredient_Spawner>();
 
-
-
     [Header("Interaction Prompt")]
     [SerializeField] private InteractionUI interactionPrompt;
     [SerializeField] private float interactionRange = 2.5f;
@@ -311,5 +309,10 @@ public class Chef_Controls : MonoBehaviour
 
         return closest;
     }
+    public GameObject GetHeldObject()
+    {
+        return heldObj;
+    }
+
 
 }

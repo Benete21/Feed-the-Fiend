@@ -272,4 +272,10 @@ public class CustomerOrder : MonoBehaviour, IInteractable
             waitingExclamation.SetActive(false);
         }
     }
+
+    public bool HasOrdered()
+    {
+        return hasOrdered;
+    }
+
 }
