@@ -15122,7 +15122,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!23 &1642685821
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -15672,9 +15672,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Chef_Controls
   moveSpeed: 5
   rotateSpeed: 180
-  pickupRange: 3
+  pickupRange: 2
   pickupWidth: 0.7
-  pickupHeight: 1.2
+  pickupHeight: 3
   hold: {fileID: 1155758643}
   prepStation: {fileID: 680019447}
   prepStationRange: 5
