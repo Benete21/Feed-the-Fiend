@@ -18,7 +18,8 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] private PrepFoodStation prepStation;
 
     [Header("Customer")]
-    [SerializeField] private CustomerOrder customer;
+    [SerializeField] private TutCustomer tutorialCustomer;
+
 
     [Header("Dialogue UI")]
     [SerializeField] private GameObject dialoguePanel;
@@ -73,15 +74,13 @@ public class TutorialManager : MonoBehaviour
         );
 
 
-        while (customer == null)
+        while (tutorialCustomer == null)
         {
-            customer = FindFirstObjectByType<CustomerOrder>();
             yield return null;
         }
 
-        yield return WaitForAction(() =>
-            customer != null && customer.HasOrdered()
-        );
+        yield return WaitForTutorialOrder();
+
 
         yield return Dialogue(
             "Great! You have taken the customer's order."
@@ -370,9 +369,43 @@ public class TutorialManager : MonoBehaviour
             dialoguePanel.SetActive(true);
     }
 
-    public void SetTutorialCustomer(CustomerOrder newCustomer)
+    private IEnumerator WaitForTutorialOrder()
     {
-        customer = newCustomer;
+        // Hide dialogue while the player interacts
+        if (dialoguePanel != null)
+            dialoguePanel.SetActive(false);
+
+        bool orderTaken = false;
+
+        void OrderFinished()
+        {
+            Debug.Log("TutorialManager: Order received!");
+            orderTaken = true;
+        }
+
+        // Subscribe to the tutorial customer's event.
+        tutorialCustomer.OnOrderTaken += OrderFinished;
+
+        // Check in case it somehow happened before we subscribed.
+        if (tutorialCustomer.HasOrdered())
+        {
+            orderTaken = true;
+        }
+
+        // Wait until the customer finishes taking the order.
+        while (!orderTaken)
+        {
+            yield return null;
+        }
+
+        // Stop listening.
+        tutorialCustomer.OnOrderTaken -= OrderFinished;
+
+        // Show dialogue again.
+        if (dialoguePanel != null)
+            dialoguePanel.SetActive(true);
     }
+
+
 
 }

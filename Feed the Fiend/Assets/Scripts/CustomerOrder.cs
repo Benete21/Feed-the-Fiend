@@ -24,6 +24,8 @@ public class CustomerOrder : MonoBehaviour, IInteractable
 
     public bool isBerserk = false;
     public event Action OnOrderTaken;
+    public event System.Action OnOrderStarted;
+
 
 
     void Start()
@@ -162,6 +164,9 @@ public class CustomerOrder : MonoBehaviour, IInteractable
     {
         Debug.Log("TAKING CUSTOMER ORDER");
 
+        // Tell TutorialManager immediately
+        OnOrderStarted?.Invoke();
+
         // Stop the "waiting for order" timer
         waiting = false;
         waitTime = 0f;
@@ -170,6 +175,7 @@ public class CustomerOrder : MonoBehaviour, IInteractable
 
         StartCoroutine(OrderRoutine(waiter));
     }
+
 
 
 

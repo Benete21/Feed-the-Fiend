@@ -13,9 +13,7 @@ GameObject:
   - component: {fileID: 6233706345814619673}
   - component: {fileID: 6118733891589632202}
   - component: {fileID: 1225082413245247985}
-  - component: {fileID: 5332770286007527032}
-  - component: {fileID: 3873272308037787604}
-  - component: {fileID: 4774978916257907536}
+  - component: {fileID: -2807437637399420684}
   m_Layer: 0
   m_Name: Tutorial_Customer
   m_TagString: Customer
@@ -147,7 +145,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &5332770286007527032
+--- !u!114 &-2807437637399420684
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -156,72 +154,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 442584990175644706}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4a00e30d51faf40448bcc76304bcc6f1, type: 3}
+  m_Script: {fileID: 11500000, guid: 521d7af5feb356742b357fb37c454c33, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CustomerOrder
-  loadingCanvas: {fileID: 740149184932366492}
+  m_EditorClassIdentifier: Assembly-CSharp::TutCustomer
+  orderTime: 3
   loadingBar: {fileID: 7843425029699346210}
-  berserkBar: {fileID: 2220554061019408404}
   waitingExclamation: {fileID: 5567698548250114770}
-  currentOrder: 
-  maxWait: 30
-  waitTime: 0
-  waiting: 0
-  monsterAI: {fileID: 3873272308037787604}
-  satisfied: {fileID: 0}
-  isBerserk: 0
---- !u!114 &3873272308037787604
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 442584990175644706}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f4ae3216d483cd4fbd0cbd04d183222, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MonsterAI
-  agent: {fileID: 4774978916257907536}
-  walkSpeed: 4
-  berserkSpeed: 5
-  tables:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  assignedTableNumber: -1
-  order: {fileID: 0}
-  detectionRange: 20
-  playerTag: Waiter
-  attackRange: 2
-  attackDamage: 20
-  attackCooldown: 1.5
-  isBerserk: 0
---- !u!195 &4774978916257907536
-NavMeshAgent:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 442584990175644706}
-  m_Enabled: 1
-  m_AgentTypeID: 0
-  m_Radius: 0.5
-  m_Speed: 3.5
-  m_Acceleration: 8
-  avoidancePriority: 50
-  m_AngularSpeed: 120
-  m_StoppingDistance: 0.3
-  m_AutoTraverseOffMeshLink: 1
-  m_AutoBraking: 1
-  m_AutoRepath: 1
-  m_Height: 2
-  m_BaseOffset: 0
-  m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 4
+  tutorialFood: 2
+  currentOrder: 02000000
 --- !u!1 &1183081744567660980
 GameObject:
   m_ObjectHideFlags: 0
