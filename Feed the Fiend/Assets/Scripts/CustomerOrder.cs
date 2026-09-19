@@ -162,6 +162,7 @@ public class CustomerOrder : MonoBehaviour, IInteractable
     {
         Debug.Log("TAKING CUSTOMER ORDER");
 
+        // Stop the "waiting for order" timer
         waiting = false;
         waitTime = 0f;
 
@@ -171,6 +172,7 @@ public class CustomerOrder : MonoBehaviour, IInteractable
     }
 
 
+
     IEnumerator OrderRoutine(Waiter_Controls waiter)
     {
         waiting = false;
@@ -178,6 +180,7 @@ public class CustomerOrder : MonoBehaviour, IInteractable
         if (berserkBar != null)
             berserkBar.gameObject.SetActive(false);
 
+        // Show loading bar
         if (loadingBar != null)
         {
             loadingBar.gameObject.SetActive(true);
@@ -197,14 +200,20 @@ public class CustomerOrder : MonoBehaviour, IInteractable
             yield return null;
         }
 
+        // Hide loading bar
         if (loadingBar != null)
             loadingBar.gameObject.SetActive(false);
 
+        // Generate the customer's order
         GenerateRandomOrder();
 
-        waiter.GiveOrderSlip(currentOrder);
+        // Give the order to the waiter
+        if (waiter != null)
+        {
+            waiter.GiveOrderSlip(currentOrder);
+        }
 
-        // IMPORTANT
+        // THIS IS THE IMPORTANT PART
         hasOrdered = true;
 
         Debug.Log("ORDER TAKEN SUCCESSFULLY!");
@@ -212,6 +221,7 @@ public class CustomerOrder : MonoBehaviour, IInteractable
         // Tell TutorialManager
         OnOrderTaken?.Invoke();
 
+        // Start the delivery timer
         waitTime = maxWait;
         waiting = true;
 
@@ -221,6 +231,7 @@ public class CustomerOrder : MonoBehaviour, IInteractable
             berserkBar.gameObject.SetActive(true);
         }
     }
+
 
 
     void GenerateRandomOrder()

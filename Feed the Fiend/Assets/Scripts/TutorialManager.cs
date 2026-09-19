@@ -79,11 +79,14 @@ public class TutorialManager : MonoBehaviour
             yield return null;
         }
 
-        yield return WaitForCustomerOrder();
+        yield return WaitForAction(() =>
+            customer != null && customer.HasOrdered()
+        );
 
         yield return Dialogue(
             "Great! You have taken the customer's order."
         );
+
 
 
         yield return Dialogue(
@@ -371,35 +374,5 @@ public class TutorialManager : MonoBehaviour
     {
         customer = newCustomer;
     }
-
-    private IEnumerator WaitForCustomerOrder()
-    {
-        if (dialoguePanel != null)
-            dialoguePanel.SetActive(false);
-
-        bool orderTaken = false;
-
-        void OnOrderTaken()
-        {
-            orderTaken = true;
-        }
-
-        customer.OnOrderTaken += OnOrderTaken;
-
-        // In case the order was already taken before we subscribed
-        if (customer.HasOrdered())
-            orderTaken = true;
-
-        while (!orderTaken)
-        {
-            yield return null;
-        }
-
-        customer.OnOrderTaken -= OnOrderTaken;
-
-        if (dialoguePanel != null)
-            dialoguePanel.SetActive(true);
-    }
-
 
 }
