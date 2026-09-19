@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 public class CustomerOrder : MonoBehaviour, IInteractable
 {
@@ -22,6 +23,8 @@ public class CustomerOrder : MonoBehaviour, IInteractable
     public MonsterSpawner satisfied;
 
     public bool isBerserk = false;
+    public event Action OnOrderTaken;
+
 
     void Start()
     {
@@ -157,29 +160,24 @@ public class CustomerOrder : MonoBehaviour, IInteractable
 
     void TakeOrder(Waiter_Controls waiter)
     {
-        hasOrdered = true;
+        Debug.Log("TAKING CUSTOMER ORDER");
 
-        // Stop the first timer
         waiting = false;
         waitTime = 0f;
 
-        // Hide waiting UI
         HideWaitingExclamation();
 
-        // Start taking the order
         StartCoroutine(OrderRoutine(waiter));
     }
 
 
     IEnumerator OrderRoutine(Waiter_Controls waiter)
     {
-        // Hide berserk bar while taking the order
         waiting = false;
 
         if (berserkBar != null)
             berserkBar.gameObject.SetActive(false);
 
-        // Show loading bar
         if (loadingBar != null)
         {
             loadingBar.gameObject.SetActive(true);
@@ -199,19 +197,21 @@ public class CustomerOrder : MonoBehaviour, IInteractable
             yield return null;
         }
 
-        // Hide loading bar
         if (loadingBar != null)
             loadingBar.gameObject.SetActive(false);
 
-        // Generate order
         GenerateRandomOrder();
 
-        // Give order to waiter
         waiter.GiveOrderSlip(currentOrder);
 
-        Debug.Log("Order taken successfully!");
+        // IMPORTANT
+        hasOrdered = true;
 
-        // Start a NEW berserk timer for delivering the food
+        Debug.Log("ORDER TAKEN SUCCESSFULLY!");
+
+        // Tell TutorialManager
+        OnOrderTaken?.Invoke();
+
         waitTime = maxWait;
         waiting = true;
 
@@ -225,19 +225,21 @@ public class CustomerOrder : MonoBehaviour, IInteractable
 
     void GenerateRandomOrder()
     {
-        int amount = Random.Range(1, 4);
+        int amount = UnityEngine.Random.Range(1, 4);
 
         currentOrder = new Food_Types[amount];
+
+        Array foodTypes = Enum.GetValues(typeof(Food_Types));
 
         for (int i = 0; i < amount; i++)
         {
             currentOrder[i] =
-                (Food_Types)Random.Range(
-                    0,
-                    System.Enum.GetValues(typeof(Food_Types)).Length
+                (Food_Types)foodTypes.GetValue(
+                    UnityEngine.Random.Range(0, foodTypes.Length)
                 );
         }
     }
+
 
     void Satisfied()
     {

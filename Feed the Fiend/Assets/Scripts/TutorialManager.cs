@@ -9,6 +9,10 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] private Chef_Controls chef;
     [SerializeField] private Waiter_Controls waiter;
 
+    [Header("Character GameObjects")]
+    [SerializeField] private GameObject chefObject;
+    [SerializeField] private GameObject waiterObject;
+
     [Header("Stations")]
     [SerializeField] private Ingredient_Spawner ingredientSpawner;
     [SerializeField] private PrepFoodStation prepStation;
@@ -24,32 +28,92 @@ public class TutorialManager : MonoBehaviour
     [Header("Dialogue")]
     [SerializeField] private float textSpeed = 0.03f;
 
+
     private void Start()
     {
+        // Start the tutorial as the waiter
+        SwitchToWaiter();
+
         if (dialoguePanel != null)
             dialoguePanel.SetActive(true);
 
         StartCoroutine(RunTutorial());
     }
 
+
     private IEnumerator RunTutorial()
     {
-        // =========================
-        // WELCOME
-        // =========================
+        // =====================================================
+        // INTRO
+        // =====================================================
 
         yield return Dialogue(
             "Welcome to the restaurant!"
         );
 
         yield return Dialogue(
-            "Let's learn how to prepare and serve food."
+            "Let's learn how to take orders, prepare food, and serve customers."
         );
 
 
-        // =========================
-        // INGREDIENT
-        // =========================
+        // =====================================================
+        // WAITER - TAKE ORDER
+        // =====================================================
+
+        yield return Dialogue(
+            "You are now controlling the waiter."
+        );
+
+        yield return Dialogue(
+            "Your first job is to take the customer's order."
+        );
+
+        yield return Dialogue(
+            "Walk over to the customer and interact with them."
+        );
+
+
+        while (customer == null)
+        {
+            customer = FindFirstObjectByType<CustomerOrder>();
+            yield return null;
+        }
+
+        yield return WaitForCustomerOrder();
+
+        yield return Dialogue(
+            "Great! You have taken the customer's order."
+        );
+
+
+        yield return Dialogue(
+            "The order will appear on your order slip."
+        );
+
+
+
+        // =====================================================
+        // SWITCH TO CHEF
+        // =====================================================
+
+        yield return Dialogue(
+            "Now we need to prepare the customer's food."
+        );
+
+        yield return Dialogue(
+            "Let's switch to the chef."
+        );
+
+        SwitchToChef();
+
+        yield return Dialogue(
+            "You are now controlling the chef."
+        );
+
+
+        // =====================================================
+        // CHEF - INGREDIENT
+        // =====================================================
 
         yield return Dialogue(
             "First, walk over to an ingredient station."
@@ -69,7 +133,7 @@ public class TutorialManager : MonoBehaviour
             "Press your PICKUP button to get the ingredient."
         );
 
-        // Hide dialogue while player performs pickup
+        // Hide dialogue while player picks up ingredient
         yield return WaitForAction(() =>
             chef != null &&
             chef.GetHeldObject() != null
@@ -80,15 +144,15 @@ public class TutorialManager : MonoBehaviour
         );
 
 
-        // =========================
-        // PREP
-        // =========================
+        // =====================================================
+        // CHEF - PREPARATION
+        // =====================================================
 
         yield return Dialogue(
             "Now take the ingredient to the preparation station."
         );
 
-        // Hide dialogue while player moves and places ingredient
+        // Hide dialogue while player places ingredient
         yield return WaitForAction(() =>
             prepStation != null &&
             prepStation.HasIngredients()
@@ -102,7 +166,7 @@ public class TutorialManager : MonoBehaviour
             "When you have enough ingredients, press PREPARE."
         );
 
-        // Hide dialogue while player presses prep
+        // Hide dialogue while player presses prepare
         yield return WaitForAction(() =>
             prepStation != null &&
             prepStation.IsPreparing()
@@ -122,37 +186,37 @@ public class TutorialManager : MonoBehaviour
             !prepStation.IsPreparing()
         );
 
-
-        // =========================
-        // CUSTOMER
-        // =========================
-
         yield return Dialogue(
-            "Now let's take a customer's order."
+            "Excellent! The food is ready."
         );
 
-        yield return Dialogue(
-            "Walk over to the customer and interact with them."
-        );
 
-        // Hide dialogue while player moves to customer
-        yield return WaitForAction(() =>
-            customer != null &&
-            customer.HasOrdered()
+        // =====================================================
+        // SWITCH BACK TO WAITER
+        // =====================================================
+
+        yield return Dialogue(
+            "Now it's time to serve the customer."
         );
 
         yield return Dialogue(
-            "Great! The customer has given you their order."
+            "Let's switch back to the waiter."
+        );
+
+        SwitchToWaiter();
+
+        yield return Dialogue(
+            "You are now controlling the waiter."
         );
 
         yield return Dialogue(
-            "The order will appear on your order slip."
+            "Take the prepared food and deliver it to the customer."
         );
 
 
-        // =========================
+        // =====================================================
         // BERSERK
-        // =========================
+        // =====================================================
 
         yield return Dialogue(
             "Be careful though. Customers won't wait forever."
@@ -179,20 +243,60 @@ public class TutorialManager : MonoBehaviour
         );
 
 
-        // =========================
+        // =====================================================
         // FINISH
-        // =========================
+        // =====================================================
 
         yield return Dialogue(
             "Now you know the basics!"
         );
 
         yield return Dialogue(
-            "Take orders, prepare food, deliver it quickly, and don't let your customers go berserk!"
+            "Take orders with the waiter, prepare food with the chef, and serve the customer before they go berserk!"
         );
 
         if (dialoguePanel != null)
             dialoguePanel.SetActive(false);
+    }
+
+
+    // =========================================================
+    // SWITCH TO CHEF
+    // =========================================================
+
+    private void SwitchToChef()
+    {
+        if (waiterObject != null)
+            waiterObject.SetActive(false);
+
+        if (chefObject != null)
+            chefObject.SetActive(true);
+
+        if (waiter != null)
+            waiter.enabled = false;
+
+        if (chef != null)
+            chef.enabled = true;
+    }
+
+
+    // =========================================================
+    // SWITCH TO WAITER
+    // =========================================================
+
+    private void SwitchToWaiter()
+    {
+        if (chefObject != null)
+            chefObject.SetActive(false);
+
+        if (waiterObject != null)
+            waiterObject.SetActive(true);
+
+        if (chef != null)
+            chef.enabled = false;
+
+        if (waiter != null)
+            waiter.enabled = true;
     }
 
 
@@ -262,4 +366,40 @@ public class TutorialManager : MonoBehaviour
         if (dialoguePanel != null)
             dialoguePanel.SetActive(true);
     }
+
+    public void SetTutorialCustomer(CustomerOrder newCustomer)
+    {
+        customer = newCustomer;
+    }
+
+    private IEnumerator WaitForCustomerOrder()
+    {
+        if (dialoguePanel != null)
+            dialoguePanel.SetActive(false);
+
+        bool orderTaken = false;
+
+        void OnOrderTaken()
+        {
+            orderTaken = true;
+        }
+
+        customer.OnOrderTaken += OnOrderTaken;
+
+        // In case the order was already taken before we subscribed
+        if (customer.HasOrdered())
+            orderTaken = true;
+
+        while (!orderTaken)
+        {
+            yield return null;
+        }
+
+        customer.OnOrderTaken -= OnOrderTaken;
+
+        if (dialoguePanel != null)
+            dialoguePanel.SetActive(true);
+    }
+
+
 }

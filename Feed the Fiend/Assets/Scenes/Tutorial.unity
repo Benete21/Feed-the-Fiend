@@ -11077,9 +11077,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TutorialManager
   chef: {fileID: 1660470059}
   waiter: {fileID: 1642685828}
+  chefObject: {fileID: 1660470050}
+  waiterObject: {fileID: 1642685819}
   ingredientSpawner: {fileID: 1541472211}
   prepStation: {fileID: 680019447}
-  customer: {fileID: 5425877004736305691, guid: 8dc11bf176921c844bfc28c6cda77832, type: 3}
+  customer: {fileID: 5332770286007527032, guid: 665523ec2c2c95b43979f2bad45c0d86, type: 3}
   dialoguePanel: {fileID: 1228336589}
   dialogueText: {fileID: 453949671}
   continueText: {fileID: 552499675}
@@ -15724,23 +15726,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterSpawner
   monsterPrefabs:
-  - {fileID: 3199352006760082218, guid: 8dc11bf176921c844bfc28c6cda77832, type: 3}
-  - {fileID: 3199352006760082218, guid: 8dc11bf176921c844bfc28c6cda77832, type: 3}
-  - {fileID: 3199352006760082218, guid: 8dc11bf176921c844bfc28c6cda77832, type: 3}
+  - {fileID: 442584990175644706, guid: 665523ec2c2c95b43979f2bad45c0d86, type: 3}
   entranceSpawnPoint: {fileID: 1703769974}
   currentDay: 1
-  startingMonsterCount: 4
+  startingMonsterCount: 1
   monstersAddedPerDay: 1
   Day1Finish: {fileID: 0}
   minSpawn: 1
   maxSpawn: 15
   tables:
-  - {fileID: 1883288311}
-  - {fileID: 1203589084}
   - {fileID: 980208733}
-  - {fileID: 879739072}
-  - {fileID: 460691449}
-  - {fileID: 24086630}
   navMeshSearchRadius: 3
   dayText: {fileID: 0}
   monsterText: {fileID: 0}
