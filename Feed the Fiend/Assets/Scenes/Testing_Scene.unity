@@ -18704,7 +18704,7 @@ MonoBehaviour:
   startingMonsterCount: 4
   monstersAddedPerDay: 1
   Day1Finish: {fileID: 0}
-  minSpawn: 20
+  minSpawn: 30
   maxSpawn: 50
   tables:
   - {fileID: 1883288311}
