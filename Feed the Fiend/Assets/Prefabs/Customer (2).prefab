@@ -362,8 +362,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CustomerOrder
   loadingCanvas: {fileID: 8231948329048854672}
   loadingBar: {fileID: 3635771649303814816}
+  berserkBar: {fileID: 0}
+  waitingExclamation: {fileID: 0}
   currentOrder: 
-  maxWait: 30
+  maxWait: 55
   waitTime: 0
   waiting: 0
   monsterAI: {fileID: 6097527582285230908}
@@ -392,6 +394,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   assignedTableNumber: -1
+  order: {fileID: 0}
   detectionRange: 20
   playerTag: Waiter
   attackRange: 2

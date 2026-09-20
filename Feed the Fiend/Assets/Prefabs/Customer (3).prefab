@@ -660,7 +660,7 @@ MonoBehaviour:
   berserkBar: {fileID: 1949907365789687953}
   waitingExclamation: {fileID: 4091969488177999285}
   currentOrder: 
-  maxWait: 30
+  maxWait: 55
   waitTime: 0
   waiting: 0
   monsterAI: {fileID: 5033292532512605280}
@@ -689,6 +689,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   assignedTableNumber: -1
+  order: {fileID: 0}
   detectionRange: 20
   playerTag: Waiter
   attackRange: 2
