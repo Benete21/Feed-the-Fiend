@@ -7567,7 +7567,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1386416639}
-  - component: {fileID: 1386416638}
+  - component: {fileID: 1386416640}
   m_Layer: 0
   m_Name: CameraManager
   m_TagString: Untagged
@@ -7575,25 +7575,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1386416638
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1386416637}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 862008f71d805f24398a73e00cec9a46, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SplitCamera
-  cam1: {fileID: 857692428}
-  cam2: {fileID: 464013915}
-  player1: {fileID: 1660470054}
-  player2: {fileID: 1642685823}
-  splitDistance: 10
-  transition: 2
-  mergeSpeed: 5
 --- !u!4 &1386416639
 Transform:
   m_ObjectHideFlags: 0
@@ -7609,6 +7590,24 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1386416640
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1386416637}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45cbb278dd11d56428813002e96d4cfb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SplitCameraTut
+  cam1: {fileID: 857692428}
+  cam2: {fileID: 464013915}
+  player1: {fileID: 1660470054}
+  player2: {fileID: 1642685823}
+  cameraOffset: {x: 0, y: 10, z: -10}
+  followSpeed: 10
 --- !u!1 &1400344138
 GameObject:
   m_ObjectHideFlags: 0
