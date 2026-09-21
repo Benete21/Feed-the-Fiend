@@ -23,9 +23,9 @@ public class CustomerOrder : MonoBehaviour, IInteractable
     public MonsterSpawner satisfied;
 
     public bool isBerserk = false;
-    public event Action OnOrderTaken;
-    public event System.Action OnOrderStarted;
 
+    public event Action OnOrderTaken;
+    public event Action OnOrderStarted;
 
 
     void Start()
@@ -44,6 +44,7 @@ public class CustomerOrder : MonoBehaviour, IInteractable
         waitTime = 0f;
     }
 
+
     void Update()
     {
         if (!waiting)
@@ -54,7 +55,8 @@ public class CustomerOrder : MonoBehaviour, IInteractable
         // Update berserk timer
         if (berserkBar != null)
         {
-            berserkBar.value = Mathf.Clamp01(waitTime / maxWait);
+            berserkBar.value =
+                Mathf.Clamp01(waitTime / maxWait);
         }
 
         // Time ran out
@@ -75,29 +77,24 @@ public class CustomerOrder : MonoBehaviour, IInteractable
         }
     }
 
+
     // Called by MonsterAI when the monster reaches its table
     public void StartWaitingForOrder()
     {
         if (isBerserk)
             return;
 
-        // Don't start another timer
         if (waiting)
             return;
 
         Debug.Log("Monster is ready to order!");
 
-        // Show the exclamation
         if (waitingExclamation != null)
             waitingExclamation.SetActive(true);
 
-        // Reset the timer
         waitTime = maxWait;
-
-        // Start waiting
         waiting = true;
 
-        // Reset and show berserk bar
         if (berserkBar != null)
         {
             berserkBar.value = 1f;
@@ -105,6 +102,8 @@ public class CustomerOrder : MonoBehaviour, IInteractable
         }
     }
 
+
+    // Called when the waiter interacts with the monster
     public void Interact(Waiter_Controls waiter)
     {
         // Monster has not reached the table yet
@@ -127,47 +126,23 @@ public class CustomerOrder : MonoBehaviour, IInteractable
         if (held == null)
             return;
 
-        FoodItems food = held.GetComponent<FoodItems>();
+        FoodItems food =
+            held.GetComponentInChildren<FoodItems>();
 
         if (food == null)
             return;
 
-        if (food.foodType == currentOrder[0])
-        {
-            Debug.Log("Correct food!");
-
-            waiting = false;
-            waitTime = 0f;
-
-            // Hide waiting UI
-            if (waitingExclamation != null)
-                waitingExclamation.SetActive(false);
-
-            // Hide berserk bar
-            if (berserkBar != null)
-                berserkBar.gameObject.SetActive(false);
-
-            Destroy(held);
-
-            waiter.RemoveHeldObject();
-            waiter.RemoveOrderSlip();
-
-            Satisfied();
-        }
-        else
-        {
-            Debug.Log("Wrong food!");
-        }
+        TryDeliverFood(food);
     }
 
+
+    // Starts taking the customer's order
     void TakeOrder(Waiter_Controls waiter)
     {
         Debug.Log("TAKING CUSTOMER ORDER");
 
-        // Tell TutorialManager immediately
         OnOrderStarted?.Invoke();
 
-        // Stop the "waiting for order" timer
         waiting = false;
         waitTime = 0f;
 
@@ -175,8 +150,6 @@ public class CustomerOrder : MonoBehaviour, IInteractable
 
         StartCoroutine(OrderRoutine(waiter));
     }
-
-
 
 
     IEnumerator OrderRoutine(Waiter_Controls waiter)
@@ -210,24 +183,22 @@ public class CustomerOrder : MonoBehaviour, IInteractable
         if (loadingBar != null)
             loadingBar.gameObject.SetActive(false);
 
-        // Generate the customer's order
+        // Generate order
         GenerateRandomOrder();
 
-        // Give the order to the waiter
+        // Give order slip to waiter
         if (waiter != null)
         {
             waiter.GiveOrderSlip(currentOrder);
         }
 
-        // THIS IS THE IMPORTANT PART
         hasOrdered = true;
 
         Debug.Log("ORDER TAKEN SUCCESSFULLY!");
 
-        // Tell TutorialManager
         OnOrderTaken?.Invoke();
 
-        // Start the delivery timer
+        // Start delivery timer
         waitTime = maxWait;
         waiting = true;
 
@@ -238,34 +209,124 @@ public class CustomerOrder : MonoBehaviour, IInteractable
         }
     }
 
-
-
     void GenerateRandomOrder()
     {
-        int amount = UnityEngine.Random.Range(1, 4);
+        // Customer orders exactly ONE food item
+        currentOrder = new Food_Types[1];
 
-        currentOrder = new Food_Types[amount];
+        Array foodTypes =
+            Enum.GetValues(typeof(Food_Types));
 
-        Array foodTypes = Enum.GetValues(typeof(Food_Types));
+        currentOrder[0] =
+            (Food_Types)foodTypes.GetValue(
+                UnityEngine.Random.Range(
+                    0,
+                    foodTypes.Length
+                )
+            );
 
-        for (int i = 0; i < amount; i++)
+        Debug.Log("Customer ordered: " + currentOrder[0]);
+    }
+
+
+    // =========================================================
+    // FOOD DELIVERY
+    // =========================================================
+
+    public void TryDeliverFood(FoodItems food)
+    {
+        if (food == null)
+            return;
+
+        if (!hasOrdered)
         {
-            currentOrder[i] =
-                (Food_Types)foodTypes.GetValue(
-                    UnityEngine.Random.Range(0, foodTypes.Length)
-                );
+            Debug.Log("Customer has not ordered yet.");
+            return;
+        }
+
+        if (!waiting)
+        {
+            Debug.Log("Customer is not waiting for food.");
+            return;
+        }
+
+        if (currentOrder == null ||
+            currentOrder.Length == 0)
+        {
+            Debug.LogWarning("Customer has no current order.");
+            return;
+        }
+
+        Debug.Log(
+            "Customer wants: " +
+            currentOrder[0] +
+            " | Delivered: " +
+            food.foodType
+        );
+
+        // Wrong food
+        if (food.foodType != currentOrder[0])
+        {
+            Debug.Log("WRONG FOOD!");
+            return;
+        }
+
+        // Correct food
+        Debug.Log("CORRECT FOOD DELIVERED!");
+
+        waiting = false;
+        waitTime = 0f;
+
+        if (waitingExclamation != null)
+            waitingExclamation.SetActive(false);
+
+        if (berserkBar != null)
+            berserkBar.gameObject.SetActive(false);
+
+        // Find waiter
+        Waiter_Controls waiter =
+            food.GetComponentInParent<Waiter_Controls>();
+
+        if (waiter != null)
+        {
+            waiter.RemoveHeldObject();
+            waiter.RemoveOrderSlip();
+        }
+        else
+        {
+            // If the food isn't a child of the waiter,
+            // destroy it directly.
+            Destroy(food.gameObject);
+        }
+
+        Satisfied();
+    }
+
+
+    // =========================================================
+    // CUSTOMER SATISFIED
+    // =========================================================
+
+void Satisfied()
+    {
+        Debug.Log("OrderCorrect");
+
+        if (satisfied != null)
+        {
+            satisfied.Served();
+        }
+
+        if (monsterAI != null)
+        {
+            monsterAI.BecomeSatisfied();
         }
     }
 
 
-    void Satisfied()
-    {
-        Debug.Log("OrderCorrect");
 
-        satisfied.Served();
-
-        Destroy(gameObject, 2f);
-    }
+    // =========================================================
+    // BERSERK
+    // =========================================================
 
     void Berserk()
     {
@@ -273,8 +334,12 @@ public class CustomerOrder : MonoBehaviour, IInteractable
 
         Debug.Log("MONSTER HAS GONE BERSERK!");
 
-        monsterAI.StartBerserk();
+        if (monsterAI != null)
+        {
+            monsterAI.StartBerserk();
+        }
     }
+
 
     public void ShowWaitingExclamation()
     {
@@ -284,6 +349,7 @@ public class CustomerOrder : MonoBehaviour, IInteractable
         }
     }
 
+
     public void HideWaitingExclamation()
     {
         if (waitingExclamation != null)
@@ -292,9 +358,9 @@ public class CustomerOrder : MonoBehaviour, IInteractable
         }
     }
 
+
     public bool HasOrdered()
     {
         return hasOrdered;
     }
-
 }

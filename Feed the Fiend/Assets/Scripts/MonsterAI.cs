@@ -32,13 +32,39 @@ public class MonsterAI : MonoBehaviour
     [Header("Berserk")]
     public bool isBerserk = false;
 
+    [Header("Satisfied")]
+    public float satisfiedWaitTime = 3f;
+
+    public GameObject happyUI;
+    public Transform spawnPoint;
+
     private float attackTimer;
     private Transform currentTarget;
 
+    private Vector3 originalSpawnPosition;
+    private Quaternion originalSpawnRotation;
+
+    private bool isSatisfied = false;
+    private bool isReturningToSpawn = false;
+
+
     void Awake()
     {
-        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
+        audioManager =
+            GameObject.FindGameObjectWithTag("Audio")
+            .GetComponent<AudioManager>();
+
+        // Remember where this monster spawned
+        originalSpawnPosition = transform.position;
+        originalSpawnRotation = transform.rotation;
+
+        // Hide happy UI
+        if (happyUI != null)
+        {
+            happyUI.SetActive(false);
+        }
     }
+
 
     void Start()
     {
@@ -54,12 +80,21 @@ public class MonsterAI : MonoBehaviour
     }
 
 
-
     void Update()
     {
+        // Satisfied monster is handled separately
+        if (isSatisfied)
+        {
+            return;
+        }
+
         if (isBerserk)
         {
             BerserkUpdate();
+        }
+        else if (isReturningToSpawn)
+        {
+            ReturnToSpawnUpdate();
         }
         else
         {
@@ -67,12 +102,18 @@ public class MonsterAI : MonoBehaviour
         }
     }
 
+
+    // =========================================================
+    // RESTAURANT
+    // =========================================================
+
     void RestaurantUpdate()
     {
         if (assignedTable == null)
             return;
 
-        if (!agent.pathPending && agent.remainingDistance <= 0.5f)
+        if (!agent.pathPending &&
+            agent.remainingDistance <= 0.5f)
         {
             agent.isStopped = true;
 
@@ -80,7 +121,11 @@ public class MonsterAI : MonoBehaviour
             {
                 hasReachedTable = true;
 
-                Debug.Log(gameObject.name + " has arrived at Table " + assignedTableNumber);
+                Debug.Log(
+                    gameObject.name +
+                    " has arrived at Table " +
+                    assignedTableNumber
+                );
 
                 if (order != null)
                 {
@@ -92,20 +137,24 @@ public class MonsterAI : MonoBehaviour
         }
 
         agent.isStopped = false;
-        agent.SetDestination(assignedTable.transform.position);
+        agent.SetDestination(
+            assignedTable.transform.position
+        );
     }
-
 
 
     void ChooseRandomTable()
     {
         if (tables == null || tables.Length == 0)
         {
-            Debug.LogWarning("No restaurant tables assigned to " + gameObject.name);
+            Debug.LogWarning(
+                "No restaurant tables assigned to " +
+                gameObject.name
+            );
+
             return;
         }
 
-        // Create a list of tables that aren't occupied
         System.Collections.Generic.List<RestrauntTable> availableTables =
             new System.Collections.Generic.List<RestrauntTable>();
 
@@ -117,23 +166,26 @@ public class MonsterAI : MonoBehaviour
             }
         }
 
-        // No available tables
         if (availableTables.Count == 0)
         {
-            Debug.Log("No available tables for " + gameObject.name);
+            Debug.Log(
+                "No available tables for " +
+                gameObject.name
+            );
+
             return;
         }
 
-        // Pick a random available table
-        int randomIndex = Random.Range(0, availableTables.Count);
+        int randomIndex =
+            Random.Range(0, availableTables.Count);
 
-        assignedTable = availableTables[randomIndex];
+        assignedTable =
+            availableTables[randomIndex];
 
-        // Reserve the table
         assignedTable.isOccupied = true;
 
-        // Store the table number
-        assignedTableNumber = assignedTable.tableNumber;
+        assignedTableNumber =
+            assignedTable.tableNumber;
 
         Debug.Log(
             gameObject.name +
@@ -141,10 +193,141 @@ public class MonsterAI : MonoBehaviour
             assignedTableNumber
         );
 
-        // Start walking there
         agent.isStopped = false;
-        agent.SetDestination(assignedTable.transform.position);
+
+        agent.SetDestination(
+            assignedTable.transform.position
+        );
     }
+
+
+    // =========================================================
+    // SATISFIED
+    // =========================================================
+
+    public void BecomeSatisfied()
+    {
+        if (isSatisfied || isBerserk)
+            return;
+
+        Debug.Log(
+            gameObject.name +
+            " is satisfied!"
+        );
+
+        isSatisfied = true;
+
+        // Stop movement
+        agent.isStopped = true;
+
+        // Free the table
+        LeaveTable();
+
+        // Stop any current target
+        currentTarget = null;
+
+        // Show happy UI
+        if (happyUI != null)
+        {
+            happyUI.SetActive(true);
+        }
+
+        // Start waiting before leaving
+        StartCoroutine(SatisfiedRoutine());
+    }
+
+
+    System.Collections.IEnumerator SatisfiedRoutine()
+    {
+        Debug.Log(
+            gameObject.name +
+            " is happy and will leave in " +
+            satisfiedWaitTime +
+            " seconds."
+        );
+
+        yield return new WaitForSeconds(
+            satisfiedWaitTime
+        );
+
+        // Hide happy UI
+        if (happyUI != null)
+        {
+            happyUI.SetActive(false);
+        }
+
+        // Stop satisfied state
+        isSatisfied = false;
+
+        // Start returning
+        isReturningToSpawn = true;
+
+        agent.speed = walkSpeed;
+        agent.isStopped = false;
+
+        // Use assigned spawn point if there is one
+        if (spawnPoint != null)
+        {
+            agent.SetDestination(
+                spawnPoint.position
+            );
+        }
+        else
+        {
+            agent.SetDestination(
+                originalSpawnPosition
+            );
+        }
+
+        Debug.Log(
+            gameObject.name +
+            " is leaving the restaurant."
+        );
+    }
+
+
+    // =========================================================
+    // RETURN TO SPAWN
+    // =========================================================
+
+    void ReturnToSpawnUpdate()
+    {
+        Vector3 targetPosition;
+
+        if (spawnPoint != null)
+        {
+            targetPosition = spawnPoint.position;
+        }
+        else
+        {
+            targetPosition = originalSpawnPosition;
+        }
+
+        if (!agent.pathPending &&
+            agent.remainingDistance <= 0.5f)
+        {
+            agent.isStopped = true;
+
+            Debug.Log(
+                gameObject.name +
+                " has returned to the spawn position."
+            );
+
+            // Optional: remove the monster
+            Destroy(gameObject);
+
+            return;
+        }
+
+        agent.isStopped = false;
+
+        agent.SetDestination(targetPosition);
+    }
+
+
+    // =========================================================
+    // BERSERK
+    // =========================================================
 
     public void StartBerserk()
     {
@@ -153,17 +336,15 @@ public class MonsterAI : MonoBehaviour
 
         isBerserk = true;
 
-
-        Debug.Log("MONSTER HAS GONE BERSERK!");
+        Debug.Log(
+            "MONSTER HAS GONE BERSERK!"
+        );
 
         agent.speed = berserkSpeed;
 
-        // Free the table
         LeaveTable();
 
-        // Find a player immediately
         FindNearestPlayer();
-
     }
 
 
@@ -171,7 +352,6 @@ public class MonsterAI : MonoBehaviour
     {
         attackTimer -= Time.deltaTime;
 
-        // Find a target if we don't have one
         if (currentTarget == null)
         {
             FindNearestPlayer();
@@ -188,26 +368,28 @@ public class MonsterAI : MonoBehaviour
                 currentTarget.position
             );
 
-        // Player is too far away
         if (distance > detectionRange)
         {
             currentTarget = null;
             return;
         }
 
-        // Move toward player
         if (distance > attackRange)
         {
             agent.isStopped = false;
-            agent.SetDestination(currentTarget.position);
+
+            agent.SetDestination(
+                currentTarget.position
+            );
+
             audioManager.PlayMonsterMove();
         }
         else
         {
-            // Stop when close enough to attack
             agent.isStopped = true;
 
             AttackPlayer();
+
             audioManager.StopMonsterMove();
         }
     }
@@ -248,30 +430,41 @@ public class MonsterAI : MonoBehaviour
 
         attackTimer = attackCooldown;
 
-        Debug.Log("MONSTER ATTACKED THE PLAYER!");
+        Debug.Log(
+            "MONSTER ATTACKED THE PLAYER!"
+        );
 
         PlayerHP playerHealth =
             currentTarget.GetComponent<PlayerHP>();
 
         if (playerHealth != null)
         {
-            playerHealth.TakeDamage(attackDamage);
+            playerHealth.TakeDamage(
+                attackDamage
+            );
         }
     }
+
+
+    // =========================================================
+    // TABLE
+    // =========================================================
 
     void LeaveTable()
     {
         if (assignedTable != null)
         {
             assignedTable.isOccupied = false;
+
             assignedTable = null;
+
             assignedTableNumber = -1;
         }
     }
+
 
     private void OnDestroy()
     {
         LeaveTable();
     }
-
 }

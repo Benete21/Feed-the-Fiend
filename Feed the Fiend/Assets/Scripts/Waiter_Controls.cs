@@ -88,7 +88,7 @@ public class Waiter_Controls : MonoBehaviour
         {
             // Check for customer interaction first
             IInteractable interactable =
-                hit.GetComponent<IInteractable>();
+                hit.GetComponentInParent<IInteractable>();
 
             if (interactable != null)
             {
@@ -193,9 +193,18 @@ public class Waiter_Controls : MonoBehaviour
 
     public void RemoveHeldObject()
     {
+        if (heldObj != null)
+        {
+            // Destroy the actual object being held
+            Destroy(heldObj);
+        }
+
         heldObj = null;
         heldRb = null;
     }
+
+
+
     public void GiveOrderSlip(Food_Types[] order)
     {
         GameObject slip = Instantiate(physicalOrderSlipPrefab, slipSpawnPoint.position, slipSpawnPoint.rotation);
