@@ -775,7 +775,7 @@ MonoBehaviour:
   attackCooldown: 1.5
   isBerserk: 0
   satisfiedWaitTime: 3
-  happyUI: {fileID: 0}
+  happyUI: {fileID: 4335631955996746973}
   spawnPoint: {fileID: 0}
 --- !u!195 &2619464325354288702
 NavMeshAgent:

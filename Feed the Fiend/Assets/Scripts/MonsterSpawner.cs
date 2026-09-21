@@ -90,26 +90,54 @@ public class MonsterSpawner : MonoBehaviour
             return;
         }
 
-        GameObject randomPrefab =monsterPrefabs[Random.Range(0, monsterPrefabs.Length)];
+        GameObject randomPrefab =
+            monsterPrefabs[
+                Random.Range(0, monsterPrefabs.Length)
+            ];
+
         NavMeshHit hit;
 
-        if (!NavMesh.SamplePosition(entranceSpawnPoint.position,out hit,navMeshSearchRadius,NavMesh.AllAreas))
+        if (!NavMesh.SamplePosition(
+            entranceSpawnPoint.position,
+            out hit,
+            navMeshSearchRadius,
+            NavMesh.AllAreas))
         {
+            Debug.LogError(
+                "Could not find NavMesh position near entrance spawn point!"
+            );
+
             return;
         }
 
-        GameObject monster = Instantiate(randomPrefab, hit.position, entranceSpawnPoint.rotation);
+        GameObject monster =
+            Instantiate(
+                randomPrefab,
+                hit.position,
+                entranceSpawnPoint.rotation
+            );
 
-        MonsterAI monsterAI = monster.GetComponent<MonsterAI>();
+        MonsterAI monsterAI =
+            monster.GetComponent<MonsterAI>();
 
         if (monsterAI == null)
         {
+            Debug.LogError(
+                "Monster prefab does not have a MonsterAI component!"
+            );
+
             Destroy(monster);
             return;
         }
 
+        // Give the monster the same entrance point
+        // to use when it leaves the restaurant.
+        monsterAI.spawnPoint = entranceSpawnPoint;
+
+        // Give the monster the restaurant tables
         monsterAI.tables = tables;
     }
+
     public void Served()
     {
         monstersLeft--;

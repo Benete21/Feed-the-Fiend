@@ -32,6 +32,11 @@ public class MonsterAI : MonoBehaviour
     [Header("Berserk")]
     public bool isBerserk = false;
 
+    // How long the monster can remain berserk
+    public float berserkTimeLimit = 40f;
+
+    private float berserkTimer;
+
     [Header("Satisfied")]
     public float satisfiedWaitTime = 3f;
 
@@ -137,6 +142,7 @@ public class MonsterAI : MonoBehaviour
         }
 
         agent.isStopped = false;
+
         agent.SetDestination(
             assignedTable.transform.position
         );
@@ -217,22 +223,17 @@ public class MonsterAI : MonoBehaviour
 
         isSatisfied = true;
 
-        // Stop movement
         agent.isStopped = true;
 
-        // Free the table
         LeaveTable();
 
-        // Stop any current target
         currentTarget = null;
 
-        // Show happy UI
         if (happyUI != null)
         {
             happyUI.SetActive(true);
         }
 
-        // Start waiting before leaving
         StartCoroutine(SatisfiedRoutine());
     }
 
@@ -250,34 +251,19 @@ public class MonsterAI : MonoBehaviour
             satisfiedWaitTime
         );
 
-        // Hide happy UI
         if (happyUI != null)
         {
             happyUI.SetActive(false);
         }
 
-        // Stop satisfied state
         isSatisfied = false;
 
-        // Start returning
         isReturningToSpawn = true;
 
         agent.speed = walkSpeed;
         agent.isStopped = false;
 
-        // Use assigned spawn point if there is one
-        if (spawnPoint != null)
-        {
-            agent.SetDestination(
-                spawnPoint.position
-            );
-        }
-        else
-        {
-            agent.SetDestination(
-                originalSpawnPosition
-            );
-        }
+        SetSpawnDestination();
 
         Debug.Log(
             gameObject.name +
@@ -313,7 +299,6 @@ public class MonsterAI : MonoBehaviour
                 " has returned to the spawn position."
             );
 
-            // Optional: remove the monster
             Destroy(gameObject);
 
             return;
@@ -322,6 +307,23 @@ public class MonsterAI : MonoBehaviour
         agent.isStopped = false;
 
         agent.SetDestination(targetPosition);
+    }
+
+
+    void SetSpawnDestination()
+    {
+        if (spawnPoint != null)
+        {
+            agent.SetDestination(
+                spawnPoint.position
+            );
+        }
+        else
+        {
+            agent.SetDestination(
+                originalSpawnPosition
+            );
+        }
     }
 
 
@@ -335,6 +337,9 @@ public class MonsterAI : MonoBehaviour
             return;
 
         isBerserk = true;
+
+        // Start the 40 second berserk timer
+        berserkTimer = berserkTimeLimit;
 
         Debug.Log(
             "MONSTER HAS GONE BERSERK!"
@@ -350,16 +355,51 @@ public class MonsterAI : MonoBehaviour
 
     void BerserkUpdate()
     {
+        // Count down berserk time
+        berserkTimer -= Time.deltaTime;
+
+        // 40 seconds have passed
+        if (berserkTimer <= 0f)
+        {
+            Debug.Log(
+                gameObject.name +
+                " survived its berserk attack time. Leaving restaurant."
+            );
+
+            LeaveAfterBerserk();
+            return;
+        }
+
         attackTimer -= Time.deltaTime;
 
+        // Find a target if we don't have one
         if (currentTarget == null)
         {
             FindNearestPlayer();
         }
 
+        // No player found
         if (currentTarget == null)
         {
             return;
+        }
+
+        // Check player's HP
+        PlayerHP playerHealth =
+            currentTarget.GetComponent<PlayerHP>();
+
+        if (playerHealth != null)
+        {
+            if (playerHealth.GetCurrentHealth() <= 0f)
+            {
+                Debug.Log(
+                    gameObject.name +
+                    " defeated the player! Leaving restaurant."
+                );
+
+                LeaveAfterBerserk();
+                return;
+            }
         }
 
         float distance =
@@ -368,12 +408,14 @@ public class MonsterAI : MonoBehaviour
                 currentTarget.position
             );
 
+        // Player is too far away
         if (distance > detectionRange)
         {
             currentTarget = null;
             return;
         }
 
+        // Move toward player
         if (distance > attackRange)
         {
             agent.isStopped = false;
@@ -382,7 +424,10 @@ public class MonsterAI : MonoBehaviour
                 currentTarget.position
             );
 
-            audioManager.PlayMonsterMove();
+            if (audioManager != null)
+            {
+                audioManager.PlayMonsterMove();
+            }
         }
         else
         {
@@ -390,10 +435,47 @@ public class MonsterAI : MonoBehaviour
 
             AttackPlayer();
 
-            audioManager.StopMonsterMove();
+            if (audioManager != null)
+            {
+                audioManager.StopMonsterMove();
+            }
         }
     }
 
+
+    // =========================================================
+    // LEAVE AFTER BERSERK
+    // =========================================================
+
+    void LeaveAfterBerserk()
+    {
+        if (isReturningToSpawn)
+            return;
+
+        Debug.Log(
+            gameObject.name +
+            " is finished berserking and is leaving."
+        );
+
+        isBerserk = false;
+
+        currentTarget = null;
+
+        LeaveTable();
+
+        agent.speed = walkSpeed;
+
+        isReturningToSpawn = true;
+
+        agent.isStopped = false;
+
+        SetSpawnDestination();
+    }
+
+
+    // =========================================================
+    // PLAYER
+    // =========================================================
 
     void FindNearestPlayer()
     {
@@ -401,6 +483,7 @@ public class MonsterAI : MonoBehaviour
             GameObject.FindGameObjectsWithTag(playerTag);
 
         float closestDistance = Mathf.Infinity;
+
         Transform closestPlayer = null;
 
         foreach (GameObject player in players)
@@ -415,14 +498,14 @@ public class MonsterAI : MonoBehaviour
                 distance <= detectionRange)
             {
                 closestDistance = distance;
-                closestPlayer = player.transform;
+
+                closestPlayer =
+                    player.transform;
             }
         }
 
         currentTarget = closestPlayer;
     }
-
-
     void AttackPlayer()
     {
         if (attackTimer > 0f)
@@ -439,32 +522,47 @@ public class MonsterAI : MonoBehaviour
 
         if (playerHealth != null)
         {
-            playerHealth.TakeDamage(
-                attackDamage
+            // Damage player
+            playerHealth.TakeDamage(attackDamage);
+
+            // Push player away from monster
+            Vector3 knockbackDirection =
+                currentTarget.position - transform.position;
+
+            playerHealth.Knockback(
+                knockbackDirection
             );
+
+            // Check if player died
+            if (playerHealth.GetCurrentHealth() <= 0f)
+            {
+                Debug.Log(
+                    "PLAYER HAS BEEN DEFEATED!"
+                );
+
+                LeaveAfterBerserk();
+            }
         }
     }
+        // =========================================================
+        // TABLE
+        // =========================================================
 
-
-    // =========================================================
-    // TABLE
-    // =========================================================
-
-    void LeaveTable()
-    {
-        if (assignedTable != null)
+        void LeaveTable()
         {
-            assignedTable.isOccupied = false;
+            if (assignedTable != null)
+            {
+                assignedTable.isOccupied = false;
 
-            assignedTable = null;
+                assignedTable = null;
 
-            assignedTableNumber = -1;
+                assignedTableNumber = -1;
+            }
         }
-    }
 
 
-    private void OnDestroy()
-    {
-        LeaveTable();
-    }
+        private void OnDestroy()
+        {
+            LeaveTable();
+        }
 }
