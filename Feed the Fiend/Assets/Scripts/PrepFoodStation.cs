@@ -44,16 +44,6 @@ public class PrepFoodStation : MonoBehaviour
         return tutorialFoodFinished;
     }
 
-    public bool IsFoodAtHandoffPoint()
-    {
-        return foodAtHandoffPoint;
-    }
-
-    public void SetFoodAtHandoffPoint(bool value)
-    {
-        foodAtHandoffPoint = value;
-    }
-
     public Transform GetTutorialHandoffPoint()
     {
         return tutorialHandoffPoint;
@@ -227,21 +217,20 @@ public class PrepFoodStation : MonoBehaviour
         }
         ClearIngredients();
     }
-    private void MakeFood(Recipe recipe) 
-    { 
-        Debug.Log("Made " + recipe.food); 
+    private void MakeFood(Recipe recipe)
+    {
+        Debug.Log("Made " + recipe.food);
 
-        currentIngredients.Clear();
-        
-        tutorialFoodFinished = true; 
+        tutorialFoodFinished = true;
 
-        Food_Spawner foodSpawner = GetComponent<Food_Spawner>(); 
+        Food_Spawner foodSpawner = GetComponent<Food_Spawner>();
 
-        if (foodSpawner != null) 
-        { 
-            foodSpawner.SpawnFood(recipe.finishedFoodPrefab); 
-        } 
-        ClearIngredients(); 
+        if (foodSpawner != null)
+        {
+            foodSpawner.SpawnFood(recipe.finishedFoodPrefab);
+        }
+
+        ClearIngredients();
     }
 
     private void ClearIngredients()

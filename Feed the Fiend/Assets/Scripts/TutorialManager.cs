@@ -78,9 +78,9 @@ public class TutorialManager : MonoBehaviour
             "Your first job is to take the customer's order."
         );
 
-        yield return Dialogue(
+       /* yield return Dialogue(
             "Follow the arrow to the customer."
-        );
+        );*/
 
         ShowArrowTo(tutorialCustomer.transform);
 
@@ -124,6 +124,10 @@ public class TutorialManager : MonoBehaviour
             "First, collect Ingredient A."
         );
 
+        yield return Dialogue(
+    "Go to the Blue ingredient station."
+);
+
         ShowArrowTo(ingredientSpawnerA.transform);
 
         yield return WaitForAction(() =>
@@ -134,7 +138,7 @@ public class TutorialManager : MonoBehaviour
         HideArrow();
 
         yield return Dialogue(
-            "Good! You picked up Ingredient A."
+            "You picked up Ingredient A."
         );
 
 
@@ -167,6 +171,9 @@ public class TutorialManager : MonoBehaviour
         yield return Dialogue(
             "Now collect Ingredient B."
         );
+        yield return Dialogue(
+    "Go to the Yellow ingredient station."
+);
 
         ShowArrowTo(ingredientSpawnerB.transform);
 
@@ -209,7 +216,7 @@ public class TutorialManager : MonoBehaviour
         );
 
         yield return Dialogue(
-            "Press the PREPARE button."
+            "Press B to PREPARE the food."
         );
 
         yield return WaitForAction(() =>
@@ -247,14 +254,14 @@ public class TutorialManager : MonoBehaviour
         ShowArrowTo(foodHandoffPoint.transform);
 
         yield return WaitForAction(() =>
-            prepStation != null &&
-            prepStation.IsFoodAtHandoffPoint()
+            foodHandoffPoint != null &&
+            foodHandoffPoint.HasFood()
         );
 
         HideArrow();
 
         yield return Dialogue(
-            "Perfect! The waiter can now access the food."
+            "The waiter can now access the food."
         );
 
 
@@ -273,14 +280,14 @@ public class TutorialManager : MonoBehaviour
         );
 
         yield return Dialogue(
-            "Follow the arrow and collect the prepared food."
+            "Collect the prepared food."
         );
 
         ShowArrowTo(foodHandoffPoint.transform);
 
         yield return WaitForAction(() =>
-            foodHandoffPoint != null &&
-            foodHandoffPoint.HasFood()
+            waiter != null &&
+            waiter.GetHeldObject() != null
         );
 
         HideArrow();
@@ -305,9 +312,6 @@ public class TutorialManager : MonoBehaviour
         // FINISH
         // =====================================================
 
-        yield return Dialogue(
-            "Excellent work!"
-        );
 
         yield return Dialogue(
             "You now know how to take orders, prepare food, and serve customers."
@@ -402,15 +406,17 @@ public class TutorialManager : MonoBehaviour
 
         dialogueText.text = "";
 
+        // Type the dialogue
         foreach (char letter in message)
         {
             dialogueText.text += letter;
             yield return new WaitForSeconds(textSpeed);
         }
 
+        // Show controller instruction
         if (continueText != null)
         {
-            continueText.text = "Press E to continue";
+            continueText.text = "Press Y to continue";
             continueText.gameObject.SetActive(true);
         }
 
@@ -418,8 +424,9 @@ public class TutorialManager : MonoBehaviour
 
         while (!continuePressed)
         {
-            if (Keyboard.current != null &&
-                Keyboard.current.eKey.wasPressedThisFrame)
+
+            if (Gamepad.current != null &&
+                Gamepad.current.buttonWest.wasPressedThisFrame)
             {
                 continuePressed = true;
             }
@@ -429,7 +436,9 @@ public class TutorialManager : MonoBehaviour
 
         if (continueText != null)
             continueText.gameObject.SetActive(false);
-    }
+
+}
+
 
 
     // =========================================================

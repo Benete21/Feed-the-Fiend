@@ -1,111 +1,52 @@
-using System;
-using Unity.VisualScripting;
 using UnityEngine;
-using static UnityEngine.Rendering.DebugUI.Table;
 
 public class FoodSnapPoint : MonoBehaviour
 {
-    [Header("Snap Settings")]
+    [Header("Snap Point")]
     [SerializeField] private Transform snapPoint;
 
     private GameObject currentFood;
-
 
     public bool HasFood()
     {
         return currentFood != null;
     }
 
-
     public GameObject GetFood()
     {
         return currentFood;
     }
 
-
     private void OnTriggerEnter(Collider other)
     {
-        TrySnapFood(other);
-    }
-
-
-    private void TrySnapFood(Collider other)
-    {
-        // Already holding food
+        // Already have food
         if (currentFood != null)
             return;
 
-        // Look for FoodItems on the object that entered
-        FoodItems food = other.GetComponent<FoodItems>();
+        // ONLY accept FoodItems
+        FoodItems food = other.GetComponentInParent<FoodItems>();
 
-        // Check parent
         if (food == null)
         {
-            food = other.GetComponentInParent<FoodItems>();
-        }
-
-        // Check children
-        if (food == null)
-        {
-            food = other.GetComponentInChildren<FoodItems>();
-        }
-
-        // IMPORTANT:
-        // If there is no FoodItems component, DO NOTHING.
-        if (food == null)
-        {
-            Debug.Log(
-                "FoodSnapPoint ignored: " +
-                other.gameObject.name +
-                " is not food."
-            );
-
+            Debug.Log("Not food: " + other.gameObject.name);
             return;
         }
 
-        // Get the actual food object.
-        GameObject foodObject = food.gameObject;
-
-        // If FoodItems is on a child of the food prefab,
-        // find the Rigidbody/root containing the food.
-        Rigidbody foodRb = food.GetComponentInParent<Rigidbody>();
-
-        if (foodRb != null)
-        {
-            foodObject = foodRb.gameObject;
-        }
-
-        SnapFood(foodObject);
+        SnapFood(food.gameObject);
     }
-
 
     private void SnapFood(GameObject food)
     {
         if (currentFood != null)
             return;
 
-        // Double-check that this object really is food.
-        FoodItems foodItem = food.GetComponentInChildren<FoodItems>();
-
-        if (foodItem == null)
-        {
-            Debug.LogWarning(
-                "Tried to snap an object without FoodItems: " +
-                food.name
-            );
-
-            return;
-        }
-
         currentFood = food;
 
-        Transform target =
-            snapPoint != null
-                ? snapPoint
-                : transform;
+        Transform target = snapPoint != null
+            ? snapPoint
+            : transform;
 
-
-        // Get Rigidbody
+        // Stop physics
         Rigidbody rb = food.GetComponent<Rigidbody>();
 
         if (rb != null)
@@ -117,25 +58,14 @@ public class FoodSnapPoint : MonoBehaviour
             rb.useGravity = false;
         }
 
-
-        // Disable all food colliders
-        Collider[] colliders =
-            food.GetComponentsInChildren<Collider>();
-
-        foreach (Collider col in colliders)
-        {
-            col.enabled = false;
-        }
-
-
         // Parent to snap point
         food.transform.SetParent(target);
 
-
-        // Snap exactly to the position
+        // EXACT position
         food.transform.localPosition = Vector3.zero;
-        food.transform.localRotation = Quaternion.identity;
 
+        // EXACT rotation
+        food.transform.localRotation = Quaternion.identity;
 
         Debug.Log(
             "FOOD SNAPPED: " +
@@ -144,7 +74,6 @@ public class FoodSnapPoint : MonoBehaviour
             target.name
         );
     }
-
 
     public GameObject TakeFood()
     {
@@ -155,12 +84,9 @@ public class FoodSnapPoint : MonoBehaviour
 
         currentFood = null;
 
-
         // Remove from snap point
         food.transform.SetParent(null);
 
-
-        // Restore Rigidbody
         Rigidbody rb = food.GetComponent<Rigidbody>();
 
         if (rb != null)
@@ -169,22 +95,10 @@ public class FoodSnapPoint : MonoBehaviour
             rb.useGravity = true;
         }
 
-
-        // Re-enable colliders
-        Collider[] colliders =
-            food.GetComponentsInChildren<Collider>();
-
-        foreach (Collider col in colliders)
-        {
-            col.enabled = true;
-        }
-
-
         Debug.Log(
-            "FOOD TAKEN FROM HANDOFF: " +
-        food.name
+            "FOOD TAKEN: " +
+            food.name
         );
-
 
         return food;
     }
