@@ -8,6 +8,7 @@ public class TutCustomer : MonoBehaviour, IInteractable
 
     [Header("Order")]
     [SerializeField] private float orderTime = 3f;
+    public event Action OnFoodDelivered;
 
     [Header("UI")]
     [SerializeField] private Slider loadingBar;

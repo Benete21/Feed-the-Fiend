@@ -29,6 +29,36 @@ public class PrepFoodStation : MonoBehaviour
 
     private bool isPreparing;
 
+    private bool tutorialFoodFinished = false;
+    private bool foodAtHandoffPoint = false;
+
+    [SerializeField] private Transform tutorialHandoffPoint;
+    
+    public bool HasRequiredTutorialIngredients()
+    {
+        return currentIngredients.Count >= 2;
+    }
+
+    public bool HasFinishedTutorialFood()
+    {
+        return tutorialFoodFinished;
+    }
+
+    public bool IsFoodAtHandoffPoint()
+    {
+        return foodAtHandoffPoint;
+    }
+
+    public void SetFoodAtHandoffPoint(bool value)
+    {
+        foodAtHandoffPoint = value;
+    }
+
+    public Transform GetTutorialHandoffPoint()
+    {
+        return tutorialHandoffPoint;
+    }
+
     void Awake()
     {
         audioManager = GameObject.FindGameObjectWithTag("Audio")
@@ -197,19 +227,21 @@ public class PrepFoodStation : MonoBehaviour
         }
         ClearIngredients();
     }
-    private void MakeFood(Recipe recipe)
-    {
-        Debug.Log("Made " + recipe.food);
+    private void MakeFood(Recipe recipe) 
+    { 
+        Debug.Log("Made " + recipe.food); 
 
         currentIngredients.Clear();
+        
+        tutorialFoodFinished = true; 
 
-        Food_Spawner foodSpawner = GetComponent<Food_Spawner>();
+        Food_Spawner foodSpawner = GetComponent<Food_Spawner>(); 
 
-        if (foodSpawner != null)
-        {
-            foodSpawner.SpawnFood(recipe.finishedFoodPrefab);
-        }
-        ClearIngredients();
+        if (foodSpawner != null) 
+        { 
+            foodSpawner.SpawnFood(recipe.finishedFoodPrefab); 
+        } 
+        ClearIngredients(); 
     }
 
     private void ClearIngredients()

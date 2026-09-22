@@ -2,6 +2,7 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class TutorialManager : MonoBehaviour
 {
@@ -14,12 +15,18 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] private GameObject waiterObject;
 
     [Header("Stations")]
-    [SerializeField] private Ingredient_Spawner ingredientSpawner;
+    [SerializeField] private Ingredient_Spawner ingredientSpawnerA;
+    [SerializeField] private Ingredient_Spawner ingredientSpawnerB;
     [SerializeField] private PrepFoodStation prepStation;
+
+    [Header("Food Handoff")]
+    [SerializeField] private FoodSnapPoint foodHandoffPoint;
 
     [Header("Customer")]
     [SerializeField] private TutCustomer tutorialCustomer;
 
+    [Header("Tutorial Arrow")]
+    [SerializeField] private TutorialArrow tutorialArrow;
 
     [Header("Dialogue UI")]
     [SerializeField] private GameObject dialoguePanel;
@@ -29,10 +36,12 @@ public class TutorialManager : MonoBehaviour
     [Header("Dialogue")]
     [SerializeField] private float textSpeed = 0.03f;
 
+    [Header("Scene")]
+    [SerializeField] private string playSceneName = "PlayScene";
+
 
     private void Start()
     {
-        // Start the tutorial as the waiter
         SwitchToWaiter();
 
         if (dialoguePanel != null)
@@ -70,28 +79,22 @@ public class TutorialManager : MonoBehaviour
         );
 
         yield return Dialogue(
-            "Walk over to the customer and interact with them."
+            "Follow the arrow to the customer."
         );
 
-
-        while (tutorialCustomer == null)
-        {
-            yield return null;
-        }
+        ShowArrowTo(tutorialCustomer.transform);
 
         yield return WaitForTutorialOrder();
 
+        HideArrow();
 
         yield return Dialogue(
             "Great! You have taken the customer's order."
         );
 
-
-
         yield return Dialogue(
             "The order will appear on your order slip."
         );
-
 
 
         // =====================================================
@@ -114,61 +117,101 @@ public class TutorialManager : MonoBehaviour
 
 
         // =====================================================
-        // CHEF - INGREDIENT
+        // INGREDIENT A
         // =====================================================
 
         yield return Dialogue(
-            "First, walk over to an ingredient station."
+            "First, collect Ingredient A."
         );
 
-        // Hide dialogue while player moves
-        yield return WaitForAction(() =>
-            ingredientSpawner != null &&
-            ingredientSpawner.ChefInRange
-        );
+        ShowArrowTo(ingredientSpawnerA.transform);
 
-        yield return Dialogue(
-            "Good! You are at an ingredient station."
-        );
-
-        yield return Dialogue(
-            "Press your PICKUP button to get the ingredient."
-        );
-
-        // Hide dialogue while player picks up ingredient
         yield return WaitForAction(() =>
             chef != null &&
             chef.GetHeldObject() != null
         );
 
+        HideArrow();
+
         yield return Dialogue(
-            "Perfect! The ingredient is now in your hands."
+            "Good! You picked up Ingredient A."
         );
 
 
         // =====================================================
-        // CHEF - PREPARATION
+        // PLACE INGREDIENT A
         // =====================================================
 
         yield return Dialogue(
-            "Now take the ingredient to the preparation station."
+            "Take Ingredient A to the preparation station."
         );
 
-        // Hide dialogue while player places ingredient
+        ShowArrowTo(prepStation.transform);
+
         yield return WaitForAction(() =>
             prepStation != null &&
             prepStation.HasIngredients()
         );
 
+        HideArrow();
+
         yield return Dialogue(
-            "Good! The ingredient is on the preparation station."
+            "Ingredient A has been placed."
+        );
+
+
+        // =====================================================
+        // INGREDIENT B
+        // =====================================================
+
+        yield return Dialogue(
+            "Now collect Ingredient B."
+        );
+
+        ShowArrowTo(ingredientSpawnerB.transform);
+
+        yield return WaitForAction(() =>
+            chef != null &&
+            chef.GetHeldObject() != null
+        );
+
+        HideArrow();
+
+        yield return Dialogue(
+            "Excellent! You have Ingredient B."
+        );
+
+
+        // =====================================================
+        // PLACE INGREDIENT B
+        // =====================================================
+
+        yield return Dialogue(
+            "Bring Ingredient B to the preparation station."
+        );
+
+        ShowArrowTo(prepStation.transform);
+
+        yield return WaitForAction(() =>
+            prepStation != null &&
+            prepStation.HasRequiredTutorialIngredients()
+        );
+
+        HideArrow();
+
+
+        // =====================================================
+        // PREPARE
+        // =====================================================
+
+        yield return Dialogue(
+            "Both ingredients are ready."
         );
 
         yield return Dialogue(
-            "When you have enough ingredients, press PREPARE."
+            "Press the PREPARE button."
         );
 
-        // Hide dialogue while player presses prepare
         yield return WaitForAction(() =>
             prepStation != null &&
             prepStation.IsPreparing()
@@ -179,27 +222,45 @@ public class TutorialManager : MonoBehaviour
         );
 
         yield return Dialogue(
-            "Wait for the preparation bar to finish."
+            "Wait for the preparation to finish."
         );
 
-        // Hide dialogue while food is cooking
         yield return WaitForAction(() =>
             prepStation != null &&
-            !prepStation.IsPreparing()
-        );
-
-        yield return Dialogue(
-            "Excellent! The food is ready."
+            !prepStation.IsPreparing() &&
+            prepStation.HasFinishedTutorialFood()
         );
 
 
         // =====================================================
-        // SWITCH BACK TO WAITER
+        // FOOD HANDOFF
         // =====================================================
 
         yield return Dialogue(
-            "Now it's time to serve the customer."
+            "The food is ready!"
         );
+
+        yield return Dialogue(
+            "Place the finished food in the handoff area."
+        );
+
+        ShowArrowTo(foodHandoffPoint.transform);
+
+        yield return WaitForAction(() =>
+            prepStation != null &&
+            prepStation.IsFoodAtHandoffPoint()
+        );
+
+        HideArrow();
+
+        yield return Dialogue(
+            "Perfect! The waiter can now access the food."
+        );
+
+
+        // =====================================================
+        // SWITCH TO WAITER
+        // =====================================================
 
         yield return Dialogue(
             "Let's switch back to the waiter."
@@ -212,37 +273,32 @@ public class TutorialManager : MonoBehaviour
         );
 
         yield return Dialogue(
-            "Take the prepared food and deliver it to the customer."
+            "Follow the arrow and collect the prepared food."
         );
+
+        ShowArrowTo(foodHandoffPoint.transform);
+
+        yield return WaitForAction(() =>
+            foodHandoffPoint != null &&
+            foodHandoffPoint.HasFood()
+        );
+
+        HideArrow();
 
 
         // =====================================================
-        // BERSERK
+        // DELIVER FOOD
         // =====================================================
 
         yield return Dialogue(
-            "Be careful though. Customers won't wait forever."
+            "Now deliver the food to the customer."
         );
 
-        yield return Dialogue(
-            "The BERSERK BAR shows how much time the customer has left."
-        );
+        ShowArrowTo(tutorialCustomer.transform);
 
-        yield return Dialogue(
-            "You need to prepare and deliver their food before the bar reaches zero."
-        );
+        yield return WaitForTutorialDelivery();
 
-        yield return Dialogue(
-            "If the bar empties completely, the customer will become BERSERK!"
-        );
-
-        yield return Dialogue(
-            "A berserk customer will leave their table and chase you."
-        );
-
-        yield return Dialogue(
-            "If they get close enough, they will attack."
-        );
+        HideArrow();
 
 
         // =====================================================
@@ -250,15 +306,23 @@ public class TutorialManager : MonoBehaviour
         // =====================================================
 
         yield return Dialogue(
-            "Now you know the basics!"
+            "Excellent work!"
         );
 
         yield return Dialogue(
-            "Take orders with the waiter, prepare food with the chef, and serve the customer before they go berserk!"
+            "You now know how to take orders, prepare food, and serve customers."
+        );
+
+        yield return Dialogue(
+            "Good luck running the restaurant!"
         );
 
         if (dialoguePanel != null)
             dialoguePanel.SetActive(false);
+
+        yield return new WaitForSeconds(1f);
+
+        SceneManager.LoadScene(playSceneName);
     }
 
 
@@ -303,12 +367,33 @@ public class TutorialManager : MonoBehaviour
 
 
     // =========================================================
-    // NORMAL DIALOGUE
+    // ARROW
+    // =========================================================
+
+    private void ShowArrowTo(Transform target)
+    {
+        if (tutorialArrow != null)
+        {
+            tutorialArrow.ShowArrow(target);
+        }
+    }
+
+
+    private void HideArrow()
+    {
+        if (tutorialArrow != null)
+        {
+            tutorialArrow.HideArrow();
+        }
+    }
+
+
+    // =========================================================
+    // DIALOGUE
     // =========================================================
 
     private IEnumerator Dialogue(string message)
     {
-        // Make sure dialogue is visible
         if (dialoguePanel != null)
             dialoguePanel.SetActive(true);
 
@@ -317,21 +402,18 @@ public class TutorialManager : MonoBehaviour
 
         dialogueText.text = "";
 
-        // Type text
         foreach (char letter in message)
         {
             dialogueText.text += letter;
             yield return new WaitForSeconds(textSpeed);
         }
 
-        // Show continue instruction
         if (continueText != null)
         {
             continueText.text = "Press E to continue";
             continueText.gameObject.SetActive(true);
         }
 
-        // Wait for E
         bool continuePressed = false;
 
         while (!continuePressed)
@@ -345,33 +427,33 @@ public class TutorialManager : MonoBehaviour
             yield return null;
         }
 
-        // Hide continue text
         if (continueText != null)
             continueText.gameObject.SetActive(false);
     }
 
 
     // =========================================================
-    // WAIT FOR GAMEPLAY ACTION
+    // WAIT FOR ACTION
     // =========================================================
 
     private IEnumerator WaitForAction(System.Func<bool> condition)
     {
-        // Hide dialogue while player performs the action
         if (dialoguePanel != null)
             dialoguePanel.SetActive(false);
 
-        // Wait until the actual gameplay action happens
         yield return new WaitUntil(condition);
 
-        // Show dialogue again
         if (dialoguePanel != null)
             dialoguePanel.SetActive(true);
     }
 
+
+    // =========================================================
+    // WAIT FOR ORDER
+    // =========================================================
+
     private IEnumerator WaitForTutorialOrder()
     {
-        // Hide dialogue while the player interacts
         if (dialoguePanel != null)
             dialoguePanel.SetActive(false);
 
@@ -379,33 +461,54 @@ public class TutorialManager : MonoBehaviour
 
         void OrderFinished()
         {
-            Debug.Log("TutorialManager: Order received!");
             orderTaken = true;
         }
 
-        // Subscribe to the tutorial customer's event.
         tutorialCustomer.OnOrderTaken += OrderFinished;
 
-        // Check in case it somehow happened before we subscribed.
         if (tutorialCustomer.HasOrdered())
         {
             orderTaken = true;
         }
 
-        // Wait until the customer finishes taking the order.
         while (!orderTaken)
         {
             yield return null;
         }
 
-        // Stop listening.
         tutorialCustomer.OnOrderTaken -= OrderFinished;
 
-        // Show dialogue again.
         if (dialoguePanel != null)
             dialoguePanel.SetActive(true);
     }
 
 
+    // =========================================================
+    // WAIT FOR DELIVERY
+    // =========================================================
 
+    private IEnumerator WaitForTutorialDelivery()
+    {
+        if (dialoguePanel != null)
+            dialoguePanel.SetActive(false);
+
+        bool delivered = false;
+
+        void FoodDelivered()
+        {
+            delivered = true;
+        }
+
+        tutorialCustomer.OnFoodDelivered += FoodDelivered;
+
+        while (!delivered)
+        {
+            yield return null;
+        }
+
+        tutorialCustomer.OnFoodDelivered -= FoodDelivered;
+
+        if (dialoguePanel != null)
+            dialoguePanel.SetActive(true);
+    }
 }
