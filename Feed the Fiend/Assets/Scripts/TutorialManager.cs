@@ -78,9 +78,12 @@ public class TutorialManager : MonoBehaviour
             "Your first job is to take the customer's order."
         );
 
-       /* yield return Dialogue(
-            "Follow the arrow to the customer."
-        );*/
+        yield return Dialogue(
+    "Go to the customer and press A to interact with them."
+);
+        /* yield return Dialogue(
+             "Follow the arrow to the customer."
+         );*/
 
         ShowArrowTo(tutorialCustomer.transform);
 
@@ -89,7 +92,7 @@ public class TutorialManager : MonoBehaviour
         HideArrow();
 
         yield return Dialogue(
-            "Great! You have taken the customer's order."
+            "You have taken the customer's order."
         );
 
         yield return Dialogue(
