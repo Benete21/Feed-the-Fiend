@@ -9,7 +9,7 @@ public class TutCustomer : MonoBehaviour, IInteractable
 {
     [Header("Order")]
     [SerializeField] private float orderTime = 3f;
-    [SerializeField] private Food_Types tutorialFood = Food_Types.Food_Green;
+    [SerializeField] private Food_Types tutorialFood = Food_Types.TentacleMeat;
 
     [Header("UI")]
     [SerializeField] private Slider loadingBar;
