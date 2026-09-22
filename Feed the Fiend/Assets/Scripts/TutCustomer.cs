@@ -1,6 +1,6 @@
-using NUnit.Framework;
 using System;
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using static System.Net.Mime.MediaTypeNames;
@@ -15,13 +15,15 @@ public class TutCustomer : MonoBehaviour, IInteractable
     [SerializeField] private Slider loadingBar;
     [SerializeField] private GameObject waitingExclamation;
 
+    [Header("Food Delivery")]
+    [SerializeField] private Collider foodDeliveryTrigger;
+
     private bool canTakeOrder = true;
     private bool orderTaken = false;
     private bool waitingForFood = false;
 
     public Food_Types[] currentOrder;
 
-    // TutorialManager listens to these.
     public event Action OnOrderTaken;
     public event Action OnFoodDelivered;
 
@@ -45,55 +47,33 @@ public class TutCustomer : MonoBehaviour, IInteractable
             waitingExclamation.SetActive(true);
         }
 
-        // Create the tutorial order immediately.
+        // Create tutorial order
         currentOrder = new Food_Types[1];
         currentOrder[0] = tutorialFood;
+
+        Debug.Log(
+            "Tutorial customer order: " +
+            currentOrder[0]
+        );
     }
 
+
+    // =========================================================
+    // CUSTOMER INTERACTION
+    // =========================================================
 
     public void Interact(Waiter_Controls waiter)
     {
         if (waiter == null)
             return;
 
-
-        // =====================================================
-        // TAKE ORDER
-        // =====================================================
-
+        // Take order
         if (!orderTaken)
         {
             if (!canTakeOrder)
                 return;
 
             StartCoroutine(TakeOrderRoutine(waiter));
-            return;
-        }
-
-
-        // =====================================================
-        // DELIVER FOOD
-        // =====================================================
-
-        if (orderTaken && waitingForFood)
-        {
-            GameObject held = waiter.GetHeldObject();
-
-            if (held == null)
-            {
-                Debug.Log("Tutorial customer: Waiter is not holding food.");
-                return;
-            }
-
-            FoodItems food = held.GetComponentInChildren<FoodItems>();
-
-            if (food == null)
-            {
-                Debug.Log("Tutorial customer: Held object is not food.");
-                return;
-            }
-
-            TryDeliverFood(food, waiter);
         }
     }
 
@@ -109,9 +89,7 @@ public class TutCustomer : MonoBehaviour, IInteractable
         Debug.Log("Tutorial customer: Taking order...");
 
         if (waitingExclamation != null)
-        {
             waitingExclamation.SetActive(false);
-        }
 
         if (loadingBar != null)
         {
@@ -127,30 +105,25 @@ public class TutCustomer : MonoBehaviour, IInteractable
 
             if (loadingBar != null)
             {
-                loadingBar.value = Mathf.Clamp01(
-                    timer / orderTime
-                );
+                loadingBar.value =
+                    Mathf.Clamp01(timer / orderTime);
             }
 
             yield return null;
         }
 
         if (loadingBar != null)
-        {
             loadingBar.gameObject.SetActive(false);
-        }
 
-        // Give the order slip to the waiter.
+        // Give order to waiter
         waiter.GiveOrderSlip(currentOrder);
 
         orderTaken = true;
-
-        // Customer is now waiting for food.
         waitingForFood = true;
 
         Debug.Log(
-            "Tutorial customer: ORDER TAKEN! " +
-            "Waiting for " +
+            "Tutorial customer: ORDER TAKEN. " +
+            "Waiting for: " +
             currentOrder[0]
         );
 
@@ -159,7 +132,79 @@ public class TutCustomer : MonoBehaviour, IInteractable
 
 
     // =========================================================
-    // FOOD DELIVERY
+    // FOOD TRIGGER
+    // =========================================================
+
+    private void OnTriggerEnter(Collider other)
+    {
+        Debug.Log(
+            "Tutorial customer trigger hit by: " +
+            other.gameObject.name
+        );
+
+        // Customer must already have an order
+        if (!orderTaken)
+        {
+            Debug.Log(
+                "Tutorial customer: No order has been taken yet."
+            );
+
+            return;
+        }
+
+        // Customer must be waiting for food
+        if (!waitingForFood)
+        {
+            Debug.Log(
+                "Tutorial customer: Not waiting for food."
+            );
+
+            return;
+        }
+
+        // Look for FoodItems on the collider
+        FoodItems food =
+            other.GetComponent<FoodItems>();
+
+        // FoodItems might be on a parent
+        if (food == null)
+        {
+            food =
+                other.GetComponentInParent<FoodItems>();
+        }
+
+        // FoodItems might be on a child
+        if (food == null)
+        {
+            food =
+                other.GetComponentInChildren<FoodItems>();
+        }
+
+        // Not food
+        if (food == null)
+        {
+            Debug.Log(
+                "Tutorial customer: Object is NOT food."
+            );
+
+            return;
+        }
+
+        Debug.Log(
+            "Tutorial customer detected food: " +
+            food.name
+        );
+
+        // Find the waiter holding the food
+        Waiter_Controls waiter =
+            food.GetComponentInParent<Waiter_Controls>();
+
+        TryDeliverFood(food, waiter);
+    }
+
+
+    // =========================================================
+    // DELIVER FOOD
     // =========================================================
 
     private void TryDeliverFood(
@@ -171,22 +216,10 @@ public class TutCustomer : MonoBehaviour, IInteractable
             return;
 
         if (!orderTaken)
-        {
-            Debug.Log(
-                "Tutorial customer: Order has not been taken."
-            );
-
             return;
-        }
 
         if (!waitingForFood)
-        {
-            Debug.Log(
-                "Tutorial customer: Not waiting for food."
-            );
-
             return;
-        }
 
         if (currentOrder == null ||
             currentOrder.Length == 0)
@@ -198,17 +231,16 @@ public class TutCustomer : MonoBehaviour, IInteractable
             return;
         }
 
-
         Debug.Log(
             "Tutorial customer wants: " +
             currentOrder[0] +
-            " | Delivered: " +
+            " | Food received: " +
             food.foodType
         );
 
 
         // =====================================================
-        // CHECK FOOD TYPE
+        // WRONG FOOD
         // =====================================================
 
         if (food.foodType != currentOrder[0])
@@ -232,7 +264,7 @@ public class TutCustomer : MonoBehaviour, IInteractable
         waitingForFood = false;
 
 
-        // Remove food from waiter.
+        // Remove food from waiter
         if (waiter != null)
         {
             waiter.RemoveHeldObject();
@@ -240,11 +272,13 @@ public class TutCustomer : MonoBehaviour, IInteractable
         }
         else
         {
+            // If we couldn't find the waiter,
+            // destroy the delivered food directly.
             Destroy(food.gameObject);
         }
 
 
-        // Tell TutorialManager that delivery happened.
+        // Tell TutorialManager
         OnFoodDelivered?.Invoke();
 
         Debug.Log(

@@ -189,7 +189,7 @@ public class CustomerOrder : MonoBehaviour, IInteractable
         // Give order slip to waiter
         if (waiter != null)
         {
-            waiter.GiveOrderSlip(currentOrder);
+            waiter.GiveOrderDirectlyToHand(currentOrder);
         }
 
         hasOrdered = true;

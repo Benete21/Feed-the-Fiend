@@ -7057,7 +7057,7 @@ MonoBehaviour:
   dialogueText: {fileID: 453949671}
   continueText: {fileID: 552499675}
   textSpeed: 0.03
-  playSceneName: PlayScene
+  playSceneName: Testing_Scene
 --- !u!4 &1324191971
 Transform:
   m_ObjectHideFlags: 0
@@ -12673,6 +12673,7 @@ MonoBehaviour:
   tutorialFood: 2
   loadingBar: {fileID: 4553108509014105860}
   waitingExclamation: {fileID: 2212083007485704948}
+  foodDeliveryTrigger: {fileID: 0}
   currentOrder: 02000000
 --- !u!1 &864696704403037597
 GameObject:

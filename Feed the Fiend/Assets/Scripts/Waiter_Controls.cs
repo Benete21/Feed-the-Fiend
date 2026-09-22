@@ -216,6 +216,71 @@ public class Waiter_Controls : MonoBehaviour
             physicalSlip.SetOrder(order);
         }
     }
+
+public void GiveOrderDirectlyToHand(Food_Types[] order)
+    {
+        if (order == null || order.Length == 0)
+            return;
+
+        // If the waiter is already holding something,
+        // don't replace it.
+        if (heldObj != null)
+        {
+            Debug.LogWarning(
+                "Waiter is already holding an object. " +
+                "Cannot place order slip in hand."
+            );
+
+            return;
+        }
+
+        // Create the physical order slip
+        GameObject slip = Instantiate(
+            physicalOrderSlipPrefab,
+            hold.position,
+            hold.rotation
+        );
+
+        PhysicalOrderSlip physicalSlip =
+            slip.GetComponent<PhysicalOrderSlip>();
+
+        if (physicalSlip != null)
+        {
+            physicalSlip.SetOrder(order);
+        }
+
+        // Make it the held object
+        heldObj = slip;
+
+        heldRb = slip.GetComponent<Rigidbody>();
+
+        if (heldRb != null)
+        {
+            heldRb.useGravity = false;
+            heldRb.linearDamping = 10f;
+            heldRb.constraints =
+                RigidbodyConstraints.FreezeRotation;
+
+            heldRb.transform.SetParent(hold);
+            heldRb.transform.localPosition = Vector3.zero;
+            heldRb.transform.localRotation = Quaternion.identity;
+        }
+        else
+        {
+            // Still parent it correctly even without Rigidbody
+            slip.transform.SetParent(hold);
+            slip.transform.localPosition = Vector3.zero;
+            slip.transform.localRotation = Quaternion.identity;
+        }
+
+        // Show the order on the UI immediately
+        ShowOrderSlip(order);
+
+        Debug.Log(
+            "Order slip automatically placed in waiter's hand."
+        );
+    }
+
     private void ShowOrderSlip(Food_Types[] order)
     {
         if (currentSlip != null)
