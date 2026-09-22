@@ -5,6 +5,10 @@ public class MainMenu : MonoBehaviour
 {
     public void PlayGame()
     {
-        SceneManager.LoadScene("Langa Level");
+        SceneManager.LoadScene("Testing_Scene");
+    }
+    public void Tut()
+    {
+        SceneManager.LoadScene("Tutorial");
     }
 }
