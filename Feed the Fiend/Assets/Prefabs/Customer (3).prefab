@@ -115,7 +115,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 518.4718, y: 511.01282}
+  m_AnchoredPosition: {x: 518.4718, y: 511.44516}
   m_SizeDelta: {x: 1920, y: 1080}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &6798835536415787840
@@ -774,6 +774,7 @@ MonoBehaviour:
   attackDamage: 20
   attackCooldown: 1.5
   isBerserk: 0
+  berserkTimeLimit: 40
   satisfiedWaitTime: 3
   happyUI: {fileID: 4335631955996746973}
   spawnPoint: {fileID: 0}
@@ -1012,7 +1013,7 @@ Transform:
   m_GameObject: {fileID: 4715700127591877517}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.4323561, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1451,7 +1452,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2450f1611861b804f8eb4187136f9278, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.5323561
+      value: -0.1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2450f1611861b804f8eb4187136f9278, type: 3}
       propertyPath: m_LocalPosition.z
