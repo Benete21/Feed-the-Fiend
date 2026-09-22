@@ -1,9 +1,8 @@
 using System;
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
-using static System.Net.Mime.MediaTypeNames;
+using static UnityEngine.Rendering.DebugUI.Table;
 
 public class TutCustomer : MonoBehaviour, IInteractable
 {
@@ -47,7 +46,7 @@ public class TutCustomer : MonoBehaviour, IInteractable
             waitingExclamation.SetActive(true);
         }
 
-        // Create tutorial order
+        // Create the tutorial order.
         currentOrder = new Food_Types[1];
         currentOrder[0] = tutorialFood;
 
@@ -73,8 +72,12 @@ public class TutCustomer : MonoBehaviour, IInteractable
             if (!canTakeOrder)
                 return;
 
-            StartCoroutine(TakeOrderRoutine(waiter));
+            TakeOrder(waiter);
+            return;
         }
+
+        // The tutorial uses the food trigger for delivery,
+        // so there is no need to deliver food through interaction.
     }
 
 
@@ -82,14 +85,25 @@ public class TutCustomer : MonoBehaviour, IInteractable
     // TAKE ORDER
     // =========================================================
 
-    private IEnumerator TakeOrderRoutine(Waiter_Controls waiter)
+    private void TakeOrder(Waiter_Controls waiter)
     {
+        Debug.Log("TUTORIAL CUSTOMER: TAKING ORDER");
+
+        if (!canTakeOrder)
+            return;
+
         canTakeOrder = false;
 
-        Debug.Log("Tutorial customer: Taking order...");
+        StartCoroutine(OrderRoutine(waiter));
+    }
 
+
+    private IEnumerator OrderRoutine(Waiter_Controls waiter)
+    {
         if (waitingExclamation != null)
+        {
             waitingExclamation.SetActive(false);
+        }
 
         if (loadingBar != null)
         {
@@ -113,21 +127,39 @@ public class TutCustomer : MonoBehaviour, IInteractable
         }
 
         if (loadingBar != null)
+        {
             loadingBar.gameObject.SetActive(false);
+        }
 
-        // Give order to waiter
-        waiter.GiveOrderSlip(currentOrder);
+
+        // =====================================================
+        // ORDER FINISHED
+        // =====================================================
 
         orderTaken = true;
         waitingForFood = true;
 
         Debug.Log(
-            "Tutorial customer: ORDER TAKEN. " +
-            "Waiting for: " +
+            "TUTORIAL ORDER TAKEN: " +
             currentOrder[0]
         );
 
+
+        // Put the order slip DIRECTLY into
+        // the waiter's held area.
+        if (waiter != null)
+        {
+            waiter.GiveOrderDirectlyToHand(currentOrder);
+        }
+
+
+        // Tell TutorialManager that the order is finished.
         OnOrderTaken?.Invoke();
+
+
+        Debug.Log(
+            "TUTORIAL CUSTOMER: WAITING FOR FOOD"
+        );
     }
 
 
@@ -142,17 +174,15 @@ public class TutCustomer : MonoBehaviour, IInteractable
             other.gameObject.name
         );
 
-        // Customer must already have an order
         if (!orderTaken)
         {
             Debug.Log(
-                "Tutorial customer: No order has been taken yet."
+                "Tutorial customer: Order has not been taken."
             );
 
             return;
         }
 
-        // Customer must be waiting for food
         if (!waitingForFood)
         {
             Debug.Log(
@@ -162,23 +192,23 @@ public class TutCustomer : MonoBehaviour, IInteractable
             return;
         }
 
-        // Look for FoodItems on the collider
+
+        // Find FoodItems
         FoodItems food =
             other.GetComponent<FoodItems>();
 
-        // FoodItems might be on a parent
         if (food == null)
         {
             food =
                 other.GetComponentInParent<FoodItems>();
         }
 
-        // FoodItems might be on a child
         if (food == null)
         {
             food =
                 other.GetComponentInChildren<FoodItems>();
         }
+
 
         // Not food
         if (food == null)
@@ -190,21 +220,24 @@ public class TutCustomer : MonoBehaviour, IInteractable
             return;
         }
 
+
         Debug.Log(
             "Tutorial customer detected food: " +
             food.name
         );
 
-        // Find the waiter holding the food
+
+        // Find waiter carrying the food
         Waiter_Controls waiter =
             food.GetComponentInParent<Waiter_Controls>();
+
 
         TryDeliverFood(food, waiter);
     }
 
 
     // =========================================================
-    // DELIVER FOOD
+    // FOOD DELIVERY
     // =========================================================
 
     private void TryDeliverFood(
@@ -231,10 +264,11 @@ public class TutCustomer : MonoBehaviour, IInteractable
             return;
         }
 
+
         Debug.Log(
             "Tutorial customer wants: " +
             currentOrder[0] +
-            " | Food received: " +
+            " | Delivered: " +
             food.foodType
         );
 
@@ -246,7 +280,7 @@ public class TutCustomer : MonoBehaviour, IInteractable
         if (food.foodType != currentOrder[0])
         {
             Debug.Log(
-                "Tutorial customer: WRONG FOOD!"
+                "TUTORIAL CUSTOMER: WRONG FOOD!"
             );
 
             return;
@@ -258,31 +292,33 @@ public class TutCustomer : MonoBehaviour, IInteractable
         // =====================================================
 
         Debug.Log(
-            "Tutorial customer: CORRECT FOOD DELIVERED!"
+            "TUTORIAL CUSTOMER: CORRECT FOOD DELIVERED!"
         );
 
         waitingForFood = false;
 
 
-        // Remove food from waiter
+        // Remove food from the waiter.
         if (waiter != null)
         {
             waiter.RemoveHeldObject();
+
+            // Remove the order slip UI.
             waiter.RemoveOrderSlip();
         }
         else
         {
-            // If we couldn't find the waiter,
-            // destroy the delivered food directly.
             Destroy(food.gameObject);
         }
 
 
-        // Tell TutorialManager
+        // Tell TutorialManager.
         OnFoodDelivered?.Invoke();
 
+
         Debug.Log(
-            "Tutorial customer: FOOD DELIVERY COMPLETE!"
+            "TUTORIAL CUSTOMER: FOOD DELIVERY COMPLETE!"
         );
     }
 }
+
