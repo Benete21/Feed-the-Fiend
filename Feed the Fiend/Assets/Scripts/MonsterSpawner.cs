@@ -41,6 +41,7 @@ public class MonsterSpawner : MonoBehaviour
     void Start()
     {
         StartNewDay(currentDay);
+
     }
 
     public void StartNewDay(int day)
@@ -117,8 +118,7 @@ public class MonsterSpawner : MonoBehaviour
                 entranceSpawnPoint.rotation
             );
 
-        MonsterAI monsterAI =
-            monster.GetComponent<MonsterAI>();
+        MonsterAI monsterAI = monster.GetComponent<MonsterAI>();
 
         if (monsterAI == null)
         {
@@ -130,24 +130,46 @@ public class MonsterSpawner : MonoBehaviour
             return;
         }
 
-        // Give the monster the same entrance point
-        // to use when it leaves the restaurant.
+        // Give the monster its spawner
         monsterAI.spawnPoint = entranceSpawnPoint;
-
-        // Give the monster the restaurant tables
         monsterAI.tables = tables;
+
+        // Give the CustomerOrder its spawner
+        CustomerOrder customerOrder = monster.GetComponent<CustomerOrder>();
+
+        if (customerOrder != null)
+        {
+            customerOrder.satisfied = this;
+        }
+        else
+        {
+            Debug.LogWarning(
+                "Monster prefab does not have a CustomerOrder component!"
+            );
+        }
     }
 
     public void Served()
     {
         monstersLeft--;
+
         monstersLeft = Mathf.Max(monstersLeft, 0);
+
+        Debug.Log("================================");
+        Debug.Log("MONSTER SERVED!");
+        Debug.Log("Monsters remaining: " + monstersLeft);
+        Debug.Log("================================");
 
         UpdateUI();
 
-        if(monstersLeft == 0)
+        if (monstersLeft <= 0)
         {
-            Day1Finish.SetActive(true);
+            Debug.Log("ALL MONSTERS HAVE BEEN SERVED!");
+
+            if (Day1Finish != null)
+            {
+                Day1Finish.SetActive(true);
+            }
         }
     }
 
