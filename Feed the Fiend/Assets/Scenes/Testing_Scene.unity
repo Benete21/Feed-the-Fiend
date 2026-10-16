@@ -24012,6 +24012,7 @@ GameObject:
   - component: {fileID: 1642685826}
   - component: {fileID: 1642685828}
   - component: {fileID: 1642685829}
+  - component: {fileID: 1642685830}
   m_Layer: 0
   m_Name: Waiter
   m_TagString: Waiter
@@ -24293,6 +24294,19 @@ MonoBehaviour:
   stunParticles: {fileID: 436511508}
   stunDuration: 5
   knockbackForce: 7
+--- !u!114 &1642685830
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1642685819}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ddb254e0bd2da0a49adf9e2f719db430, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerStatus
+  slowMultiplier: 0.5
 --- !u!1001 &1656486346
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -24366,6 +24380,7 @@ GameObject:
   - component: {fileID: 1660470057}
   - component: {fileID: 1660470059}
   - component: {fileID: 1660470060}
+  - component: {fileID: 1660470061}
   m_Layer: 0
   m_Name: Chef
   m_TagString: Chef
@@ -24657,6 +24672,19 @@ MonoBehaviour:
   stunParticles: {fileID: 0}
   stunDuration: 5
   knockbackForce: 5
+--- !u!114 &1660470061
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1660470050}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ddb254e0bd2da0a49adf9e2f719db430, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerStatus
+  slowMultiplier: 0.5
 --- !u!1 &1662327042
 GameObject:
   m_ObjectHideFlags: 0
