@@ -399,10 +399,14 @@ public class TutorialManager : MonoBehaviour
     // DIALOGUE
     // =========================================================
 
+
     private IEnumerator Dialogue(string message)
     {
         if (dialoguePanel != null)
             dialoguePanel.SetActive(true);
+
+        // Freeze character movement while dialogue is active
+        SetCharacterMovement(false);
 
         if (continueText != null)
             continueText.gameObject.SetActive(false);
@@ -427,7 +431,6 @@ public class TutorialManager : MonoBehaviour
 
         while (!continuePressed)
         {
-
             if (Gamepad.current != null &&
                 Gamepad.current.buttonWest.wasPressedThisFrame)
             {
@@ -440,7 +443,10 @@ public class TutorialManager : MonoBehaviour
         if (continueText != null)
             continueText.gameObject.SetActive(false);
 
-}
+        // Allow movement again after dialogue
+        SetCharacterMovement(true);
+    }
+
 
 
 
@@ -523,4 +529,14 @@ public class TutorialManager : MonoBehaviour
         if (dialoguePanel != null)
             dialoguePanel.SetActive(true);
     }
+
+    private void SetCharacterMovement(bool canMove)
+    {
+        if (chef != null)
+            chef.enabled = canMove;
+
+        if (waiter != null)
+            waiter.enabled = canMove;
+    }
+
 }

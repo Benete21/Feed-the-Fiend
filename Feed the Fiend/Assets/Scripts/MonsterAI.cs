@@ -5,6 +5,9 @@ public class MonsterAI : MonoBehaviour
 {
     private AudioManager audioManager;
 
+    [Header("Spawner")]
+    public MonsterSpawner monsterSpawner;
+
     [Header("Movement")]
     public NavMeshAgent agent;
     public float walkSpeed = 2f;
@@ -296,19 +299,22 @@ public class MonsterAI : MonoBehaviour
 
             Debug.Log(
                 gameObject.name +
-                " has returned to the spawn position."
+                " has left the restaurant."
             );
 
-            Destroy(gameObject);
+            // Count the monster only after it reaches the exit.
+            if (monsterSpawner != null)
+            {
+                monsterSpawner.Served();
+            }
 
+            Destroy(gameObject);
             return;
         }
 
         agent.isStopped = false;
-
         agent.SetDestination(targetPosition);
     }
-
 
     void SetSpawnDestination()
     {

@@ -313,7 +313,7 @@ void Satisfied()
 
         if (satisfied != null)
         {
-            satisfied.Served();
+           // satisfied.Served();
         }
 
         if (monsterAI != null)
