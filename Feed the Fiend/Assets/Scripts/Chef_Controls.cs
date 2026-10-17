@@ -282,22 +282,63 @@ public class Chef_Controls : MonoBehaviour
         heldRb = null;
     }
 
+
     private void CheckForInteraction()
     {
+        if (interactionPrompt == null)
+            return;
+
+        // If holding an item, hide the prompt.
         if (heldObj != null)
         {
             interactionPrompt.Hide();
             return;
         }
 
-        // Check if we are inside an ingredient station
+        // Cooking station
+        if (cookingStation != null &&
+            Vector3.Distance(transform.position,
+                cookingStation.transform.position) <= cookingStationRange)
+        {
+            if (cookingStation.IsReadyToCollect())
+            {
+                interactionPrompt.Show("A  PICK UP");
+                return;
+            }
+
+            if (cookingStation.IsCooking)
+            {
+                interactionPrompt.Hide();
+                return;
+            }
+
+            if (cookingStation.IsReadyToCook())
+            {
+                interactionPrompt.Show("B  COOK");
+                return;
+            }
+        }
+
+        // Prep station.
+        if (prepStation != null &&
+            Vector3.Distance(transform.position,
+                prepStation.transform.position) <= prepStationRange)
+        {
+            if (prepStation.HasIngredients())
+            {
+                interactionPrompt.Show("B  PREPARE");
+                return;
+            }
+        }
+
+        // Ingredient spawner.
         if (nearbySpawners.Count > 0)
         {
             interactionPrompt.Show("A  PICK UP");
             return;
         }
 
-        // Check normal items
+        // Check ordinary world items and customers.
         Vector3 center =
             transform.position +
             transform.forward * (pickupRange * 0.5f) +
@@ -332,6 +373,7 @@ public class Chef_Controls : MonoBehaviour
 
         interactionPrompt.Hide();
     }
+
 
 
     private Ingredient_Spawner GetClosestIngredientSpawner()

@@ -316,4 +316,27 @@ public class Cooking_Station : MonoBehaviour
         if (cookingUI != null)
             cookingUI.SetActive(false);
     }
+    public bool HasIngredients()
+    {
+        return foodOnStove != null && !isCooking;
+    }
+
+    public bool HasCookedFood()
+    {
+        return foodOnStove != null && !isCooking
+            && cookingTimer == 0f
+            && foodOnStove.GetComponentInChildren<Ingredient_Item>() == null;
+    }
+
+    public bool IsReadyToCook()
+    {
+        return foodOnStove != null && !isCooking
+            && foodOnStove.GetComponentInChildren<Ingredient_Item>() != null;
+    }
+
+    public bool IsReadyToCollect()
+    {
+        return foodOnStove != null && !isCooking
+            && foodOnStove.GetComponentInChildren<Ingredient_Item>() == null;
+    }
 }
