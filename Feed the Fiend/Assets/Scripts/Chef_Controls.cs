@@ -16,10 +16,14 @@ public class Chef_Controls : MonoBehaviour
     [SerializeField] Transform hold;
     private GameObject heldObj;
     private Rigidbody heldRb;
-    [SerializeField] private PrepFoodStation prepStation;
 
     [Header("Prep Station")]
+    [SerializeField] private PrepFoodStation prepStation;
     [SerializeField] private float prepStationRange = 2f;
+
+    [Header("Cooking Station")]
+    [SerializeField] private Cooking_Station cookingStation;
+    [SerializeField] private float cookingStationRange = 2f;
 
     [Header("Ingredient Station")]
     private System.Collections.Generic.List<Ingredient_Spawner> nearbySpawners =
@@ -79,45 +83,64 @@ public class Chef_Controls : MonoBehaviour
         moveInput = context.ReadValue<Vector2>();
         print("Move Wokr");
     }
+
     public void OnPickup(InputAction.CallbackContext context)
     {
         if (!context.performed)
             return;
 
-        // Already holding something
+        // If holding an item, try placing it on a nearby station.
         if (heldObj != null)
         {
-            if (prepStation != null)
+            if (cookingStation != null &&
+                Vector3.Distance(transform.position,
+                    cookingStation.transform.position) <= cookingStationRange)
             {
-                float distance = Vector3.Distance(
-                    transform.position,
-                    prepStation.transform.position
-                );
-
-                if (distance <= prepStationRange)
+                if (cookingStation.TryPlaceIngredient(heldObj))
                 {
-                    GameObject ingredientToPlace = heldObj;
-
-                    heldObj = null;
-                    heldRb = null;
-
-                    prepStation.AddIngredient(ingredientToPlace);
+                    ReleaseHeldObjectForStation();
                     return;
                 }
+            }
+
+            // Otherwise, try the existing food preparation station.
+            if (prepStation != null &&
+                Vector3.Distance(transform.position,
+                    prepStation.transform.position) <= prepStationRange)
+            {
+                GameObject ingredientToPlace = heldObj;
+
+                heldObj = null;
+                heldRb = null;
+
+                prepStation.AddIngredient(ingredientToPlace);
+                return;
             }
 
             Drop();
             return;
         }
 
-        // Check for an ingredient station
-        Ingredient_Spawner spawner =
-            GetClosestIngredientSpawner();
+        // If not holding anything, collect finished food from the stove.
+        if (cookingStation != null &&
+            Vector3.Distance(transform.position,
+                cookingStation.transform.position) <= cookingStationRange)
+        {
+            GameObject cookedFood = cookingStation.TryTakeFood();
+
+            if (cookedFood != null)
+            {
+                Pickup(cookedFood);
+                return;
+            }
+        }
+
+        // Existing ingredient-spawner pickup.
+        Ingredient_Spawner spawner = GetClosestIngredientSpawner();
 
         if (spawner != null)
         {
-            GameObject ingredient =
-                spawner.TakeIngredient();
+            GameObject ingredient = spawner.TakeIngredient();
 
             if (ingredient != null)
             {
@@ -126,18 +149,44 @@ public class Chef_Controls : MonoBehaviour
             }
         }
 
-        // Otherwise pick up an existing item
+        // Existing world-item pickup.
         TryPickup();
     }
 
+    private void ReleaseHeldObjectForStation()
+    {
+        if (heldRb != null)
+        {
+            Collider itemCollider = heldRb.GetComponent<Collider>();
+            Collider chefCollider = GetComponent<Collider>();
 
+            if (itemCollider != null && chefCollider != null)
+                Physics.IgnoreCollision(itemCollider, chefCollider, false);
+        }
+
+        heldObj = null;
+        heldRb = null;
+    }
 
     public void OnPrep(InputAction.CallbackContext context)
     {
-        if (!context.performed) return;
+        if (!context.performed)
+            return;
 
-        print("Preperaew");
-        TryPrepare();         
+        if (cookingStation != null &&
+            Vector3.Distance(transform.position,
+                cookingStation.transform.position) <= cookingStationRange)
+        {
+            cookingStation.HandlePrepButton();
+            return;
+        }
+
+        if (prepStation != null &&
+            Vector3.Distance(transform.position,
+                prepStation.transform.position) <= prepStationRange)
+        {
+            prepStation.StartPreparationPress();
+        }
     }
 
     public void OnRecipe(InputAction.CallbackContext context)

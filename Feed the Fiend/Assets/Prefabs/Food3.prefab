@@ -153,4 +153,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f57ac25ec1350245a4754d2bd20bc2f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FoodItems
-  foodType: 2
+  foodType: 8
