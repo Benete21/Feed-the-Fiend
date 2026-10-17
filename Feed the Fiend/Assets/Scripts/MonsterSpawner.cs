@@ -77,7 +77,8 @@ public class MonsterSpawner : MonoBehaviour
 
     public void StartNewDay(int day)
     {
-        currentDay = day;
+            ClearMonsterTrails();
+            currentDay = day;
 
         if (spawnCoroutine != null)
         {
@@ -337,5 +338,18 @@ public class MonsterSpawner : MonoBehaviour
 
         if (player2Controls != null)
             player2Controls.enabled = !freeze;
+    }
+
+    void ClearMonsterTrails()
+    {
+        Monster_Trail[] trails =
+            FindObjectsOfType<Monster_Trail>();
+
+        foreach (Monster_Trail trail in trails)
+        {
+            Destroy(trail.gameObject);
+        }
+
+        Debug.Log("All monster trails cleared!");
     }
 }

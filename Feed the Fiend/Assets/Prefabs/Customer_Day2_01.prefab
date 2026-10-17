@@ -815,9 +815,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAblilty
   ability: 1
-  toxicTrailPrefab: {fileID: 0}
-  fireTrailPrefab: {fileID: 0}
-  dropInterval: 1.5
+  toxicTrailPrefab: {fileID: 5193972088766366756, guid: cfe4d212e2f22e94e97350543ebf81b5, type: 3}
+  fireTrailPrefab: {fileID: 5497799100847179791, guid: 251f3d46064db81429b8b8081c2012f9, type: 3}
+  dropInterval: 0.4
   minimumMoveDistance: 1
   groundOffset: 0.05
   minimumSpeed: 0.2

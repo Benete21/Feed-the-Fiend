@@ -13,6 +13,17 @@ public class MonsterAI : MonoBehaviour
     public float walkSpeed = 2f;
     public float berserkSpeed = 5f;
 
+    [Header("Wandering")]
+    public bool wanderBeforeTable = true;
+    public float wanderDuration = 7f;
+    public float wanderRadius = 5f;
+    public float minWanderWait = 1f;
+    public float maxWanderWait = 2f;
+
+    private bool isWandering = false;
+    private float wanderTimer;
+    private float wanderWaitTimer;
+
     [Header("Restaurant Tables")]
     public RestrauntTable[] tables;
 
@@ -84,17 +95,25 @@ public class MonsterAI : MonoBehaviour
 
         agent.speed = walkSpeed;
 
-        ChooseRandomTable();
+        if (wanderBeforeTable)
+        {
+            isWandering = true;
+            wanderTimer = wanderDuration;
+            wanderWaitTimer = 0f;
+
+            WanderToRandomPoint();
+        }
+        else
+        {
+            ChooseRandomTable();
+        }
     }
 
 
     void Update()
     {
-        // Satisfied monster is handled separately
         if (isSatisfied)
-        {
             return;
-        }
 
         if (isBerserk)
         {
@@ -103,6 +122,10 @@ public class MonsterAI : MonoBehaviour
         else if (isReturningToSpawn)
         {
             ReturnToSpawnUpdate();
+        }
+        else if (isWandering)
+        {
+            WanderUpdate();
         }
         else
         {
@@ -571,4 +594,69 @@ public class MonsterAI : MonoBehaviour
         {
             LeaveTable();
         }
+
+    void WanderUpdate()
+    {
+        wanderTimer -= Time.deltaTime;
+
+        // Time to go to the assigned table
+        if (wanderTimer <= 0f)
+        {
+            isWandering = false;
+
+            agent.isStopped = false;
+
+            ChooseRandomTable();
+            return;
+        }
+
+        // Wait before choosing another destination
+        if (agent.pathPending)
+            return;
+
+        if (agent.remainingDistance <= 0.5f)
+        {
+            agent.isStopped = true;
+
+            wanderWaitTimer -= Time.deltaTime;
+
+            if (wanderWaitTimer <= 0f)
+            {
+                WanderToRandomPoint();
+            }
+        }
+    }
+
+    void WanderToRandomPoint()
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            Vector3 randomOffset = Random.insideUnitSphere * wanderRadius;
+
+            Vector3 randomPosition =
+                originalSpawnPosition + randomOffset;
+
+            NavMeshHit hit;
+
+            if (NavMesh.SamplePosition(
+                randomPosition,
+                out hit,
+                2f,
+                NavMesh.AllAreas))
+            {
+                agent.isStopped = false;
+                agent.SetDestination(hit.position);
+
+                wanderWaitTimer = Random.Range(
+                    minWanderWait,
+                    maxWanderWait
+                );
+
+                return;
+            }
+        }
+
+        // If no suitable position is found, try again later.
+        wanderWaitTimer = 1f;
+    }
 }
