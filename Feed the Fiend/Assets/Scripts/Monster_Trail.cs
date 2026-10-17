@@ -31,7 +31,7 @@ public class Monster_Trail : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        if (!other.CompareTag("Player"))
+        if (!other.CompareTag("Waiter") && !other.CompareTag("Chef"))
             return;
 
         PlayerHP health = other.GetComponentInParent<PlayerHP>();

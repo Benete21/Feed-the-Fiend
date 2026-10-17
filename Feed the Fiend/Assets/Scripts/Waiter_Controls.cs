@@ -30,6 +30,15 @@ public class Waiter_Controls : MonoBehaviour
 
 
     private Order_Slip currentSlip;
+    private PlayerStatus playerStatus;
+
+    private void Awake()
+    {
+        playerStatus = GetComponent<PlayerStatus>();
+
+        if (playerStatus == null)
+            playerStatus = GetComponentInParent<PlayerStatus>();
+    }
 
     private void Update()
     {
@@ -37,7 +46,14 @@ public class Waiter_Controls : MonoBehaviour
         CheckForInteraction();
         Vector3 move = new Vector3(moveInput.x, 0, moveInput.y);
 
-        transform.position += move * moveSpeed * Time.deltaTime;
+        float currentSpeed = moveSpeed;
+
+        if (playerStatus != null)
+        {
+            currentSpeed *= playerStatus.SlowMultiplier;
+        }
+
+        transform.position += move * currentSpeed * Time.deltaTime;
 
         if (move != Vector3.zero)
         {
@@ -303,25 +319,73 @@ public void GiveOrderDirectlyToHand(Food_Types[] order)
         }
     }
 
+
     private void CheckForInteraction()
     {
-        Vector3 origin = transform.position + Vector3.up * 0.5f;
+        if (interactionPrompt == null)
+            return;
 
-        if (Physics.Raycast(
-            origin,
-            transform.forward,
-            out RaycastHit hit,
-            interactionRange))
+        Vector3 center =
+            transform.position +
+            transform.forward * (pickupRange * 0.5f) +
+            Vector3.up * 0.5f;
+
+        Vector3 halfExtents = new Vector3(
+            pickupWidth * 0.5f,
+            pickupHeight * 0.5f,
+            pickupRange * 0.5f
+        );
+
+        Collider[] hits = Physics.OverlapBox(
+            center,
+            halfExtents,
+            transform.rotation
+        );
+
+        foreach (Collider hit in hits)
         {
-            if (hit.collider.CompareTag("Item"))
+            CustomerOrder customer =
+                hit.GetComponentInParent<CustomerOrder>();
+
+            if (customer != null)
+            {
+                // Customer is ready to take an order.
+                if (!customer.HasOrdered() && customer.waiting)
+                {
+                    interactionPrompt.Show("A  INTERACT");
+                    return;
+                }
+
+                if (customer.HasOrdered() && customer.waiting)
+                {
+                    if (heldObj != null &&
+                        heldObj.GetComponentInChildren<FoodItems>() != null)
+                    {
+                        interactionPrompt.Show("A  GIVE ORDER");
+                        return;
+                    }
+
+                    continue;
+                }
+                continue;
+            }
+
+            // Ordinary items can only be picked up with empty hands.
+            if (heldObj == null && hit.CompareTag("Item"))
             {
                 interactionPrompt.Show("A  PICK UP");
                 return;
             }
 
-            if (hit.collider.CompareTag("Customer"))
+            // Support other interactable objects.
+            IInteractable interactable =
+                hit.GetComponentInParent<IInteractable>();
+
+            if (interactable != null)
             {
-                interactionPrompt.Show("A  INTERACT");
+                interactionPrompt.Show(
+                    heldObj != null ? "A  INTERACT" : "A  INTERACT"
+                );
                 return;
             }
         }

@@ -35,14 +35,29 @@ public class Chef_Controls : MonoBehaviour
 
     [Header("Recipe")]
     public GameObject recipe_Book;
+    private PlayerStatus playerStatus;
 
+    private void Awake()
+    {
+        playerStatus = GetComponent<PlayerStatus>();
+
+        if (playerStatus == null)
+            playerStatus = GetComponentInParent<PlayerStatus>();
+    }
     private void Update()
     {
 
         CheckForInteraction();
         Vector3 move = new Vector3(moveInput.x, 0, moveInput.y);
 
-        transform.position += move * moveSpeed * Time.deltaTime;
+        float currentSpeed = moveSpeed;
+
+        if (playerStatus != null)
+        {
+            currentSpeed *= playerStatus.SlowMultiplier;
+        }
+
+        transform.position += move * currentSpeed * Time.deltaTime;
 
         if (move != Vector3.zero)
         {
