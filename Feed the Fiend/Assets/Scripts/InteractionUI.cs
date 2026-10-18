@@ -7,11 +7,12 @@ public class InteractionUI : MonoBehaviour
 {
     [Header("UI References")]
     [SerializeField] private CanvasGroup canvasGroup;
-    [SerializeField] private TMP_Text promptText;
+    [SerializeField] private RectTransform animatedContent;
+    [SerializeField] private TMP_Text keyText;
+    [SerializeField] private TMP_Text actionText;
 
     [Header("Animation")]
     [SerializeField] private float fadeDuration = 0.2f;
-    [SerializeField] private float visibleScale = 1f;
     [SerializeField] private float hiddenScale = 0.9f;
 
     private Coroutine animationCoroutine;
@@ -23,13 +24,26 @@ public class InteractionUI : MonoBehaviour
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;
 
-        transform.localScale = Vector3.one * hiddenScale;
+        if (animatedContent != null)
+            animatedContent.localScale = Vector3.one * hiddenScale;
+
         gameObject.SetActive(false);
     }
 
     public void Show(string message)
     {
-        promptText.text = message;
+        // Expected format: "E  COOK" or "A  PICK UP"
+        string[] parts = message.Split(
+            new char[] { ' ' },
+            2,
+            System.StringSplitOptions.RemoveEmptyEntries
+        );
+
+        if (parts.Length == 0)
+            return;
+
+        keyText.text = parts[0];
+        actionText.text = parts.Length > 1 ? parts[1] : "";
 
         if (!gameObject.activeSelf)
             gameObject.SetActive(true);
@@ -38,7 +52,7 @@ public class InteractionUI : MonoBehaviour
             return;
 
         isVisible = true;
-        StartAnimation(1f, visibleScale);
+        StartAnimation(1f, 1f);
     }
 
     public void Hide()
@@ -63,7 +77,11 @@ public class InteractionUI : MonoBehaviour
     private IEnumerator AnimatePrompt(float targetAlpha, float targetScale)
     {
         float startAlpha = canvasGroup.alpha;
-        Vector3 startScale = transform.localScale;
+
+        Vector3 startScale = animatedContent != null
+            ? animatedContent.localScale
+            : Vector3.one;
+
         Vector3 endScale = Vector3.one * targetScale;
 
         float timer = 0f;
@@ -73,18 +91,23 @@ public class InteractionUI : MonoBehaviour
             timer += Time.deltaTime;
 
             float t = Mathf.Clamp01(timer / fadeDuration);
-
-            // Smooth easing.
             t = t * t * (3f - 2f * t);
 
             canvasGroup.alpha = Mathf.Lerp(startAlpha, targetAlpha, t);
-            transform.localScale = Vector3.Lerp(startScale, endScale, t);
+
+            if (animatedContent != null)
+            {
+                animatedContent.localScale =
+                    Vector3.Lerp(startScale, endScale, t);
+            }
 
             yield return null;
         }
 
         canvasGroup.alpha = targetAlpha;
-        transform.localScale = endScale;
+
+        if (animatedContent != null)
+            animatedContent.localScale = endScale;
 
         if (targetAlpha == 0f)
             gameObject.SetActive(false);
