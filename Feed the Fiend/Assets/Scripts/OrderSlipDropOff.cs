@@ -9,25 +9,12 @@ public class OrderSlipDropOff : MonoBehaviour
     [Header("Physical Slip Area")]
     [SerializeField] private Transform[] slipPositions;
 
-    [Header("Order Board UI")]
-    [SerializeField] private GameObject boardPanel;
-    [SerializeField] private TMP_Text boardText;
-
     [Header("Chef Inventory")]
     [SerializeField] private Chef_Order_Inventory chefInventory;
 
     private readonly List<PhysicalOrderSlip> slips =
         new List<PhysicalOrderSlip>();
 
-    public bool IsOpen { get; private set; }
-
-    private void Awake()
-    {
-        if (boardPanel != null)
-            boardPanel.SetActive(false);
-
-        RefreshBoard();
-    }
 
     public bool HasOrders()
     {
@@ -107,7 +94,6 @@ public class OrderSlipDropOff : MonoBehaviour
         slip.transform.localPosition = Vector3.zero;
         slip.transform.localRotation = Quaternion.identity;
 
-        RefreshBoard();
 
         Debug.Log(
             "Order added to chef inventory for Table " +
@@ -117,85 +103,13 @@ public class OrderSlipDropOff : MonoBehaviour
         return true;
     }
 
-    // The chef opens or closes the board to view orders.
-    // This does NOT take an order out of inventory.
-    public void InteractWithChef()
-    {
-        CleanupSlips();
-
-        IsOpen = !IsOpen;
-
-        if (boardPanel != null)
-            boardPanel.SetActive(IsOpen);
-
-        RefreshBoard();
-    }
-
-    public void CloseBoard()
-    {
-        IsOpen = false;
-
-        if (boardPanel != null)
-            boardPanel.SetActive(false);
-
-        RefreshBoard();
-    }
 
     private void CleanupSlips()
     {
         slips.RemoveAll(slip => slip == null);
     }
 
-    private void RefreshBoard()
-    {
-        CleanupSlips();
-
-        if (boardText == null)
-            return;
-
-        StringBuilder text = new StringBuilder();
-
-        text.AppendLine("WAITING ORDERS");
-        text.AppendLine();
-
-        if (slips.Count == 0)
-        {
-            text.AppendLine("No orders waiting.");
-        }
-        else
-        {
-            for (int i = 0; i < slips.Count; i++)
-            {
-                PhysicalOrderSlip slip = slips[i];
-
-                if (slip == null)
-                    continue;
-
-                Food_Types[] order = slip.GetOrder();
-
-                string foodName =
-                    order != null && order.Length > 0
-                    ? order[0].ToString()
-                    : "Unknown";
-
-                text.AppendLine(
-                    (i + 1) + ". Table " +
-                    slip.TableNumber + " - " + foodName
-                );
-            }
-        }
-
-        text.AppendLine();
-        text.AppendLine(
-            IsOpen
-            ? "Orders are stored in chef inventory."
-            : "Press A to view orders"
-        );
-
-        boardText.text = text.ToString();
-    }
-
-    // Called when the customer's order is completed.
+ 
     public void RemoveSlipForTable(int tableNumber)
     {
         for (int i = slips.Count - 1; i >= 0; i--)
@@ -210,7 +124,5 @@ public class OrderSlipDropOff : MonoBehaviour
                 break;
             }
         }
-
-        RefreshBoard();
     }
 }

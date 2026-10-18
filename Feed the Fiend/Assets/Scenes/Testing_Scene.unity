@@ -11531,22 +11531,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Chef_Order_Inventory
   inventoryPanel: {fileID: 1850251024}
   inventoryText: {fileID: 266461966}
-  slotButtons:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  assignmentPanel: {fileID: 0}
-  assignmentText: {fileID: 0}
-  tableButtons:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  customers:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
 --- !u!4 &596359599
 Transform:
   m_ObjectHideFlags: 0
@@ -25295,6 +25279,22 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 862c0ade-3bd8-4a1c-9fe9-abfe18d74582
     m_ActionName: 'Waiter/Instructions[/SwitchProControllerHID/dpad,/SwitchProControllerHID/dpad/down,/SwitchProControllerHID/dpad/left,/SwitchProControllerHID/dpad/right]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1660470059}
+        m_TargetAssemblyTypeName: Chef_Controls, Assembly-CSharp
+        m_MethodName: OnInventory
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: bdc04a13-ada8-437c-968b-a60c6c010537
+    m_ActionName: 'Chef/Inventory[/DualShock4GamepadHID/buttonNorth,/SwitchProControllerHID/buttonNorth]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: Gamepad
   m_DefaultActionMap: Chef
@@ -25375,7 +25375,7 @@ MonoBehaviour:
   interactionPrompt: {fileID: 2088522494}
   interactionRange: 2
   recipe_Book: {fileID: 1227449723}
-  orderInventory: {fileID: 0}
+  orderInventory: {fileID: 596359598}
 --- !u!114 &1660470060
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29760,8 +29760,6 @@ MonoBehaviour:
   - {fileID: 409388609}
   - {fileID: 1655071619}
   - {fileID: 2127860461}
-  boardPanel: {fileID: 1850251024}
-  boardText: {fileID: 266461966}
   chefInventory: {fileID: 596359598}
 --- !u!4 &1936908552
 Transform:

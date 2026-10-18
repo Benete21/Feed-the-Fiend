@@ -218,20 +218,13 @@ public class Chef_Controls : MonoBehaviour
 
     public void OnInventory(InputAction.CallbackContext context)
     {
-        if (!context.performed || orderInventory == null)
-            return;
-
-        orderInventory.ToggleInventory();
-    }
-
-    public void OnOrderBoard(InputAction.CallbackContext context)
-    {
         if (!context.performed)
             return;
 
+        // Only open inventory when near the order drop-off.
         Collider[] hits = Physics.OverlapSphere(
             transform.position,
-            2f
+            interactionRange
         );
 
         foreach (Collider hit in hits)
@@ -239,12 +232,22 @@ public class Chef_Controls : MonoBehaviour
             OrderSlipDropOff dropoff =
                 hit.GetComponentInParent<OrderSlipDropOff>();
 
-            if (dropoff != null)
+            if (dropoff == null)
+                continue;
+
+            if (orderInventory == null)
             {
-                dropoff.InteractWithChef();
+                Debug.LogError(
+                    "Chef_Order_Inventory is not assigned in the Inspector!"
+                );
                 return;
             }
+
+            orderInventory.ToggleInventory();
+            return;
         }
+
+        Debug.Log("Move closer to the order counter to view orders.");
     }
 
 
@@ -346,7 +349,7 @@ public class Chef_Controls : MonoBehaviour
 
         Collider[] boardHits = Physics.OverlapSphere(
             transform.position,
-            2f
+            interactionRange
         );
 
         foreach (Collider hit in boardHits)
@@ -356,11 +359,7 @@ public class Chef_Controls : MonoBehaviour
 
             if (dropoff != null)
             {
-                interactionPrompt.Show(
-                    dropoff.IsOpen
-                        ? "A  TAKE NEXT ORDER"
-                        : "A  VIEW ORDERS"
-                );
+                interactionPrompt.Show("X  VIEW ORDERS");
                 return;
             }
         }

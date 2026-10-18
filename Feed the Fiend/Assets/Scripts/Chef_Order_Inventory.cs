@@ -1,15 +1,14 @@
+
 using System.Collections.Generic;
 using System.Text;
-using System;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
 
 public class Chef_Order_Inventory : MonoBehaviour
 {
     public const int Capacity = 4;
 
-    [Serializable]
+    [System.Serializable]
     public class OrderEntry
     {
         public Food_Types food;
@@ -20,39 +19,25 @@ public class Chef_Order_Inventory : MonoBehaviour
     [SerializeField] private GameObject inventoryPanel;
     [SerializeField] private TMP_Text inventoryText;
 
-    [Header("Optional Slot Buttons")]
-    [SerializeField] private Button[] slotButtons = new Button[Capacity];
+    private readonly List<OrderEntry> orders =
+        new List<OrderEntry>();
 
-    [Header("Assignment UI")]
-    [SerializeField] private GameObject assignmentPanel;
-    [SerializeField] private TMP_Text assignmentText;
-    [SerializeField] private Button[] tableButtons;
-
-    [Header("Available Tables")]
-    [SerializeField] private CustomerOrder[] customers;
-
-    private readonly List<OrderEntry> orders = new List<OrderEntry>();
-    private int selectedIndex = -1;
-
-    public IReadOnlyList<OrderEntry> Orders => orders;
     public int Count => orders.Count;
+    public IReadOnlyList<OrderEntry> Orders => orders;
 
     private void Awake()
     {
         if (inventoryPanel != null)
             inventoryPanel.SetActive(false);
 
-        if (assignmentPanel != null)
-            assignmentPanel.SetActive(false);
-
         RefreshUI();
     }
 
     public bool ReceiveOrder(Food_Types[] foodOrder, int tableNumber)
     {
-        if (orders.Count >= Capacity)
+        if (!HasSpace())
         {
-            Debug.LogWarning("Chef's order inventory is full!");
+            Debug.LogWarning("Chef's inventory is full!");
             return false;
         }
 
@@ -62,20 +47,15 @@ public class Chef_Order_Inventory : MonoBehaviour
             return false;
         }
 
-        OrderEntry entry = new OrderEntry
+        orders.Add(new OrderEntry
         {
             food = foodOrder[0],
             tableNumber = tableNumber
-        };
-
-        orders.Add(entry);
-
-        Debug.Log(
-            "Chef received order for Table " + tableNumber +
-            ": " + entry.food
-        );
+        });
 
         RefreshUI();
+
+        Debug.Log("Order received for Table " + tableNumber);
         return true;
     }
 
@@ -87,62 +67,13 @@ public class Chef_Order_Inventory : MonoBehaviour
     public void ToggleInventory()
     {
         if (inventoryPanel == null)
+        {
+            Debug.LogError("Inventory Panel is not assigned!");
             return;
+        }
 
-        bool open = !inventoryPanel.activeSelf;
-        inventoryPanel.SetActive(open);
-
-        if (!open && assignmentPanel != null)
-            assignmentPanel.SetActive(false);
-
+        inventoryPanel.SetActive(!inventoryPanel.activeSelf);
         RefreshUI();
-    }
-
-    public void OpenAssignmentBoard()
-    {
-        if (assignmentPanel == null)
-            return;
-
-        if (inventoryPanel != null)
-            inventoryPanel.SetActive(true);
-
-        assignmentPanel.SetActive(true);
-        RefreshUI();
-    }
-
-    public void SelectOrder(int index)
-    {
-        if (index < 0 || index >= orders.Count)
-            return;
-
-        selectedIndex = index;
-        RefreshUI();
-    }
-
-    public void AssignSelectedOrderToTable(int customerIndex)
-    {
-        if (selectedIndex < 0 || selectedIndex >= orders.Count)
-            return;
-
-        if (customers == null ||
-            customerIndex < 0 ||
-            customerIndex >= customers.Length)
-            return;
-
-        CustomerOrder target = customers[customerIndex];
-
-        if (target == null)
-            return;
-
-        OrderEntry entry = orders[selectedIndex];
-
-        entry.tableNumber = target.TableNumber;
-
-        RefreshUI();
-
-        Debug.Log(
-            "Order assigned to Table " + entry.tableNumber
-        );
     }
 
     public bool TryGetOrderForTable(
@@ -162,115 +93,48 @@ public class Chef_Order_Inventory : MonoBehaviour
         return false;
     }
 
-    private void RefreshUI()
-    {
-        if (inventoryText != null)
-        {
-            StringBuilder text = new StringBuilder();
-            text.AppendLine("CHEF ORDERS");
-
-            for (int i = 0; i < Capacity; i++)
-            {
-                if (i < orders.Count)
-                {
-                    OrderEntry entry = orders[i];
-
-                    string selected = i == selectedIndex ? " > " : "   ";
-
-                    text.AppendLine(
-                        selected + (i + 1) + ". Table " +
-                        entry.tableNumber + " - " + entry.food
-                    );
-                }
-                else
-                {
-                    text.AppendLine("   " + (i + 1) + ". Empty");
-                }
-            }
-
-            inventoryText.text = text.ToString();
-        }
-
-        if (slotButtons != null)
-        {
-            for (int i = 0; i < slotButtons.Length; i++)
-            {
-                int index = i;
-
-                if (slotButtons[i] == null)
-                    continue;
-
-                slotButtons[i].interactable = i < orders.Count;
-
-                slotButtons[i].onClick.RemoveAllListeners();
-                slotButtons[i].onClick.AddListener(
-                    () => SelectOrder(index)
-                );
-            }
-        }
-
-        if (assignmentText != null)
-        {
-            if (selectedIndex >= 0 && selectedIndex < orders.Count)
-            {
-                OrderEntry entry = orders[selectedIndex];
-
-                assignmentText.text =
-                    "Selected: " + entry.food +
-                    "\nAssigned to Table " + entry.tableNumber;
-            }
-            else
-            {
-                assignmentText.text = "Select an order first";
-            }
-        }
-
-        if (tableButtons != null)
-        {
-            for (int i = 0; i < tableButtons.Length; i++)
-            {
-                int index = i;
-
-                if (tableButtons[i] == null)
-                    continue;
-
-                tableButtons[i].onClick.RemoveAllListeners();
-                tableButtons[i].onClick.AddListener(
-                    () => AssignSelectedOrderToTable(index)
-                );
-
-                tableButtons[i].interactable =
-                    selectedIndex >= 0 &&
-                    selectedIndex < orders.Count &&
-                    customers != null &&
-                    index < customers.Length &&
-                    customers[index] != null;
-            }
-        }
-    }
-
     public bool CompleteOrderForTable(int tableNumber)
     {
         int index = orders.FindIndex(
             order => order.tableNumber == tableNumber
         );
 
-        if (index == -1)
-        {
-            Debug.LogWarning(
-                "No inventory order found for Table " + tableNumber
-            );
+        if (index < 0)
             return false;
-        }
 
         orders.RemoveAt(index);
         RefreshUI();
 
-        Debug.Log(
-            "Completed order removed for Table " + tableNumber
-        );
-
+        Debug.Log("Removed completed order for Table " + tableNumber);
         return true;
     }
 
+    private void RefreshUI()
+    {
+        if (inventoryText == null)
+            return;
+
+        StringBuilder text = new StringBuilder();
+        text.AppendLine("CHEF ORDERS");
+        text.AppendLine();
+
+        for (int i = 0; i < Capacity; i++)
+        {
+            if (i < orders.Count)
+            {
+                OrderEntry entry = orders[i];
+
+                text.AppendLine(
+                    (i + 1) + ". Table " +
+                    entry.tableNumber + " - " + entry.food
+                );
+            }
+            else
+            {
+                text.AppendLine((i + 1) + ". Empty");
+            }
+        }
+
+        inventoryText.text = text.ToString();
+    }
 }
