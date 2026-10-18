@@ -248,4 +248,29 @@ public class Chef_Order_Inventory : MonoBehaviour
             }
         }
     }
+
+    public bool CompleteOrderForTable(int tableNumber)
+    {
+        int index = orders.FindIndex(
+            order => order.tableNumber == tableNumber
+        );
+
+        if (index == -1)
+        {
+            Debug.LogWarning(
+                "No inventory order found for Table " + tableNumber
+            );
+            return false;
+        }
+
+        orders.RemoveAt(index);
+        RefreshUI();
+
+        Debug.Log(
+            "Completed order removed for Table " + tableNumber
+        );
+
+        return true;
+    }
+
 }

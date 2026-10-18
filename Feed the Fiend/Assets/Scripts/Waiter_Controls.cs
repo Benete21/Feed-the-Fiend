@@ -82,12 +82,16 @@ public class Waiter_Controls : MonoBehaviour
             PhysicalOrderSlip slip =
                 heldObj.GetComponent<PhysicalOrderSlip>();
 
-            if (slip != null && TryGiveSlipToChef(slip))
+            if (slip != null)
+            {
+                TryDropSlipAtCounter(slip);
                 return;
+            }
 
             Drop();
             return;
         }
+
 
         Vector3 center =
             transform.position +
@@ -406,7 +410,8 @@ public class Waiter_Controls : MonoBehaviour
         interactionPrompt.Hide();
     }
 
-    private bool TryGiveSlipToChef(PhysicalOrderSlip slip)
+
+    private bool TryDropSlipAtCounter(PhysicalOrderSlip slip)
     {
         Vector3 center =
             transform.position +
@@ -427,25 +432,27 @@ public class Waiter_Controls : MonoBehaviour
 
         foreach (Collider hit in hits)
         {
-            Chef_Controls chef =
-                hit.GetComponentInParent<Chef_Controls>();
+            OrderSlipDropOff dropoff =
+                hit.GetComponentInParent<OrderSlipDropOff>();
 
-            if (chef == null)
+            if (dropoff == null)
                 continue;
 
-            if (!chef.ReceiveOrderSlip(slip))
-            {
-                Debug.Log("Could not transfer order to Chef.");
+            if (!dropoff.DepositSlip(slip))
                 return false;
-            }
+
+            // The slip now belongs to the drop-off area.
+            heldObj = null;
+            heldRb = null;
 
             RemoveOrderSlip();
-            RemoveHeldObject();
 
-            Debug.Log("Order slip transferred to Chef.");
+            Debug.Log("Waiter dropped the slip at the counter.");
             return true;
         }
 
+        Debug.Log("Move closer to the order drop-off counter.");
         return false;
     }
+
 }

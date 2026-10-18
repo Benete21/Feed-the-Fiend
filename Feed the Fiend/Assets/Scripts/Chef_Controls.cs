@@ -226,7 +226,7 @@ public class Chef_Controls : MonoBehaviour
 
     public void OnOrderBoard(InputAction.CallbackContext context)
     {
-        if (!context.performed || orderInventory == null)
+        if (!context.performed)
             return;
 
         Collider[] hits = Physics.OverlapSphere(
@@ -236,16 +236,17 @@ public class Chef_Controls : MonoBehaviour
 
         foreach (Collider hit in hits)
         {
-            Chef_order_Board board =
-                hit.GetComponentInParent<Chef_order_Board>();
+            OrderSlipDropOff dropoff =
+                hit.GetComponentInParent<OrderSlipDropOff>();
 
-            if (board != null)
+            if (dropoff != null)
             {
-                board.OpenBoard(orderInventory);
+                dropoff.InteractWithChef();
                 return;
             }
         }
     }
+
 
     void TryPickup()
     {
@@ -342,6 +343,28 @@ public class Chef_Controls : MonoBehaviour
             interactionPrompt.Hide();
             return;
         }
+
+        Collider[] boardHits = Physics.OverlapSphere(
+            transform.position,
+            2f
+        );
+
+        foreach (Collider hit in boardHits)
+        {
+            OrderSlipDropOff dropoff =
+                hit.GetComponentInParent<OrderSlipDropOff>();
+
+            if (dropoff != null)
+            {
+                interactionPrompt.Show(
+                    dropoff.IsOpen
+                        ? "A  TAKE NEXT ORDER"
+                        : "A  VIEW ORDERS"
+                );
+                return;
+            }
+        }
+
 
         // Cooking station
         if (cookingStation != null &&

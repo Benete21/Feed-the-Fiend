@@ -31,6 +31,8 @@ public class CustomerOrder : MonoBehaviour, IInteractable
     public int TableNumber => tableNumber;
     public event Action<CustomerOrder> OnOrderCompleted;
 
+    [SerializeField] private Chef_Order_Inventory chefInventory;
+
     void Start()
     {
         // Hide UI at the beginning
@@ -241,6 +243,10 @@ public class CustomerOrder : MonoBehaviour, IInteractable
 
     public void TryDeliverFood(FoodItems food)
     {
+        if (chefInventory != null)
+        {
+            chefInventory.CompleteOrderForTable(TableNumber);
+        }
         if (food == null)
             return;
 
