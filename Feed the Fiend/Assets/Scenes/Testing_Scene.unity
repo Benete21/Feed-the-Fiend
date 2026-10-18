@@ -3972,7 +3972,7 @@ Transform:
   m_GameObject: {fileID: 390484247}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.54, z: 0}
+  m_LocalPosition: {x: 0, y: 1.94, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -24865,6 +24865,10 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: a2f0d6b1-047c-408b-aac5-cdedc271db02
     m_ActionName: 'Chef/Recipe[/SwitchProControllerHID/buttonNorth]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: bdc04a13-ada8-437c-968b-a60c6c010537
+    m_ActionName: 'Chef/Inventory[/SwitchProControllerHID/buttonNorth,/DualShock4GamepadHID/buttonNorth,/SwitchProControllerHID1/buttonNorth,/SwitchProControllerHID2/buttonNorth]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: Gamepad
   m_DefaultActionMap: Waiter
@@ -25441,7 +25445,7 @@ MonoBehaviour:
   daySettings:
   - dayName: Day 1
     monsterPrefabs:
-    - {fileID: 3199352006760082218, guid: ad655b1bc4382534cacb7d9aaa36868f, type: 3}
+    - {fileID: 3199352006760082218, guid: 8dc11bf176921c844bfc28c6cda77832, type: 3}
     monsterCount: 1
   - dayName: Day 2
     monsterPrefabs:
@@ -26064,7 +26068,7 @@ Transform:
   m_GameObject: {fileID: 1703769973}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 24.1, y: 0.11, z: -17.32}
+  m_LocalPosition: {x: 24.1, y: 0.11, z: -18.34}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -27620,6 +27624,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -5970490964660551737, guid: f6a229d96af28e2499a8f1d5d8b95959, type: 3}
+      propertyPath: foodType
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 4555801093958572351, guid: f6a229d96af28e2499a8f1d5d8b95959, type: 3}
       propertyPath: m_LocalPosition.x
       value: 18.231512
