@@ -27,6 +27,9 @@ public class CustomerOrder : MonoBehaviour, IInteractable
     public event Action OnOrderTaken;
     public event Action OnOrderStarted;
 
+    [SerializeField] private int tableNumber = 1;
+    public int TableNumber => tableNumber;
+    public event Action<CustomerOrder> OnOrderCompleted;
 
     void Start()
     {
@@ -189,7 +192,10 @@ public class CustomerOrder : MonoBehaviour, IInteractable
         // Give order slip to waiter
         if (waiter != null)
         {
-            waiter.GiveOrderDirectlyToHand(currentOrder);
+            waiter.GiveOrderDirectlyToHand(
+                currentOrder,
+                TableNumber
+            );
         }
 
         hasOrdered = true;
@@ -273,6 +279,7 @@ public class CustomerOrder : MonoBehaviour, IInteractable
 
         // Correct food
         Debug.Log("CORRECT FOOD DELIVERED!");
+        OnOrderCompleted?.Invoke(this);
 
         waiting = false;
         waitTime = 0f;

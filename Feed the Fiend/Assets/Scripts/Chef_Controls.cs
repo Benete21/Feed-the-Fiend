@@ -37,6 +37,9 @@ public class Chef_Controls : MonoBehaviour
     public GameObject recipe_Book;
     private PlayerStatus playerStatus;
 
+    [Header("Order Inventory")]
+    [SerializeField] private Chef_Order_Inventory orderInventory;
+
     private void Awake()
     {
         playerStatus = GetComponent<PlayerStatus>();
@@ -213,6 +216,36 @@ public class Chef_Controls : MonoBehaviour
         }
     }
 
+    public void OnInventory(InputAction.CallbackContext context)
+    {
+        if (!context.performed || orderInventory == null)
+            return;
+
+        orderInventory.ToggleInventory();
+    }
+
+    public void OnOrderBoard(InputAction.CallbackContext context)
+    {
+        if (!context.performed || orderInventory == null)
+            return;
+
+        Collider[] hits = Physics.OverlapSphere(
+            transform.position,
+            2f
+        );
+
+        foreach (Collider hit in hits)
+        {
+            Chef_order_Board board =
+                hit.GetComponentInParent<Chef_order_Board>();
+
+            if (board != null)
+            {
+                board.OpenBoard(orderInventory);
+                return;
+            }
+        }
+    }
 
     void TryPickup()
     {
@@ -418,6 +451,52 @@ public class Chef_Controls : MonoBehaviour
     public GameObject GetHeldObject()
     {
         return heldObj;
+    }
+
+
+    public bool ReceiveOrderSlip(PhysicalOrderSlip slip)
+    {
+        if (slip == null)
+        {
+            Debug.LogWarning("Cannot receive a null order slip.");
+            return false;
+        }
+
+        if (orderInventory == null)
+        {
+            Debug.LogError(
+                "Chef_Order_Inventory is not assigned in the Inspector!"
+            );
+            return false;
+        }
+
+        if (!orderInventory.HasSpace())
+        {
+            Debug.LogWarning("Chef's inventory is full!");
+            return false;
+        }
+
+        Food_Types[] order = slip.GetOrder();
+
+        if (order == null || order.Length == 0)
+        {
+            Debug.LogWarning("This order slip contains no food order.");
+            return false;
+        }
+
+        bool received = orderInventory.ReceiveOrder(
+            order,
+            slip.TableNumber
+        );
+
+        if (received)
+        {
+            Debug.Log(
+                "Chef received order for Table " + slip.TableNumber
+            );
+        }
+
+        return received;
     }
 
 

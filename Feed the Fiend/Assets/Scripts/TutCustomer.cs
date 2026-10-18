@@ -1,14 +1,20 @@
+
 using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-using static UnityEngine.Rendering.DebugUI.Table;
 
 public class TutCustomer : MonoBehaviour, IInteractable
 {
     [Header("Order")]
     [SerializeField] private float orderTime = 3f;
-    [SerializeField] private Food_Types tutorialFood = Food_Types.Tenticle_Meat_Dish;
+    [SerializeField]
+    private Food_Types tutorialFood =
+        Food_Types.Tenticle_Meat_Dish;
+
+    [Header("Table Assignment")]
+    [SerializeField] private int tableNumber = 1;
+    public int TableNumber => tableNumber;
 
     [Header("UI")]
     [SerializeField] private Slider loadingBar;
@@ -20,18 +26,23 @@ public class TutCustomer : MonoBehaviour, IInteractable
     private bool canTakeOrder = true;
     private bool orderTaken = false;
     private bool waitingForFood = false;
+    private bool foodDelivered = false;
 
     public Food_Types[] currentOrder;
 
     public event Action OnOrderTaken;
     public event Action OnFoodDelivered;
-
+    public event Action<TutCustomer> OnOrderCompleted;
 
     public bool HasOrdered()
     {
         return orderTaken;
     }
 
+    public bool IsWaitingForFood()
+    {
+        return waitingForFood;
+    }
 
     private void Start()
     {
@@ -42,68 +53,61 @@ public class TutCustomer : MonoBehaviour, IInteractable
         }
 
         if (waitingExclamation != null)
-        {
             waitingExclamation.SetActive(true);
-        }
 
         // Create the tutorial order.
         currentOrder = new Food_Types[1];
         currentOrder[0] = tutorialFood;
 
         Debug.Log(
-            "Tutorial customer order: " +
-            currentOrder[0]
+            "Tutorial customer at table " + tableNumber +
+            " wants " + currentOrder[0]
         );
     }
 
-
-    // =========================================================
+    // =====================================================
     // CUSTOMER INTERACTION
-    // =========================================================
+    // =====================================================
 
     public void Interact(Waiter_Controls waiter)
     {
         if (waiter == null)
             return;
 
-        // Take order
+        // Only allow the order to be taken once.
         if (!orderTaken)
         {
             if (!canTakeOrder)
                 return;
 
             TakeOrder(waiter);
-            return;
         }
 
-        // The tutorial uses the food trigger for delivery,
-        // so there is no need to deliver food through interaction.
+        // Food delivery is handled by the delivery trigger.
     }
 
-
-    // =========================================================
+    // =====================================================
     // TAKE ORDER
-    // =========================================================
+    // =====================================================
 
     private void TakeOrder(Waiter_Controls waiter)
     {
-        Debug.Log("TUTORIAL CUSTOMER: TAKING ORDER");
-
-        if (!canTakeOrder)
+        if (!canTakeOrder || orderTaken)
             return;
 
         canTakeOrder = false;
 
+        Debug.Log(
+            "Taking tutorial order for table " + tableNumber
+        );
+
         StartCoroutine(OrderRoutine(waiter));
     }
-
 
     private IEnumerator OrderRoutine(Waiter_Controls waiter)
     {
         if (waitingExclamation != null)
-        {
             waitingExclamation.SetActive(false);
-        }
 
         if (loadingBar != null)
         {
@@ -119,191 +123,122 @@ public class TutCustomer : MonoBehaviour, IInteractable
 
             if (loadingBar != null)
             {
-                loadingBar.value =
-                    Mathf.Clamp01(timer / orderTime);
+                loadingBar.value = orderTime > 0f
+                    ? Mathf.Clamp01(timer / orderTime)
+                    : 1f;
             }
 
             yield return null;
         }
 
         if (loadingBar != null)
-        {
             loadingBar.gameObject.SetActive(false);
-        }
 
-
-        // =====================================================
-        // ORDER FINISHED
-        // =====================================================
-
+        // Order is now ready.
         orderTaken = true;
         waitingForFood = true;
 
         Debug.Log(
-            "TUTORIAL ORDER TAKEN: " +
-            currentOrder[0]
+            "Tutorial order taken. Table: " + tableNumber +
+            ", Food: " + currentOrder[0]
         );
 
-
-        // Put the order slip DIRECTLY into
-        // the waiter's held area.
+        // Give the order slip directly to the waiter.
+        // The slip receives this customer's table number
+        // and reference for later table assignment.
         if (waiter != null)
         {
-            waiter.GiveOrderDirectlyToHand(currentOrder);
+            waiter.GiveOrderDirectlyToHand(
+                currentOrder,
+                tableNumber
+            );
         }
 
-
-        // Tell TutorialManager that the order is finished.
         OnOrderTaken?.Invoke();
 
-
         Debug.Log(
-            "TUTORIAL CUSTOMER: WAITING FOR FOOD"
+            "Tutorial customer at table " + tableNumber +
+            " is waiting for food."
         );
     }
 
-
-    // =========================================================
-    // FOOD TRIGGER
-    // =========================================================
+    // =====================================================
+    // FOOD DELIVERY TRIGGER
+    // =====================================================
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log(
-            "Tutorial customer trigger hit by: " +
-            other.gameObject.name
-        );
-
-        if (!orderTaken)
-        {
-            Debug.Log(
-                "Tutorial customer: Order has not been taken."
-            );
-
+        if (!orderTaken || !waitingForFood || foodDelivered)
             return;
-        }
 
-        if (!waitingForFood)
-        {
-            Debug.Log(
-                "Tutorial customer: Not waiting for food."
-            );
-
-            return;
-        }
-
-
-        // Find FoodItems
-        FoodItems food =
-            other.GetComponent<FoodItems>();
+        // Find food on the collider, its parent or its children.
+        FoodItems food = other.GetComponent<FoodItems>();
 
         if (food == null)
-        {
-            food =
-                other.GetComponentInParent<FoodItems>();
-        }
+            food = other.GetComponentInParent<FoodItems>();
 
         if (food == null)
-        {
-            food =
-                other.GetComponentInChildren<FoodItems>();
-        }
+            food = other.GetComponentInChildren<FoodItems>();
 
-
-        // Not food
         if (food == null)
-        {
-            Debug.Log(
-                "Tutorial customer: Object is NOT food."
-            );
-
             return;
-        }
 
-
-        Debug.Log(
-            "Tutorial customer detected food: " +
-            food.name
-        );
-
-
-        // Find waiter carrying the food
+        // Find the waiter carrying the food.
         Waiter_Controls waiter =
             food.GetComponentInParent<Waiter_Controls>();
-
 
         TryDeliverFood(food, waiter);
     }
 
-
-    // =========================================================
+    // =====================================================
     // FOOD DELIVERY
-    // =========================================================
+    // =====================================================
 
     private void TryDeliverFood(
         FoodItems food,
-        Waiter_Controls waiter
-    )
+        Waiter_Controls waiter)
     {
-        if (food == null)
+        if (food == null ||
+            !orderTaken ||
+            !waitingForFood ||
+            foodDelivered)
+        {
             return;
+        }
 
-        if (!orderTaken)
-            return;
-
-        if (!waitingForFood)
-            return;
-
-        if (currentOrder == null ||
-            currentOrder.Length == 0)
+        if (currentOrder == null || currentOrder.Length == 0)
         {
             Debug.LogWarning(
-                "Tutorial customer: No current order."
+                "Tutorial customer has no current order."
             );
-
             return;
         }
 
-
         Debug.Log(
-            "Tutorial customer wants: " +
-            currentOrder[0] +
-            " | Delivered: " +
-            food.foodType
+            "Table " + tableNumber +
+            " wants " + currentOrder[0] +
+            ". Delivered: " + food.foodType
         );
 
-
-        // =====================================================
-        // WRONG FOOD
-        // =====================================================
-
+        // Reject incorrect food.
         if (food.foodType != currentOrder[0])
         {
-            Debug.Log(
-                "TUTORIAL CUSTOMER: WRONG FOOD!"
-            );
-
+            Debug.Log("Tutorial customer: WRONG FOOD!");
             return;
         }
 
-
-        // =====================================================
-        // CORRECT FOOD
-        // =====================================================
-
-        Debug.Log(
-            "TUTORIAL CUSTOMER: CORRECT FOOD DELIVERED!"
-        );
-
+        // Correct food delivered.
+        foodDelivered = true;
         waitingForFood = false;
 
+        Debug.Log(
+            "Correct food delivered to tutorial table " +
+            tableNumber
+        );
 
-        // Remove food from the waiter.
         if (waiter != null)
         {
             waiter.RemoveHeldObject();
-
-            // Remove the order slip UI.
             waiter.RemoveOrderSlip();
         }
         else
@@ -311,14 +246,26 @@ public class TutCustomer : MonoBehaviour, IInteractable
             Destroy(food.gameObject);
         }
 
-
-        // Tell TutorialManager.
+        // Notify the tutorial manager.
         OnFoodDelivered?.Invoke();
-
+        OnOrderCompleted?.Invoke(this);
 
         Debug.Log(
-            "TUTORIAL CUSTOMER: FOOD DELIVERY COMPLETE!"
+            "Tutorial order completed at table " + tableNumber
         );
     }
-}
 
+    // =====================================================
+    // RESET / QUERY HELPERS
+    // =====================================================
+
+    public bool IsFoodDelivered()
+    {
+        return foodDelivered;
+    }
+
+    public Food_Types GetOrderedFood()
+    {
+        return tutorialFood;
+    }
+}

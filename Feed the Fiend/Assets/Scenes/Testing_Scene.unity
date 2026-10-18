@@ -24333,7 +24333,7 @@ MonoBehaviour:
   physicalOrderSlipPrefab: {fileID: 6414429231405005623, guid: b92f3d58bcb8a524c82413fd0bc147a5, type: 3}
   slipUIHolder: {fileID: 694611179}
   orderSlipUIPrefab: {fileID: 1763076267427154549, guid: e197aed7de8efcf44b49cba0ef977b4d, type: 3}
-  interactionPrompt: {fileID: 0}
+  interactionPrompt: {fileID: 1080261998}
   interactionRange: 2.5
 --- !u!114 &1642685829
 MonoBehaviour:
@@ -24719,6 +24719,7 @@ MonoBehaviour:
   interactionPrompt: {fileID: 2088522494}
   interactionRange: 2
   recipe_Book: {fileID: 1227449723}
+  orderInventory: {fileID: 0}
 --- !u!114 &1660470060
 MonoBehaviour:
   m_ObjectHideFlags: 0

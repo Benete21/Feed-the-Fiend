@@ -79,6 +79,12 @@ public class Waiter_Controls : MonoBehaviour
 
         if (heldObj != null)
         {
+            PhysicalOrderSlip slip =
+                heldObj.GetComponent<PhysicalOrderSlip>();
+
+            if (slip != null && TryGiveSlipToChef(slip))
+                return;
+
             Drop();
             return;
         }
@@ -219,38 +225,44 @@ public class Waiter_Controls : MonoBehaviour
         heldRb = null;
     }
 
-
-
-    public void GiveOrderSlip(Food_Types[] order)
+    public void GiveOrderSlip(
+        Food_Types[] order,
+        int tableNumber)
     {
-        GameObject slip = Instantiate(physicalOrderSlipPrefab, slipSpawnPoint.position, slipSpawnPoint.rotation);
+        GameObject slip = Instantiate(
+            physicalOrderSlipPrefab,
+            slipSpawnPoint.position,
+            slipSpawnPoint.rotation
+        );
 
-        PhysicalOrderSlip physicalSlip = slip.GetComponent<PhysicalOrderSlip>();
+        PhysicalOrderSlip physicalSlip =
+            slip.GetComponent<PhysicalOrderSlip>();
 
         if (physicalSlip != null)
         {
-            physicalSlip.SetOrder(order);
+            physicalSlip.SetOrderDetails(
+                order,
+                tableNumber
+            );
         }
     }
 
-public void GiveOrderDirectlyToHand(Food_Types[] order)
+
+    public void GiveOrderDirectlyToHand(
+        Food_Types[] order,
+        int tableNumber)
     {
         if (order == null || order.Length == 0)
             return;
 
-        // If the waiter is already holding something,
-        // don't replace it.
         if (heldObj != null)
         {
             Debug.LogWarning(
-                "Waiter is already holding an object. " +
-                "Cannot place order slip in hand."
+                "Waiter is already holding an object."
             );
-
             return;
         }
 
-        // Create the physical order slip
         GameObject slip = Instantiate(
             physicalOrderSlipPrefab,
             hold.position,
@@ -262,12 +274,13 @@ public void GiveOrderDirectlyToHand(Food_Types[] order)
 
         if (physicalSlip != null)
         {
-            physicalSlip.SetOrder(order);
+            physicalSlip.SetOrderDetails(
+                order,
+                tableNumber
+            );
         }
 
-        // Make it the held object
         heldObj = slip;
-
         heldRb = slip.GetComponent<Rigidbody>();
 
         if (heldRb != null)
@@ -283,19 +296,19 @@ public void GiveOrderDirectlyToHand(Food_Types[] order)
         }
         else
         {
-            // Still parent it correctly even without Rigidbody
             slip.transform.SetParent(hold);
             slip.transform.localPosition = Vector3.zero;
             slip.transform.localRotation = Quaternion.identity;
         }
 
-        // Show the order on the UI immediately
         ShowOrderSlip(order);
 
         Debug.Log(
-            "Order slip automatically placed in waiter's hand."
+            "Order slip received for table " + tableNumber
         );
     }
+
+
 
     private void ShowOrderSlip(Food_Types[] order)
     {
@@ -393,4 +406,46 @@ public void GiveOrderDirectlyToHand(Food_Types[] order)
         interactionPrompt.Hide();
     }
 
+    private bool TryGiveSlipToChef(PhysicalOrderSlip slip)
+    {
+        Vector3 center =
+            transform.position +
+            transform.forward * (pickupRange * 0.5f) +
+            Vector3.up * 0.5f;
+
+        Vector3 halfExtents = new Vector3(
+            pickupWidth * 0.5f,
+            pickupHeight * 0.5f,
+            pickupRange * 0.5f
+        );
+
+        Collider[] hits = Physics.OverlapBox(
+            center,
+            halfExtents,
+            transform.rotation
+        );
+
+        foreach (Collider hit in hits)
+        {
+            Chef_Controls chef =
+                hit.GetComponentInParent<Chef_Controls>();
+
+            if (chef == null)
+                continue;
+
+            if (!chef.ReceiveOrderSlip(slip))
+            {
+                Debug.Log("Could not transfer order to Chef.");
+                return false;
+            }
+
+            RemoveOrderSlip();
+            RemoveHeldObject();
+
+            Debug.Log("Order slip transferred to Chef.");
+            return true;
+        }
+
+        return false;
+    }
 }
