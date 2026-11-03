@@ -135,7 +135,7 @@ GameObject:
   m_Icon: {fileID: -964228994112308473, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &4545906
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -25445,6 +25445,8 @@ MonoBehaviour:
   daySettings:
   - dayName: Day 1
     monsterPrefabs:
+    - {fileID: 3199352006760082218, guid: 8dc11bf176921c844bfc28c6cda77832, type: 3}
+    - {fileID: 3199352006760082218, guid: 8dc11bf176921c844bfc28c6cda77832, type: 3}
     - {fileID: 3199352006760082218, guid: 8dc11bf176921c844bfc28c6cda77832, type: 3}
     monsterCount: 1
   - dayName: Day 2
