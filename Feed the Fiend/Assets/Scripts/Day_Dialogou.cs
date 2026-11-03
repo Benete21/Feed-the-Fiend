@@ -1,7 +1,7 @@
+
 using System.Collections;
 using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class Day_Dialogou : MonoBehaviour
 {
@@ -12,6 +12,38 @@ public class Day_Dialogou : MonoBehaviour
 
     [Header("Settings")]
     [SerializeField] private float textSpeed = 0.03f;
+
+    private void Start()
+    {
+        // Hide the dialogue panel before starting.
+        if (dialoguePanel != null)
+            dialoguePanel.SetActive(false);
+
+        // Play the introductory dialogue when the scene starts.
+        StartCoroutine(PlayStartDialogue());
+    }
+
+    public IEnumerator PlayStartDialogue()
+    {
+        string[] messages =
+        {
+            "Welcome to your new restaurant, chef!",
+            "Your job is to prepare food and serve the monsters.",
+            "The restaurant will get busier as each day passes.",
+            "Get ready to cook, serve, and survive!"
+        };
+
+        if (dialoguePanel != null)
+            dialoguePanel.SetActive(true);
+
+        foreach (string message in messages)
+        {
+            yield return ShowMessage(message);
+        }
+
+        if (dialoguePanel != null)
+            dialoguePanel.SetActive(false);
+    }
 
     public IEnumerator PlayDayEndDialogue(int completedDay)
     {
@@ -75,7 +107,7 @@ public class Day_Dialogou : MonoBehaviour
         if (dialogueText != null)
             dialogueText.text = "";
 
-        // Type the dialogue.
+        // Type out the dialogue one character at a time.
         foreach (char letter in message)
         {
             if (dialogueText != null)
@@ -84,9 +116,7 @@ public class Day_Dialogou : MonoBehaviour
             yield return new WaitForSeconds(textSpeed);
         }
 
-        // Leave the completed message on screen briefly.
+        // Keep the completed message on screen briefly.
         yield return new WaitForSeconds(2f);
     }
-
 }
-
