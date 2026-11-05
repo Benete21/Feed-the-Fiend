@@ -136,6 +136,25 @@ public class Waiter_Controls : MonoBehaviour
         }
     }
 
+    public void OnPause(InputAction.CallbackContext context)
+    {
+        if (!context.performed)
+            return;
+
+        PlayerInput playerInput = GetComponent<PlayerInput>();
+
+        if (playerInput == null)
+            playerInput = GetComponentInParent<PlayerInput>();
+
+        if (playerInput == null)
+        {
+            Debug.LogError("PlayerInput component not found!");
+            return;
+        }
+
+        Pause_Menu.Instance.TogglePause(playerInput);
+    }
+
 
     void Pickup(GameObject obj)
     {

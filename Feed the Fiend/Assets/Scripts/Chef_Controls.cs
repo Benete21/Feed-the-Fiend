@@ -250,6 +250,24 @@ public class Chef_Controls : MonoBehaviour
         Debug.Log("Move closer to the order counter to view orders.");
     }
 
+    public void OnPause(InputAction.CallbackContext context)
+    {
+        if (!context.performed)
+            return;
+
+        PlayerInput playerInput = GetComponent<PlayerInput>();
+
+        if (playerInput == null)
+            playerInput = GetComponentInParent<PlayerInput>();
+
+        if (playerInput == null)
+        {
+            Debug.LogError("PlayerInput component not found!");
+            return;
+        }
+
+        Pause_Menu.Instance.TogglePause(playerInput);
+    }
 
     void TryPickup()
     {
