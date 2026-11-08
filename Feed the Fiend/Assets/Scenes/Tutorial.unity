@@ -701,8 +701,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9af675437ebe7ba4391adde535ef216c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractionUI
-  promptObject: {fileID: 216869545}
-  promptText: {fileID: 1868871819}
+  canvasGroup: {fileID: 0}
+  animatedContent: {fileID: 0}
+  keyText: {fileID: 0}
+  actionText: {fileID: 0}
+  fadeDuration: 0.2
+  hiddenScale: 0.9
 --- !u!1 &241526271
 GameObject:
   m_ObjectHideFlags: 0
@@ -1740,8 +1744,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -2251,8 +2255,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278255873
-  m_fontColor: {r: 0.0037735105, g: 0.0037735105, b: 0.0037735105, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -3391,8 +3395,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9af675437ebe7ba4391adde535ef216c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractionUI
-  promptObject: {fileID: 839084173}
-  promptText: {fileID: 577956050}
+  canvasGroup: {fileID: 0}
+  animatedContent: {fileID: 0}
+  keyText: {fileID: 0}
+  actionText: {fileID: 0}
+  fadeDuration: 0.2
+  hiddenScale: 0.9
 --- !u!1 &857692426
 GameObject:
   m_ObjectHideFlags: 0
@@ -4992,8 +5000,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.4914, y: -326.44333}
-  m_SizeDelta: {x: 1703.71, y: 378.4333}
+  m_AnchoredPosition: {x: -0.0000076294, y: -332.92}
+  m_SizeDelta: {x: 1864.5352, y: 414.1563}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1228336591
 MonoBehaviour:
@@ -5015,7 +5023,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: 20de2b1537980364aae5303e1ec1c28c, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -6998,9 +7006,12 @@ MonoBehaviour:
   hold: {fileID: 1155758643}
   prepStation: {fileID: 680019447}
   prepStationRange: 5
+  cookingStation: {fileID: 0}
+  cookingStationRange: 2
   interactionPrompt: {fileID: 216869547}
   interactionRange: 2.5
   recipe_Book: {fileID: 0}
+  orderInventory: {fileID: 0}
 --- !u!1 &1662327042
 GameObject:
   m_ObjectHideFlags: 0
@@ -7030,13 +7041,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e25760e6d3515dd4fac0ff69f5038bf3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterSpawner
-  monsterPrefabs:
-  - {fileID: 442584990175644706, guid: 665523ec2c2c95b43979f2bad45c0d86, type: 3}
+  player1Controls: {fileID: 0}
+  player2Controls: {fileID: 0}
+  daySettings: []
   entranceSpawnPoint: {fileID: 0}
   currentDay: 1
-  startingMonsterCount: 1
-  monstersAddedPerDay: 1
+  DayStarting: {fileID: 0}
+  dayStartingDuration: 3
   Day1Finish: {fileID: 0}
+  Day2Finish: {fileID: 0}
+  Day3Finish: {fileID: 0}
+  finishScreenDuration: 3
+  dayDialogue: {fileID: 0}
   minSpawn: 1
   maxSpawn: 15
   tables:
@@ -9713,6 +9729,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TutCustomer
   orderTime: 3
   tutorialFood: 2
+  tableNumber: 1
   loadingBar: {fileID: 4553108509014105860}
   waitingExclamation: {fileID: 2212083007485704948}
   foodDeliveryTrigger: {fileID: 0}
