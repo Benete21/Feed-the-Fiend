@@ -29813,9 +29813,9 @@ MonoBehaviour:
   - dayName: Day 1
     monsterPrefabs:
     - {fileID: 3199352006760082218, guid: 8dc11bf176921c844bfc28c6cda77832, type: 3}
-    - {fileID: 3199352006760082218, guid: 8dc11bf176921c844bfc28c6cda77832, type: 3}
-    - {fileID: 3199352006760082218, guid: 8dc11bf176921c844bfc28c6cda77832, type: 3}
-    monsterCount: 1
+    - {fileID: 2315452449451759754, guid: a345ab8269da04f49862cb01bc56dc55, type: 3}
+    - {fileID: 5066715001450721738, guid: fa17f612eee0d924cab45aa26e4bd9fb, type: 3}
+    monsterCount: 4
   - dayName: Day 2
     monsterPrefabs:
     - {fileID: 2315452449451759754, guid: a345ab8269da04f49862cb01bc56dc55, type: 3}
