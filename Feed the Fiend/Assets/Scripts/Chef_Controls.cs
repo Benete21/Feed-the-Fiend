@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections;
 
 public class Chef_Controls : MonoBehaviour
 {
@@ -16,6 +17,7 @@ public class Chef_Controls : MonoBehaviour
     [SerializeField] Transform hold;
     private GameObject heldObj;
     private Rigidbody heldRb;
+    private Collider[] playerColliders;
 
     [Header("Prep Station")]
     [SerializeField] private PrepFoodStation prepStation;
@@ -46,6 +48,8 @@ public class Chef_Controls : MonoBehaviour
 
         if (playerStatus == null)
             playerStatus = GetComponentInParent<PlayerStatus>();
+
+        playerColliders = GetComponentsInChildren<Collider>();
     }
     private void Update()
     {
@@ -128,10 +132,11 @@ public class Chef_Controls : MonoBehaviour
             {
                 GameObject ingredientToPlace = heldObj;
 
+                prepStation.AddIngredient(ingredientToPlace);
+                RestoreCollisionAfterRelease(ingredientToPlace);
+
                 heldObj = null;
                 heldRb = null;
-
-                prepStation.AddIngredient(ingredientToPlace);
                 return;
             }
 
@@ -173,17 +178,12 @@ public class Chef_Controls : MonoBehaviour
 
     private void ReleaseHeldObjectForStation()
     {
-        if (heldRb != null)
-        {
-            Collider itemCollider = heldRb.GetComponent<Collider>();
-            Collider chefCollider = GetComponent<Collider>();
-
-            if (itemCollider != null && chefCollider != null)
-                Physics.IgnoreCollision(itemCollider, chefCollider, false);
-        }
+        GameObject releasedObject = heldObj;
 
         heldObj = null;
         heldRb = null;
+
+        RestoreCollisionAfterRelease(releasedObject);
     }
 
     public void OnPrep(InputAction.CallbackContext context)
@@ -314,6 +314,89 @@ public class Chef_Controls : MonoBehaviour
         }
     }
 
+    private void SetItemPlayerCollision(GameObject item, bool ignore)
+    {
+        if (item == null || playerColliders == null)
+            return;
+
+        Collider[] itemColliders = item.GetComponentsInChildren<Collider>();
+
+        foreach (Collider itemCol in itemColliders)
+        {
+            if (itemCol == null) continue;
+
+            foreach (Collider playerCol in playerColliders)
+            {
+                if (playerCol != null)
+                    Physics.IgnoreCollision(itemCol, playerCol, ignore);
+            }
+        }
+    }
+
+    private void RestoreCollisionAfterRelease(GameObject item)
+    {
+        if (item == null)
+            return;
+
+        Collider[] itemColliders = item.GetComponentsInChildren<Collider>();
+        StartCoroutine(RestorePlayerCollisionWhenSeparated(itemColliders));
+    }
+
+    private IEnumerator RestorePlayerCollisionWhenSeparated(Collider[] itemColliders)
+    {
+        // Keep collisions ignored until the object is no longer intersecting the player.
+        while (true)
+        {
+            yield return new WaitForFixedUpdate();
+            Physics.SyncTransforms();
+
+            bool stillOverlapping = false;
+
+            foreach (Collider itemCol in itemColliders)
+            {
+                if (itemCol == null || !itemCol.enabled || !itemCol.gameObject.activeInHierarchy)
+                    continue;
+
+                foreach (Collider playerCol in playerColliders)
+                {
+                    if (playerCol == null || !playerCol.enabled || !playerCol.gameObject.activeInHierarchy)
+                        continue;
+
+                    if (Physics.ComputePenetration(
+                        itemCol,
+                        itemCol.transform.position,
+                        itemCol.transform.rotation,
+                        playerCol,
+                        playerCol.transform.position,
+                        playerCol.transform.rotation,
+                        out _,
+                        out _))
+                    {
+                        stillOverlapping = true;
+                        break;
+                    }
+                }
+
+                if (stillOverlapping)
+                    break;
+            }
+
+            if (!stillOverlapping)
+                break;
+        }
+
+        foreach (Collider itemCol in itemColliders)
+        {
+            if (itemCol == null) continue;
+
+            foreach (Collider playerCol in playerColliders)
+            {
+                if (playerCol != null)
+                    Physics.IgnoreCollision(itemCol, playerCol, false);
+            }
+        }
+    }
+
     void Pickup(GameObject obj)
     {
         heldObj = obj;
@@ -326,7 +409,7 @@ public class Chef_Controls : MonoBehaviour
         heldRb.transform.SetParent(hold);
         heldRb.transform.localPosition = Vector3.zero;
         heldRb.transform.localRotation = Quaternion.identity;
-        Physics.IgnoreCollision(heldRb.GetComponent<Collider>(), GetComponent<Collider>(), true);
+        SetItemPlayerCollision(obj, true);
     }
 
     void Drop()
@@ -334,22 +417,17 @@ public class Chef_Controls : MonoBehaviour
         if (heldRb == null)
             return;
 
-        Collider heldCollider = heldRb.GetComponent<Collider>();
-        Collider playerCollider = GetComponent<Collider>();
-
-        if (heldCollider != null && playerCollider != null)
-        {
-            Physics.IgnoreCollision(heldCollider, playerCollider, false);
-        }
+        GameObject droppedObject = heldObj;
 
         heldRb.useGravity = true;
         heldRb.linearDamping = 1f;
         heldRb.constraints = RigidbodyConstraints.None;
-
         heldRb.transform.SetParent(null);
 
         heldObj = null;
         heldRb = null;
+
+        RestoreCollisionAfterRelease(droppedObject);
     }
 
 

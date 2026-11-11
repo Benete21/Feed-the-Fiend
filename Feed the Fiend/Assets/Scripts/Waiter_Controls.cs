@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections;
 
 public class Waiter_Controls : MonoBehaviour
 {
@@ -15,6 +16,7 @@ public class Waiter_Controls : MonoBehaviour
     [SerializeField] Transform hold;
     private GameObject heldObj;
     private Rigidbody heldRb;
+    private Collider[] playerColliders;
 
     [Header("Order Slip")]
     [SerializeField] private Transform slipSpawnPoint;
@@ -38,6 +40,8 @@ public class Waiter_Controls : MonoBehaviour
 
         if (playerStatus == null)
             playerStatus = GetComponentInParent<PlayerStatus>();
+
+        playerColliders = GetComponentsInChildren<Collider>();
     }
 
     private void Update()
@@ -156,6 +160,89 @@ public class Waiter_Controls : MonoBehaviour
     }
 
 
+    private void SetItemPlayerCollision(GameObject item, bool ignore)
+    {
+        if (item == null || playerColliders == null)
+            return;
+
+        Collider[] itemColliders = item.GetComponentsInChildren<Collider>();
+
+        foreach (Collider itemCol in itemColliders)
+        {
+            if (itemCol == null) continue;
+
+            foreach (Collider playerCol in playerColliders)
+            {
+                if (playerCol != null)
+                    Physics.IgnoreCollision(itemCol, playerCol, ignore);
+            }
+        }
+    }
+
+    private void RestoreCollisionAfterRelease(GameObject item)
+    {
+        if (item == null)
+            return;
+
+        Collider[] itemColliders = item.GetComponentsInChildren<Collider>();
+        StartCoroutine(RestorePlayerCollisionWhenSeparated(itemColliders));
+    }
+
+    private IEnumerator RestorePlayerCollisionWhenSeparated(Collider[] itemColliders)
+    {
+        // Keep collisions ignored until the object is no longer intersecting the player.
+        while (true)
+        {
+            yield return new WaitForFixedUpdate();
+            Physics.SyncTransforms();
+
+            bool stillOverlapping = false;
+
+            foreach (Collider itemCol in itemColliders)
+            {
+                if (itemCol == null || !itemCol.enabled || !itemCol.gameObject.activeInHierarchy)
+                    continue;
+
+                foreach (Collider playerCol in playerColliders)
+                {
+                    if (playerCol == null || !playerCol.enabled || !playerCol.gameObject.activeInHierarchy)
+                        continue;
+
+                    if (Physics.ComputePenetration(
+                        itemCol,
+                        itemCol.transform.position,
+                        itemCol.transform.rotation,
+                        playerCol,
+                        playerCol.transform.position,
+                        playerCol.transform.rotation,
+                        out _,
+                        out _))
+                    {
+                        stillOverlapping = true;
+                        break;
+                    }
+                }
+
+                if (stillOverlapping)
+                    break;
+            }
+
+            if (!stillOverlapping)
+                break;
+        }
+
+        foreach (Collider itemCol in itemColliders)
+        {
+            if (itemCol == null) continue;
+
+            foreach (Collider playerCol in playerColliders)
+            {
+                if (playerCol != null)
+                    Physics.IgnoreCollision(itemCol, playerCol, false);
+            }
+        }
+    }
+
     void Pickup(GameObject obj)
     {
         heldObj = obj;
@@ -175,17 +262,7 @@ public class Waiter_Controls : MonoBehaviour
         heldRb.transform.localPosition = Vector3.zero;
         heldRb.transform.localRotation = Quaternion.identity;
 
-        Collider heldCollider = heldRb.GetComponent<Collider>();
-        Collider playerCollider = GetComponent<Collider>();
-
-        if (heldCollider != null && playerCollider != null)
-        {
-            Physics.IgnoreCollision(
-                heldCollider,
-                playerCollider,
-                true
-            );
-        }
+        SetItemPlayerCollision(obj, true);
 
         // Check if the object is an order slip
         PhysicalOrderSlip physicalSlip =
@@ -202,33 +279,22 @@ public class Waiter_Controls : MonoBehaviour
     {
         if (heldRb == null)
             return;
-        Collider heldCollider = heldRb.GetComponent<Collider>();
-        Collider playerCollider = GetComponent<Collider>();
 
-        if (heldCollider != null && playerCollider != null)
-        {
-            Physics.IgnoreCollision(
-                heldCollider,
-                playerCollider,
-                false
-            );
-        }
+        GameObject droppedObject = heldObj;
+
         heldRb.useGravity = true;
         heldRb.linearDamping = 1f;
         heldRb.constraints = RigidbodyConstraints.None;
-
         heldRb.transform.SetParent(null);
 
-        // Check if the object being dropped is an order slip
-        PhysicalOrderSlip orderSlip = heldObj.GetComponent<PhysicalOrderSlip>();
-
+        PhysicalOrderSlip orderSlip = droppedObject.GetComponent<PhysicalOrderSlip>();
         if (orderSlip != null)
-        {
             RemoveOrderSlip();
-        }
 
         heldObj = null;
         heldRb = null;
+
+        RestoreCollisionAfterRelease(droppedObject);
     }
 
     public GameObject GetHeldObject()
@@ -324,6 +390,8 @@ public class Waiter_Controls : MonoBehaviour
             slip.transform.localRotation = Quaternion.identity;
         }
 
+        SetItemPlayerCollision(slip, true);
+
         ShowOrderSlip(order);
 
         Debug.Log(
@@ -340,7 +408,7 @@ public class Waiter_Controls : MonoBehaviour
             Destroy(currentSlip.gameObject);
         }
 
-        currentSlip = Instantiate(orderSlipUIPrefab,slipUIHolder);
+        currentSlip = Instantiate(orderSlipUIPrefab, slipUIHolder);
 
         currentSlip.SetOrder(order);
     }
@@ -461,9 +529,11 @@ public class Waiter_Controls : MonoBehaviour
                 return false;
 
             // The slip now belongs to the drop-off area.
+            GameObject depositedSlip = heldObj;
             heldObj = null;
             heldRb = null;
 
+            RestoreCollisionAfterRelease(depositedSlip);
             RemoveOrderSlip();
 
             Debug.Log("Waiter dropped the slip at the counter.");

@@ -1,37 +1,34 @@
-using System.Collections.Generic;
+
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class Pause_Menu : MonoBehaviour
 {
-
     public static Pause_Menu Instance;
 
-    [Header("Pause Menu")]
+    [Header("UI")]
     [SerializeField] private GameObject pausePanel;
     [SerializeField] private Button[] menuButtons;
 
     [Header("Players")]
     [SerializeField] private PlayerInput[] players;
 
-    private PlayerInput pausingPlayer;
-    private string previousPlayerMap;
+    private PlayerInput requestingPlayer;
+    private InputActionMap gameplayMap;
 
-    private Dictionary<PlayerInput, string> previousMaps =
-        new Dictionary<PlayerInput, string>();
+    private string[] previousMaps;
+    private bool[] werePlayersActive;
+
+    private int selectedButton = 0;
+    private float nextNavigationTime;
+    [SerializeField] private float navigationDelay = 0.2f;
+
+    private bool isPaused;
 
     private InputAction navigateAction;
     private InputAction submitAction;
     private InputAction cancelAction;
-
-    private int selectedIndex;
-    private float nextNavigationTime;
-
-    [SerializeField] private float navigationDelay = 0.2f;
-
-    public bool IsPaused { get; private set; }
 
     private void Awake()
     {
@@ -49,13 +46,10 @@ public class Pause_Menu : MonoBehaviour
 
     public void TogglePause(PlayerInput requester)
     {
-        if (requester == null)
-            return;
-
-        // Only the player who opened the menu can close it.
-        if (IsPaused)
+        if (isPaused)
         {
-            if (requester == pausingPlayer)
+            // Only the player who opened the menu can close it.
+            if (requester == requestingPlayer)
                 ResumeGame();
 
             return;
@@ -66,63 +60,63 @@ public class Pause_Menu : MonoBehaviour
 
     private void PauseGame(PlayerInput requester)
     {
-        if (requester.actions.FindActionMap("UI", false) == null)
+        if (requester == null)
+            return;
+
+        requestingPlayer = requester;
+
+        // Use the existing gameplay Action Map.
+        gameplayMap = requester.currentActionMap;
+
+        if (gameplayMap == null)
         {
-            Debug.LogError("UI Action Map is missing!");
+            Debug.LogError("Player has no active Action Map!");
             return;
         }
 
-        navigateAction = requester.actions.FindAction("UI/Navigate", false);
-        submitAction = requester.actions.FindAction("UI/Submit", false);
-        cancelAction = requester.actions.FindAction("UI/Cancel", false);
+        navigateAction = gameplayMap.FindAction("Navigate", false);
+        submitAction = gameplayMap.FindAction("Submit", false);
+        cancelAction = gameplayMap.FindAction("Cancel", false);
 
-        if (navigateAction == null ||
-            submitAction == null ||
-            cancelAction == null)
+        if (navigateAction == null || submitAction == null || cancelAction == null)
         {
-            Debug.LogError("Check Navigate, Submit and Cancel actions!");
+            Debug.LogError(
+                "Navigate, Submit, or Cancel action is missing from the existing Action Map!"
+            );
             return;
         }
 
-        pausingPlayer = requester;
-        previousMaps.Clear();
+        previousMaps = new string[players.Length];
+        werePlayersActive = new bool[players.Length];
 
-        foreach (PlayerInput player in players)
+        for (int i = 0; i < players.Length; i++)
         {
-            if (player == null)
+            if (players[i] == null)
                 continue;
 
-            string currentMap = player.currentActionMap != null
-                ? player.currentActionMap.name
+            previousMaps[i] = players[i].currentActionMap != null
+                ? players[i].currentActionMap.name
                 : "";
 
-            previousMaps[player] = currentMap;
+            werePlayersActive[i] = players[i].inputIsActive;
 
-            if (player == requester)
-            {
-                previousPlayerMap = currentMap;
-                player.SwitchCurrentActionMap("UI");
-            }
-            else
-            {
-                // Disable every other player's input.
-                player.DeactivateInput();
-            }
+            // Disable everyone except the player who paused.
+            if (players[i] != requester)
+                players[i].DeactivateInput();
         }
 
+        isPaused = true;
         Time.timeScale = 0f;
-        IsPaused = true;
 
         if (pausePanel != null)
             pausePanel.SetActive(true);
 
-        // Listen only to the requesting player's UI actions.
+        selectedButton = 0;
+        SelectButton();
+
         navigateAction.performed += OnNavigate;
         submitAction.performed += OnSubmit;
         cancelAction.performed += OnCancel;
-
-        selectedIndex = 0;
-        SelectButton(selectedIndex);
     }
 
     private void OnNavigate(InputAction.CallbackContext context)
@@ -130,67 +124,33 @@ public class Pause_Menu : MonoBehaviour
         if (Time.unscaledTime < nextNavigationTime)
             return;
 
-        Vector2 direction = context.ReadValue<Vector2>();
+        Vector2 input = context.ReadValue<Vector2>();
 
-        if (direction.y > 0.5f)
+        if (input.y > 0.5f)
         {
-            selectedIndex--;
+            selectedButton--;
+            nextNavigationTime = Time.unscaledTime + navigationDelay;
+            SelectButton();
         }
-        else if (direction.y < -0.5f)
+        else if (input.y < -0.5f)
         {
-            selectedIndex++;
-        }
-        else
-        {
-            return;
-        }
-
-        if (menuButtons == null || menuButtons.Length == 0)
-            return;
-
-        selectedIndex = (selectedIndex + menuButtons.Length)
-            % menuButtons.Length;
-
-        nextNavigationTime = Time.unscaledTime + navigationDelay;
-
-        SelectButton(selectedIndex);
-    }
-
-    private void SelectButton(int index)
-    {
-        if (menuButtons == null || menuButtons.Length == 0)
-            return;
-
-        for (int i = 0; i < menuButtons.Length; i++)
-        {
-            int buttonIndex = (index + i) % menuButtons.Length;
-
-            if (menuButtons[buttonIndex] != null &&
-                menuButtons[buttonIndex].interactable)
-            {
-                selectedIndex = buttonIndex;
-                menuButtons[buttonIndex].Select();
-                return;
-            }
+            selectedButton++;
+            nextNavigationTime = Time.unscaledTime + navigationDelay;
+            SelectButton();
         }
     }
 
     private void OnSubmit(InputAction.CallbackContext context)
     {
-        if (menuButtons == null ||
-            menuButtons.Length == 0)
+        if (menuButtons == null || menuButtons.Length == 0)
             return;
 
-        if (selectedIndex < 0 ||
-            selectedIndex >= menuButtons.Length)
-            return;
-
-        Button selectedButton = menuButtons[selectedIndex];
-
-        if (selectedButton != null &&
-            selectedButton.interactable)
+        if (selectedButton >= 0 &&
+            selectedButton < menuButtons.Length &&
+            menuButtons[selectedButton] != null &&
+            menuButtons[selectedButton].interactable)
         {
-            selectedButton.onClick.Invoke();
+            menuButtons[selectedButton].onClick.Invoke();
         }
     }
 
@@ -199,12 +159,32 @@ public class Pause_Menu : MonoBehaviour
         ResumeGame();
     }
 
-    public void ResumeGame()
+    private void SelectButton()
     {
-        if (!IsPaused)
+        if (menuButtons == null || menuButtons.Length == 0)
             return;
 
-        // Stop listening to the UI actions.
+        for (int i = 0; i < menuButtons.Length; i++)
+        {
+            selectedButton = (selectedButton + menuButtons.Length)
+                % menuButtons.Length;
+
+            if (menuButtons[selectedButton] != null &&
+                menuButtons[selectedButton].interactable)
+            {
+                menuButtons[selectedButton].Select();
+                return;
+            }
+
+            selectedButton++;
+        }
+    }
+
+    public void ResumeGame()
+    {
+        if (!isPaused)
+            return;
+
         if (navigateAction != null)
             navigateAction.performed -= OnNavigate;
 
@@ -219,48 +199,30 @@ public class Pause_Menu : MonoBehaviour
 
         Time.timeScale = 1f;
 
-        // Restore the original action maps.
-        foreach (var entry in previousMaps)
+        for (int i = 0; i < players.Length; i++)
         {
-            PlayerInput player = entry.Key;
-
-            if (player == null)
+            if (players[i] == null)
                 continue;
 
-            if (player == pausingPlayer)
+            if (players[i] != requestingPlayer && werePlayersActive[i])
             {
-                player.SwitchCurrentActionMap(previousPlayerMap);
-            }
-            else
-            {
-                player.ActivateInput();
+                players[i].ActivateInput();
 
-                if (!string.IsNullOrEmpty(entry.Value))
-                    player.SwitchCurrentActionMap(entry.Value);
+                if (!string.IsNullOrEmpty(previousMaps[i]))
+                    players[i].SwitchCurrentActionMap(previousMaps[i]);
             }
         }
 
-        previousMaps.Clear();
-
-        pausingPlayer = null;
-        navigateAction = null;
-        submitAction = null;
-        cancelAction = null;
-
-        IsPaused = false;
+        isPaused = false;
+        requestingPlayer = null;
     }
 
     private void OnDestroy()
     {
         if (Instance == this)
         {
-            if (IsPaused)
-            {
-                Time.timeScale = 1f;
-            }
-
+            Time.timeScale = 1f;
             Instance = null;
         }
     }
 }
-
