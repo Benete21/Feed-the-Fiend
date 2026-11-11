@@ -131,11 +131,17 @@ public class TutorialManager : MonoBehaviour
     "Go to the Blue ingredient station."
 );
 
+        // Remember what the chef was holding before this step.
+        // The tutorial only continues when a new object is picked up.
+        GameObject objectBeforeIngredientA =
+            chef != null ? chef.GetHeldObject() : null;
+
         ShowArrowTo(ingredientSpawnerA.transform);
 
         yield return WaitForAction(() =>
             chef != null &&
-            chef.GetHeldObject() != null
+            chef.GetHeldObject() != null &&
+            chef.GetHeldObject() != objectBeforeIngredientA
         );
 
         HideArrow();
@@ -155,7 +161,11 @@ public class TutorialManager : MonoBehaviour
 
         ShowArrowTo(prepStation.transform);
 
+        // Picking up an ingredient is not enough: the chef must place it
+        // into the preparation station and no longer be holding it.
         yield return WaitForAction(() =>
+            chef != null &&
+            chef.GetHeldObject() == null &&
             prepStation != null &&
             prepStation.HasIngredients()
         );
@@ -178,11 +188,16 @@ public class TutorialManager : MonoBehaviour
     "Go to the Yellow ingredient station."
 );
 
+        // Only count a new pickup for Ingredient B.
+        GameObject objectBeforeIngredientB =
+            chef != null ? chef.GetHeldObject() : null;
+
         ShowArrowTo(ingredientSpawnerB.transform);
 
         yield return WaitForAction(() =>
             chef != null &&
-            chef.GetHeldObject() != null
+            chef.GetHeldObject() != null &&
+            chef.GetHeldObject() != objectBeforeIngredientB
         );
 
         HideArrow();
@@ -202,7 +217,10 @@ public class TutorialManager : MonoBehaviour
 
         ShowArrowTo(prepStation.transform);
 
+        // Wait until Ingredient B has actually been placed as well.
         yield return WaitForAction(() =>
+            chef != null &&
+            chef.GetHeldObject() == null &&
             prepStation != null &&
             prepStation.HasRequiredTutorialIngredients()
         );
@@ -288,9 +306,13 @@ public class TutorialManager : MonoBehaviour
 
         ShowArrowTo(foodHandoffPoint.transform);
 
+        // The waiter must take the food out of the handoff point.
+        // Merely holding some unrelated object does not complete this step.
         yield return WaitForAction(() =>
             waiter != null &&
-            waiter.GetHeldObject() != null
+            waiter.GetHeldObject() != null &&
+            foodHandoffPoint != null &&
+            !foodHandoffPoint.HasFood()
         );
 
         HideArrow();
