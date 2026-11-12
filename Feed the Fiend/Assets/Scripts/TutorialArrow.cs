@@ -1,15 +1,15 @@
-using NUnit.Framework;
-using System;
-using TMPro;
-using Unity.VisualScripting;
+using System.Collections;
 using UnityEngine;
 
 public class TutorialArrow : MonoBehaviour
 {
+    [Header("Arrow")]
     [SerializeField] private GameObject arrowObject;
-    [SerializeField] private Transform target;
+    [SerializeField] private float showDuration = 6f;
 
+    private Transform target;
     private Camera mainCamera;
+    private Coroutine hideCoroutine;
 
     private void Awake()
     {
@@ -30,17 +30,17 @@ public class TutorialArrow : MonoBehaviour
         if (mainCamera == null)
             return;
 
-        Vector3 screenPosition =
-            mainCamera.WorldToScreenPoint(target.position);
+        Vector3 screenPosition = mainCamera.WorldToScreenPoint(target.position);
 
-        // Hide arrow if target is behind camera
-        if (screenPosition.z < 0)
+        if (screenPosition.z < 0f)
         {
-            arrowObject.SetActive(false);
+            if (arrowObject != null)
+                arrowObject.SetActive(false);
             return;
         }
 
-        arrowObject.SetActive(true);
+        if (arrowObject != null && !arrowObject.activeSelf)
+            arrowObject.SetActive(true);
 
         transform.position = screenPosition;
     }
@@ -49,16 +49,33 @@ public class TutorialArrow : MonoBehaviour
     {
         target = newTarget;
 
+        if (hideCoroutine != null)
+            StopCoroutine(hideCoroutine);
+
         if (arrowObject != null)
-            arrowObject.SetActive(true);
+            arrowObject.SetActive(target != null);
+
+        if (target != null && showDuration > 0f)
+            hideCoroutine = StartCoroutine(HideAfterDelay());
+    }
+
+    private IEnumerator HideAfterDelay()
+    {
+        yield return new WaitForSeconds(showDuration);
+        HideArrow();
     }
 
     public void HideArrow()
     {
         target = null;
 
+        if (hideCoroutine != null)
+        {
+            StopCoroutine(hideCoroutine);
+            hideCoroutine = null;
+        }
+
         if (arrowObject != null)
             arrowObject.SetActive(false);
     }
 }
-
