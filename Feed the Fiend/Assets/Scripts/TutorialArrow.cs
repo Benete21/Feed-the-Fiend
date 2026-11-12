@@ -1,15 +1,21 @@
-using System.Collections;
+
 using UnityEngine;
 
 public class TutorialArrow : MonoBehaviour
 {
     [Header("Arrow")]
     [SerializeField] private GameObject arrowObject;
-    [SerializeField] private float showDuration = 6f;
+
+    [Header("Position")]
+    [SerializeField] private Vector3 targetOffset = new Vector3(0f, 2f, 0f);
+    [SerializeField] private bool followTarget = true;
+
+    [Header("Rotation")]
+    [SerializeField] private bool faceCamera = true;
+    [SerializeField] private float rotationSpeed = 8f;
 
     private Transform target;
     private Camera mainCamera;
-    private Coroutine hideCoroutine;
 
     private void Awake()
     {
@@ -19,61 +25,66 @@ public class TutorialArrow : MonoBehaviour
             arrowObject.SetActive(false);
     }
 
-    private void Update()
+    private void LateUpdate()
     {
-        if (target == null)
+        if (target == null || arrowObject == null)
             return;
 
-        if (mainCamera == null)
-            mainCamera = Camera.main;
-
-        if (mainCamera == null)
-            return;
-
-        Vector3 screenPosition = mainCamera.WorldToScreenPoint(target.position);
-
-        if (screenPosition.z < 0f)
+        if (followTarget)
         {
-            if (arrowObject != null)
-                arrowObject.SetActive(false);
-            return;
+            arrowObject.transform.position =
+                target.position + targetOffset;
         }
 
-        if (arrowObject != null && !arrowObject.activeSelf)
-            arrowObject.SetActive(true);
+        if (faceCamera)
+        {
+            if (mainCamera == null)
+                mainCamera = Camera.main;
 
-        transform.position = screenPosition;
+            if (mainCamera != null)
+            {
+                Vector3 direction =
+                    mainCamera.transform.position -
+                    arrowObject.transform.position;
+
+                if (direction.sqrMagnitude > 0.001f)
+                {
+                    Quaternion targetRotation =
+                        Quaternion.LookRotation(direction);
+
+                    arrowObject.transform.rotation =
+                        Quaternion.Slerp(
+                            arrowObject.transform.rotation,
+                            targetRotation,
+                            rotationSpeed * Time.deltaTime
+                        );
+                }
+            }
+        }
     }
 
     public void ShowArrow(Transform newTarget)
     {
         target = newTarget;
 
-        if (hideCoroutine != null)
-            StopCoroutine(hideCoroutine);
+        if (arrowObject == null)
+            return;
 
-        if (arrowObject != null)
-            arrowObject.SetActive(target != null);
+        if (target == null)
+        {
+            HideArrow();
+            return;
+        }
 
-        if (target != null && showDuration > 0f)
-            hideCoroutine = StartCoroutine(HideAfterDelay());
-    }
+        arrowObject.transform.position =
+            target.position + targetOffset;
 
-    private IEnumerator HideAfterDelay()
-    {
-        yield return new WaitForSeconds(showDuration);
-        HideArrow();
+        arrowObject.SetActive(true);
     }
 
     public void HideArrow()
     {
         target = null;
-
-        if (hideCoroutine != null)
-        {
-            StopCoroutine(hideCoroutine);
-            hideCoroutine = null;
-        }
 
         if (arrowObject != null)
             arrowObject.SetActive(false);

@@ -20121,7 +20121,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TutorialArrow
   arrowObject: {fileID: 919132149260845008}
-  showDuration: 6
+  targetOffset: {x: 0, y: 2, z: 0}
+  followTarget: 1
+  faceCamera: 0
+  rotationSpeed: 8
 --- !u!33 &3469287838573522059
 MeshFilter:
   m_ObjectHideFlags: 0
