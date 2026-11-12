@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -6,6 +7,22 @@ using UnityEngine.SceneManagement;
 
 public class TutorialManager : MonoBehaviour
 {
+    public enum TutorialArrowLocation
+    {
+        Customer,
+        IngredientA,
+        IngredientB,
+        PrepStation,
+        FoodHandoff,
+        OrderDropOff
+    }
+
+    [System.Serializable]
+    private class ArrowTarget
+    {
+        public TutorialArrowLocation location;
+        public Transform target;
+    }
     [Header("Characters")]
     [SerializeField] private Chef_Controls chef;
     [SerializeField] private Waiter_Controls waiter;
@@ -25,8 +42,12 @@ public class TutorialManager : MonoBehaviour
     [Header("Customer")]
     [SerializeField] private TutCustomer tutorialCustomer;
 
+    [Header("Order Slip Drop-Off")]
+    [SerializeField] private OrderSlipDropOff orderSlipDropOff;
+
     [Header("Tutorial Arrow")]
     [SerializeField] private TutorialArrow tutorialArrow;
+    [SerializeField] private List<ArrowTarget> arrowTargets = new List<ArrowTarget>();
 
     [Header("Dialogue UI")]
     [SerializeField] private GameObject dialoguePanel;
@@ -85,7 +106,7 @@ public class TutorialManager : MonoBehaviour
              "Follow the arrow to the customer."
          );*/
 
-        ShowArrowTo(tutorialCustomer.transform);
+        ShowArrow(TutorialArrowLocation.Customer);
 
         yield return WaitForTutorialOrder();
 
@@ -97,6 +118,25 @@ public class TutorialManager : MonoBehaviour
 
         yield return Dialogue(
             "The order will appear on your order slip."
+        );
+
+        yield return Dialogue(
+            "Take the order slip to the order drop-off counter."
+        );
+
+        ShowArrow(TutorialArrowLocation.OrderDropOff);
+
+        // The tutorial cannot switch to the chef until the waiter has
+        // successfully deposited the physical slip at the counter.
+        yield return WaitForAction(() =>
+            orderSlipDropOff != null &&
+            orderSlipDropOff.HasOrders()
+        );
+
+        HideArrow();
+
+        yield return Dialogue(
+            "The order has been sent to the chef's inventory. You can now switch characters."
         );
 
 
@@ -136,7 +176,7 @@ public class TutorialManager : MonoBehaviour
         GameObject objectBeforeIngredientA =
             chef != null ? chef.GetHeldObject() : null;
 
-        ShowArrowTo(ingredientSpawnerA.transform);
+        ShowArrow(TutorialArrowLocation.IngredientA);
 
         yield return WaitForAction(() =>
             chef != null &&
@@ -159,7 +199,7 @@ public class TutorialManager : MonoBehaviour
             "Take Ingredient A to the preparation station."
         );
 
-        ShowArrowTo(prepStation.transform);
+        ShowArrow(TutorialArrowLocation.PrepStation);
 
         // Picking up an ingredient is not enough: the chef must place it
         // into the preparation station and no longer be holding it.
@@ -192,7 +232,7 @@ public class TutorialManager : MonoBehaviour
         GameObject objectBeforeIngredientB =
             chef != null ? chef.GetHeldObject() : null;
 
-        ShowArrowTo(ingredientSpawnerB.transform);
+        ShowArrow(TutorialArrowLocation.IngredientB);
 
         yield return WaitForAction(() =>
             chef != null &&
@@ -215,7 +255,7 @@ public class TutorialManager : MonoBehaviour
             "Bring Ingredient B to the preparation station."
         );
 
-        ShowArrowTo(prepStation.transform);
+        ShowArrow(TutorialArrowLocation.PrepStation);
 
         // Wait until Ingredient B has actually been placed as well.
         yield return WaitForAction(() =>
@@ -272,7 +312,7 @@ public class TutorialManager : MonoBehaviour
             "Place the finished food in the handoff area."
         );
 
-        ShowArrowTo(foodHandoffPoint.transform);
+        ShowArrow(TutorialArrowLocation.FoodHandoff);
 
         yield return WaitForAction(() =>
             foodHandoffPoint != null &&
@@ -304,7 +344,7 @@ public class TutorialManager : MonoBehaviour
             "Collect the prepared food."
         );
 
-        ShowArrowTo(foodHandoffPoint.transform);
+        ShowArrow(TutorialArrowLocation.FoodHandoff);
 
         // The waiter must take the food out of the handoff point.
         // Merely holding some unrelated object does not complete this step.
@@ -326,7 +366,7 @@ public class TutorialManager : MonoBehaviour
             "Now deliver the food to the customer."
         );
 
-        ShowArrowTo(tutorialCustomer.transform);
+        ShowArrow(TutorialArrowLocation.Customer);
 
         yield return WaitForTutorialDelivery();
 
@@ -399,12 +439,31 @@ public class TutorialManager : MonoBehaviour
     // ARROW
     // =========================================================
 
-    private void ShowArrowTo(Transform target)
+    private void ShowArrow(TutorialArrowLocation location)
     {
-        if (tutorialArrow != null)
+        if (tutorialArrow == null)
+            return;
+
+        Transform target = null;
+
+        foreach (ArrowTarget arrowTarget in arrowTargets)
         {
-            tutorialArrow.ShowArrow(target);
+            if (arrowTarget != null && arrowTarget.location == location)
+            {
+                target = arrowTarget.target;
+                break;
+            }
         }
+
+        if (target == null)
+        {
+            Debug.LogWarning($"Tutorial arrow target '{location}' is not assigned in the TutorialManager list.", this);
+            tutorialArrow.HideArrow();
+            return;
+        }
+
+        // The arrow times out independently; the tutorial still waits for the action.
+        tutorialArrow.ShowArrow(target);
     }
 
 
@@ -426,9 +485,6 @@ public class TutorialManager : MonoBehaviour
     {
         if (dialoguePanel != null)
             dialoguePanel.SetActive(true);
-
-        // Freeze character movement while dialogue is active
-        SetCharacterMovement(false);
 
         if (continueText != null)
             continueText.gameObject.SetActive(false);
@@ -465,8 +521,6 @@ public class TutorialManager : MonoBehaviour
         if (continueText != null)
             continueText.gameObject.SetActive(false);
 
-        // Allow movement again after dialogue
-        SetCharacterMovement(true);
     }
 
 
@@ -550,15 +604,6 @@ public class TutorialManager : MonoBehaviour
 
         if (dialoguePanel != null)
             dialoguePanel.SetActive(true);
-    }
-
-    private void SetCharacterMovement(bool canMove)
-    {
-        if (chef != null)
-            chef.enabled = canMove;
-
-        if (waiter != null)
-            waiter.enabled = canMove;
     }
 
 }
