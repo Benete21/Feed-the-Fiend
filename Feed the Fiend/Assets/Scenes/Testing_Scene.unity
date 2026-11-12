@@ -1260,16 +1260,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Cooking_Station
   cookableFoods:
   - rawIngredeitnsType: 0
-    perfectFoodPrefab: {fileID: 8928249166479819226, guid: 31296a8d5786db145bbfdf9eaf5cba2a, type: 3}
-    burntFoodPrefab: {fileID: 8928249166479819226, guid: dadf20bd6b5088546bcf9498cda2daaf, type: 3}
+    finishedFoodPrefab: {fileID: 0}
   - rawIngredeitnsType: 1
-    perfectFoodPrefab: {fileID: 7811312227833260416, guid: 0e9c2202f1db15c4ea43f424b20a3f09, type: 3}
-    burntFoodPrefab: {fileID: 7811312227833260416, guid: b8bf34c113a0bb3459bac333b572d0d5, type: 3}
+    finishedFoodPrefab: {fileID: 0}
   - rawIngredeitnsType: 2
-    perfectFoodPrefab: {fileID: 7811312227833260416, guid: e4649c9e0aac202469bdebc8284a6ab2, type: 3}
-    burntFoodPrefab: {fileID: 7811312227833260416, guid: f6a229d96af28e2499a8f1d5d8b95959, type: 3}
+    finishedFoodPrefab: {fileID: 0}
   perfectCookTime: 5
   burnTime: 8
+  burntDarkness: 0.639
   foodPoint: {fileID: 390484248}
   cookingUI: {fileID: 2143751782}
   cookingBar: {fileID: 1904239243}

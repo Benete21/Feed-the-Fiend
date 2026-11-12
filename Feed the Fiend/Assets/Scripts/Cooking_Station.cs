@@ -11,9 +11,8 @@ public class Cooking_Station : MonoBehaviour
         [Header("Input Ingredient")]
         public Ingredient_Type rawIngredeitnsType;
 
-        [Header("Cooking Results")]
-        public GameObject perfectFoodPrefab;
-        public GameObject burntFoodPrefab;
+        [Header("Finished Food")]
+        public GameObject finishedFoodPrefab;
     }
 
     [Header("Food Recipes")]
@@ -22,6 +21,10 @@ public class Cooking_Station : MonoBehaviour
     [Header("Cooking Times")]
     public float perfectCookTime = 5f;
     public float burnTime = 8f;
+
+    [Header("Burnt Appearance")]
+    [Range(0f, 1f)]
+    public float burntDarkness = 0.7f;
 
     [Header("Food Placement")]
     public Transform foodPoint;
@@ -34,7 +37,11 @@ public class Cooking_Station : MonoBehaviour
     private GameObject foodOnStove;
     private bool isCooking;
     private bool playerNearby;
+    private bool hasBecomeCookedFood;
+
     private float cookingTimer;
+
+    private Renderer[] foodRenderers;
 
     public bool HasFoodOnStove => foodOnStove != null;
     public bool IsCooking => isCooking;
@@ -51,8 +58,6 @@ public class Cooking_Station : MonoBehaviour
             UpdateCookingTimer();
     }
 
-    // The trigger detects the chef only.
-    // It never automatically picks up or places food.
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Chef"))
@@ -70,8 +75,6 @@ public class Cooking_Station : MonoBehaviour
         return playerNearby;
     }
 
-    // Called by Chef_Controls when the chef deliberately
-    // places a held ingredient on the stove.
     public bool TryPlaceIngredient(GameObject ingredientObject)
     {
         if (ingredientObject == null || isCooking ||
@@ -125,13 +128,15 @@ public class Cooking_Station : MonoBehaviour
             rb.useGravity = false;
         }
 
+        hasBecomeCookedFood = false;
+        foodRenderers = null;
+
         Debug.Log("Ingredient placed on stove: " +
                   ingredient.ingredientType);
 
         return true;
     }
 
-    // Called by the controller's Prep button.
     public void HandlePrepButton()
     {
         if (!playerNearby)
@@ -166,6 +171,7 @@ public class Cooking_Station : MonoBehaviour
 
         isCooking = true;
         cookingTimer = 0f;
+        hasBecomeCookedFood = false;
 
         if (cookingUI != null)
             cookingUI.SetActive(true);
@@ -183,18 +189,163 @@ public class Cooking_Station : MonoBehaviour
             return;
         }
 
-        if (cookingTimer < burnTime)
-            SpawnCookingResult(true);
+        // Stop cooking when the player chooses to collect
+        // the food after it has reached perfect cook time.
+        isCooking = false;
+
+        if (cookingUI != null)
+            cookingUI.SetActive(false);
+
+        Debug.Log("Food collected at its current cookedness.");
     }
 
     private void UpdateCookingTimer()
     {
         cookingTimer += Time.deltaTime;
 
+        // Replace the raw ingredient with the finished food
+        // as soon as it reaches perfect cook time.
+        if (!hasBecomeCookedFood &&
+            cookingTimer >= perfectCookTime)
+        {
+            CreateFinishedFood();
+
+            if (foodOnStove == null)
+                return;
+        }
+
+        // Gradually darken the finished food as it burns.
+        if (hasBecomeCookedFood)
+        {
+            float burnProgress = Mathf.InverseLerp(
+                perfectCookTime,
+                burnTime,
+                cookingTimer
+            );
+
+            ApplyCookedness(burnProgress * burntDarkness);
+        }
+
         UpdateCookingUI();
 
+        // The food becomes fully burnt if the player
+        // leaves it cooking until burn time.
         if (cookingTimer >= burnTime)
-            SpawnCookingResult(false);
+        {
+            cookingTimer = burnTime;
+            isCooking = false;
+
+            ApplyCookedness(burntDarkness);
+
+            if (cookingUI != null)
+                cookingUI.SetActive(false);
+
+            Debug.Log("Food has burnt!");
+        }
+    }
+
+    private void CreateFinishedFood()
+    {
+        if (foodOnStove == null)
+            return;
+
+        Ingredient_Item ingredient =
+            foodOnStove.GetComponentInChildren<Ingredient_Item>();
+
+        if (ingredient == null)
+            return;
+
+        CookableFood recipe = null;
+
+        foreach (CookableFood food in cookableFoods)
+        {
+            if (food.rawIngredeitnsType == ingredient.ingredientType)
+            {
+                recipe = food;
+                break;
+            }
+        }
+
+        if (recipe == null || recipe.finishedFoodPrefab == null)
+        {
+            Debug.LogWarning(
+                "Finished food prefab is missing for " +
+                ingredient.ingredientType
+            );
+
+            ResetStation();
+            return;
+        }
+
+        Vector3 position = foodOnStove.transform.position;
+        Quaternion rotation = foodOnStove.transform.rotation;
+
+        Destroy(foodOnStove);
+
+        foodOnStove = Instantiate(
+            recipe.finishedFoodPrefab,
+            position,
+            rotation
+        );
+
+        if (foodPoint != null)
+        {
+            foodOnStove.transform.SetParent(foodPoint);
+            foodOnStove.transform.localPosition = Vector3.zero;
+            foodOnStove.transform.localRotation = Quaternion.identity;
+        }
+
+        Rigidbody rb = foodOnStove.GetComponent<Rigidbody>();
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.isKinematic = true;
+            rb.useGravity = false;
+        }
+
+        hasBecomeCookedFood = true;
+
+        foodRenderers =
+            foodOnStove.GetComponentsInChildren<Renderer>();
+
+        // Start with the normal, perfectly cooked appearance.
+        ApplyCookedness(0f);
+
+        Debug.Log("Food is perfectly cooked!");
+    }
+
+    private void ApplyCookedness(float darkness)
+    {
+        if (foodRenderers == null)
+            return;
+
+        darkness = Mathf.Clamp01(darkness);
+
+        // White leaves the original texture and colour unchanged.
+        // Black darkens the original appearance.
+        Color darkeningTint = Color.Lerp(
+            Color.white,
+            Color.black,
+            darkness
+        );
+
+        foreach (Renderer rend in foodRenderers)
+        {
+            if (rend == null)
+                continue;
+
+            MaterialPropertyBlock block =
+                new MaterialPropertyBlock();
+
+            rend.GetPropertyBlock(block);
+
+            block.SetColor("_Color", darkeningTint);
+            block.SetColor("_BaseColor", darkeningTint);
+
+            rend.SetPropertyBlock(block);
+        }
     }
 
     private void UpdateCookingUI()
@@ -217,80 +368,17 @@ public class Cooking_Station : MonoBehaviour
         }
     }
 
-    private void SpawnCookingResult(bool perfect)
-    {
-        if (foodOnStove == null)
-            return;
-
-        Ingredient_Item ingredient =
-            foodOnStove.GetComponentInChildren<Ingredient_Item>();
-
-        if (ingredient == null)
-        {
-            Debug.LogWarning("Ingredient_Item component is missing.");
-            ResetStation();
-            return;
-        }
-
-        CookableFood recipe = null;
-
-        foreach (CookableFood food in cookableFoods)
-        {
-            if (food.rawIngredeitnsType == ingredient.ingredientType)
-            {
-                recipe = food;
-                break;
-            }
-        }
-
-        if (recipe == null)
-        {
-            ResetStation();
-            return;
-        }
-
-        GameObject resultPrefab = perfect
-            ? recipe.perfectFoodPrefab
-            : recipe.burntFoodPrefab;
-
-        if (resultPrefab == null)
-        {
-            Debug.LogWarning("Cooking result prefab is missing!");
-            ResetStation();
-            return;
-        }
-
-        Vector3 position = foodOnStove.transform.position;
-        Quaternion rotation = foodOnStove.transform.rotation;
-
-        Destroy(foodOnStove);
-
-        foodOnStove = Instantiate(resultPrefab, position, rotation);
-
-        if (foodPoint != null)
-        {
-            foodOnStove.transform.SetParent(foodPoint);
-            foodOnStove.transform.localPosition = Vector3.zero;
-            foodOnStove.transform.localRotation = Quaternion.identity;
-        }
-
-        isCooking = false;
-        cookingTimer = 0f;
-
-        if (cookingUI != null)
-            cookingUI.SetActive(false);
-
-        Debug.Log(perfect ? "Perfect food cooked!" : "Food burnt!");
-    }
-
-    // Called by Chef_Controls to take the cooked food.
     public GameObject TryTakeFood()
     {
         if (!playerNearby || isCooking || foodOnStove == null)
             return null;
 
         GameObject result = foodOnStove;
+
         foodOnStove = null;
+        foodRenderers = null;
+        hasBecomeCookedFood = false;
+        cookingTimer = 0f;
 
         result.transform.SetParent(null);
 
@@ -312,31 +400,38 @@ public class Cooking_Station : MonoBehaviour
         isCooking = false;
         cookingTimer = 0f;
         foodOnStove = null;
+        foodRenderers = null;
+        hasBecomeCookedFood = false;
 
         if (cookingUI != null)
             cookingUI.SetActive(false);
     }
+
     public bool HasIngredients()
     {
-        return foodOnStove != null && !isCooking;
+        return foodOnStove != null &&
+               !isCooking &&
+               !hasBecomeCookedFood;
     }
 
     public bool HasCookedFood()
     {
-        return foodOnStove != null && !isCooking
-            && cookingTimer == 0f
-            && foodOnStove.GetComponentInChildren<Ingredient_Item>() == null;
+        return foodOnStove != null &&
+               hasBecomeCookedFood;
     }
 
     public bool IsReadyToCook()
     {
-        return foodOnStove != null && !isCooking
-            && foodOnStove.GetComponentInChildren<Ingredient_Item>() != null;
+        return foodOnStove != null &&
+               !isCooking &&
+               !hasBecomeCookedFood &&
+               foodOnStove.GetComponentInChildren<Ingredient_Item>() != null;
     }
 
     public bool IsReadyToCollect()
     {
-        return foodOnStove != null && !isCooking
-            && foodOnStove.GetComponentInChildren<Ingredient_Item>() == null;
+        return foodOnStove != null &&
+               !isCooking &&
+               hasBecomeCookedFood;
     }
 }
