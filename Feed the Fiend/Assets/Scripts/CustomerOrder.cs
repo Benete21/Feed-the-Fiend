@@ -1,41 +1,55 @@
+
 using System.Collections;
+using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using System;
 
 public class CustomerOrder : MonoBehaviour, IInteractable
 {
+    [Header("Waiting UI")]
     public Canvas loadingCanvas;
-
     public Slider loadingBar;
     public Slider berserkBar;
     public GameObject waitingExclamation;
 
+    [Header("Order")]
     private bool hasOrdered = false;
-
     public Food_Types[] currentOrder;
 
     public float maxWait = 30f;
     public float waitTime;
     public bool waiting;
 
+    [Header("Monster")]
     public MonsterAI monsterAI;
     public MonsterSpawner satisfied;
-
     public bool isBerserk = false;
+
+    [Header("Table Food Delivery")]
+    [SerializeField] private Transform foodDeliveryPoint;
+    [SerializeField] private float foodTravelDuration = 0.8f;
+
+    [Header("Eating Effect")]
+    [SerializeField] private Transform eatingEffectPoint;
+    [SerializeField] private ParticleSystem eatingEffectPrefab;
+    [SerializeField] private float eatingDuration = 2.5f;
+
+    [Header("Inventory")]
+    [SerializeField] private Chef_Order_Inventory chefInventory;
+
+    private bool isDelivering = false;
 
     public event Action OnOrderTaken;
     public event Action OnOrderStarted;
 
     [SerializeField] private int tableNumber = 1;
     public int TableNumber => tableNumber;
+
     public event Action<CustomerOrder> OnOrderCompleted;
 
-    [SerializeField] private Chef_Order_Inventory chefInventory;
-
-    void Start()
+    private void Start()
     {
-        // Hide UI at the beginning
         if (loadingBar != null)
             loadingBar.gameObject.SetActive(false);
 
@@ -49,22 +63,16 @@ public class CustomerOrder : MonoBehaviour, IInteractable
         waitTime = 0f;
     }
 
-
-    void Update()
+    private void Update()
     {
-        if (!waiting)
+        if (!waiting || isDelivering)
             return;
 
         waitTime -= Time.deltaTime;
 
-        // Update berserk timer
         if (berserkBar != null)
-        {
-            berserkBar.value =
-                Mathf.Clamp01(waitTime / maxWait);
-        }
+            berserkBar.value = Mathf.Clamp01(waitTime / maxWait);
 
-        // Time ran out
         if (waitTime <= 0f)
         {
             waitTime = 0f;
@@ -82,14 +90,9 @@ public class CustomerOrder : MonoBehaviour, IInteractable
         }
     }
 
-
-    // Called by MonsterAI when the monster reaches its table
     public void StartWaitingForOrder()
     {
-        if (isBerserk)
-            return;
-
-        if (waiting)
+        if (isBerserk || waiting)
             return;
 
         Debug.Log("Monster is ready to order!");
@@ -107,22 +110,20 @@ public class CustomerOrder : MonoBehaviour, IInteractable
         }
     }
 
-
-    // Called when the waiter interacts with the monster
     public void Interact(Waiter_Controls waiter)
     {
-        // Monster has not reached the table yet
+        if (isDelivering)
+            return;
+
         if (!waiting && !hasOrdered)
             return;
 
-        // Take the order
         if (!hasOrdered)
         {
             TakeOrder(waiter);
             return;
         }
 
-        // Order has already been taken
         if (!waiting)
             return;
 
@@ -140,9 +141,7 @@ public class CustomerOrder : MonoBehaviour, IInteractable
         TryDeliverFood(food);
     }
 
-
-    // Starts taking the customer's order
-    void TakeOrder(Waiter_Controls waiter)
+    private void TakeOrder(Waiter_Controls waiter)
     {
         Debug.Log("TAKING CUSTOMER ORDER");
 
@@ -156,15 +155,13 @@ public class CustomerOrder : MonoBehaviour, IInteractable
         StartCoroutine(OrderRoutine(waiter));
     }
 
-
-    IEnumerator OrderRoutine(Waiter_Controls waiter)
+    private IEnumerator OrderRoutine(Waiter_Controls waiter)
     {
         waiting = false;
 
         if (berserkBar != null)
             berserkBar.gameObject.SetActive(false);
 
-        // Show loading bar
         if (loadingBar != null)
         {
             loadingBar.gameObject.SetActive(true);
@@ -184,14 +181,11 @@ public class CustomerOrder : MonoBehaviour, IInteractable
             yield return null;
         }
 
-        // Hide loading bar
         if (loadingBar != null)
             loadingBar.gameObject.SetActive(false);
 
-        // Generate order
         GenerateRandomOrder();
 
-        // Give order slip to waiter
         if (waiter != null)
         {
             waiter.GiveOrderDirectlyToHand(
@@ -206,7 +200,6 @@ public class CustomerOrder : MonoBehaviour, IInteractable
 
         OnOrderTaken?.Invoke();
 
-        // Start delivery timer
         waitTime = maxWait;
         waiting = true;
 
@@ -217,9 +210,8 @@ public class CustomerOrder : MonoBehaviour, IInteractable
         }
     }
 
-    void GenerateRandomOrder()
+    private void GenerateRandomOrder()
     {
-        // Customer orders exactly ONE food item
         currentOrder = new Food_Types[1];
 
         Array foodTypes =
@@ -236,18 +228,13 @@ public class CustomerOrder : MonoBehaviour, IInteractable
         Debug.Log("Customer ordered: " + currentOrder[0]);
     }
 
-
     // =========================================================
     // FOOD DELIVERY
     // =========================================================
 
     public void TryDeliverFood(FoodItems food)
     {
-        if (chefInventory != null)
-        {
-            chefInventory.CompleteOrderForTable(TableNumber);
-        }
-        if (food == null)
+        if (food == null || isDelivering)
             return;
 
         if (!hasOrdered)
@@ -262,8 +249,7 @@ public class CustomerOrder : MonoBehaviour, IInteractable
             return;
         }
 
-        if (currentOrder == null ||
-            currentOrder.Length == 0)
+        if (currentOrder == null || currentOrder.Length == 0)
         {
             Debug.LogWarning("Customer has no current order.");
             return;
@@ -276,17 +262,16 @@ public class CustomerOrder : MonoBehaviour, IInteractable
             food.foodType
         );
 
-        // Wrong food
+        // Check the food before removing the inventory order.
         if (food.foodType != currentOrder[0])
         {
             Debug.Log("WRONG FOOD!");
             return;
         }
 
-        // Correct food
         Debug.Log("CORRECT FOOD DELIVERED!");
-        OnOrderCompleted?.Invoke(this);
 
+        isDelivering = true;
         waiting = false;
         waitTime = 0f;
 
@@ -296,38 +281,172 @@ public class CustomerOrder : MonoBehaviour, IInteractable
         if (berserkBar != null)
             berserkBar.gameObject.SetActive(false);
 
-        // Find waiter
-        Waiter_Controls waiter =
-            food.GetComponentInParent<Waiter_Controls>();
+        StartCoroutine(FoodDeliveryRoutine(food));
+    }
 
+    private IEnumerator FoodDeliveryRoutine(FoodItems food)
+    {
+        // Get the actual held object from the waiter.
+        Waiter_Controls waiter =
+            FindObjectOfType<Waiter_Controls>();
+
+        GameObject deliveredObject = food.gameObject;
+
+        if (waiter != null && waiter.GetHeldObject() != null)
+        {
+            deliveredObject = waiter.GetHeldObject();
+        }
+
+        if (deliveredObject == null)
+            yield break;
+
+        // Detach the food from the waiter.
+        deliveredObject.transform.SetParent(null);
+
+        Rigidbody rb =
+            deliveredObject.GetComponent<Rigidbody>();
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.isKinematic = true;
+            rb.useGravity = false;
+        }
+
+        // Disable colliders while the food travels.
+        Collider[] foodColliders =
+            deliveredObject.GetComponentsInChildren<Collider>();
+
+        foreach (Collider foodCollider in foodColliders)
+        {
+            foodCollider.enabled = false;
+        }
+
+        // Choose where the food should arrive.
+        Vector3 targetPosition;
+
+        if (foodDeliveryPoint != null)
+        {
+            targetPosition = foodDeliveryPoint.position;
+        }
+        else if (eatingEffectPoint != null)
+        {
+            targetPosition = eatingEffectPoint.position;
+        }
+        else if (monsterAI != null)
+        {
+            targetPosition = monsterAI.transform.position +
+                             Vector3.up;
+        }
+        else
+        {
+            targetPosition = transform.position +
+                             Vector3.up;
+        }
+
+        Vector3 startPosition =
+            deliveredObject.transform.position;
+
+        Quaternion startRotation =
+            deliveredObject.transform.rotation;
+
+        float timer = 0f;
+
+        // Move food towards the table.
+        while (timer < foodTravelDuration &&
+               deliveredObject != null)
+        {
+            timer += Time.deltaTime;
+
+            float progress = foodTravelDuration > 0f
+                ? Mathf.Clamp01(timer / foodTravelDuration)
+                : 1f;
+
+            float smoothProgress =
+                Mathf.SmoothStep(0f, 1f, progress);
+
+            deliveredObject.transform.position =
+                Vector3.Lerp(
+                    startPosition,
+                    targetPosition,
+                    smoothProgress
+                );
+
+            deliveredObject.transform.rotation =
+                Quaternion.Slerp(
+                    startRotation,
+                    Quaternion.identity,
+                    smoothProgress
+                );
+
+            yield return null;
+        }
+
+        if (deliveredObject == null)
+            yield break;
+
+        deliveredObject.transform.position = targetPosition;
+
+        // Play eating particle effect.
+        if (eatingEffectPrefab != null)
+        {
+            Vector3 effectPosition =
+                eatingEffectPoint != null
+                ? eatingEffectPoint.position
+                : targetPosition;
+
+            ParticleSystem effect = Instantiate(
+                eatingEffectPrefab,
+                effectPosition,
+                eatingEffectPrefab.transform.rotation
+            );
+
+            effect.Play();
+
+            Destroy(
+                effect.gameObject,
+                effect.main.duration +
+                effect.main.startLifetime.constantMax
+            );
+        }
+
+        Debug.Log("Monster is eating!");
+
+        // Keep the monster at the table while eating.
+        yield return new WaitForSeconds(eatingDuration);
+
+        // Remove the delivered food.
         if (waiter != null)
         {
             waiter.RemoveHeldObject();
             waiter.RemoveOrderSlip();
         }
-        else
+
+        if (deliveredObject != null)
+            Destroy(deliveredObject);
+
+        // Complete the inventory order only after delivery.
+        if (chefInventory != null)
         {
-            // If the food isn't a child of the waiter,
-            // destroy it directly.
-            Destroy(food.gameObject);
+            chefInventory.CompleteOrderForTable(TableNumber);
         }
 
+        OnOrderCompleted?.Invoke(this);
+
+        isDelivering = false;
+
+        // Start the existing monster leaving sequence.
         Satisfied();
     }
-
 
     // =========================================================
     // CUSTOMER SATISFIED
     // =========================================================
 
-void Satisfied()
+    private void Satisfied()
     {
         Debug.Log("OrderCorrect");
-
-        if (satisfied != null)
-        {
-           // satisfied.Served();
-        }
 
         if (monsterAI != null)
         {
@@ -335,13 +454,11 @@ void Satisfied()
         }
     }
 
-
-
     // =========================================================
     // BERSERK
     // =========================================================
 
-    void Berserk()
+    private void Berserk()
     {
         isBerserk = true;
 
@@ -353,24 +470,17 @@ void Satisfied()
         }
     }
 
-
     public void ShowWaitingExclamation()
     {
         if (waitingExclamation != null)
-        {
             waitingExclamation.SetActive(true);
-        }
     }
-
 
     public void HideWaitingExclamation()
     {
         if (waitingExclamation != null)
-        {
             waitingExclamation.SetActive(false);
-        }
     }
-
 
     public bool HasOrdered()
     {
