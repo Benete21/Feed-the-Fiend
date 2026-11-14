@@ -83,38 +83,48 @@ public class InteractionUI : MonoBehaviour
             keyText.text = GetInteractionButton();
     }
 
+
     private string GetInteractionButton()
     {
         if (playerInput == null)
             return "?";
 
+        // Check the actual devices assigned to this player.
+        foreach (InputDevice device in playerInput.devices)
+        {
+            if (device is Keyboard)
+                return "E";
+
+            if (device is Gamepad)
+            {
+                string deviceName = device.displayName.ToLower();
+
+                if (deviceName.Contains("dualshock") ||
+                    deviceName.Contains("dualsense") ||
+                    deviceName.Contains("playstation"))
+                {
+                    return "Cross";
+                }
+
+                return "A";
+            }
+        }
+
+        // Fallback to the current control scheme.
         string scheme = playerInput.currentControlScheme;
 
-        if (scheme == "Keyboard&Mouse" || scheme == "Keyboard")
-            return "E";
-
-        if (scheme == "Gamepad")
+        if (!string.IsNullOrEmpty(scheme))
         {
-            foreach (InputDevice device in playerInput.devices)
-            {
-                if (device is Gamepad)
-                {
-                    string deviceName = device.displayName.ToLower();
+            if (scheme.ToLower().Contains("keyboard"))
+                return "E";
 
-                    if (deviceName.Contains("dualshock") ||
-                        deviceName.Contains("dualsense") ||
-                        deviceName.Contains("playstation"))
-                    {
-                        return "Cross";
-                    }
-
-                    return "A";
-                }
-            }
+            if (scheme.ToLower().Contains("gamepad"))
+                return "A";
         }
 
         return "?";
     }
+
 
     public void Hide()
     {
