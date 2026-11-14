@@ -1,6 +1,8 @@
+
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Chef_Controls : MonoBehaviour
 {
@@ -28,8 +30,8 @@ public class Chef_Controls : MonoBehaviour
     [SerializeField] private float cookingStationRange = 2f;
 
     [Header("Ingredient Station")]
-    private System.Collections.Generic.List<Ingredient_Spawner> nearbySpawners =
-    new System.Collections.Generic.List<Ingredient_Spawner>();
+    private List<Ingredient_Spawner> nearbySpawners =
+        new List<Ingredient_Spawner>();
 
     [Header("Interaction Prompt")]
     [SerializeField] private InteractionUI interactionPrompt;
@@ -51,10 +53,11 @@ public class Chef_Controls : MonoBehaviour
 
         playerColliders = GetComponentsInChildren<Collider>();
     }
+
     private void Update()
     {
-
         CheckForInteraction();
+
         Vector3 move = new Vector3(moveInput.x, 0, moveInput.y);
 
         float currentSpeed = moveSpeed;
@@ -69,9 +72,15 @@ public class Chef_Controls : MonoBehaviour
         if (move != Vector3.zero)
         {
             Quaternion targetRotation = Quaternion.LookRotation(move);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotateSpeed * Time.deltaTime);
+
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                targetRotation,
+                rotateSpeed * Time.deltaTime
+            );
         }
-        if (heldObj != null)
+
+        if (heldObj != null && hold != null)
         {
             heldObj.transform.position = hold.position;
             heldObj.transform.rotation = hold.rotation;
@@ -115,8 +124,10 @@ public class Chef_Controls : MonoBehaviour
         if (heldObj != null)
         {
             if (cookingStation != null &&
-                Vector3.Distance(transform.position,
-                    cookingStation.transform.position) <= cookingStationRange)
+                Vector3.Distance(
+                    transform.position,
+                    cookingStation.transform.position
+                ) <= cookingStationRange)
             {
                 if (cookingStation.TryPlaceIngredient(heldObj))
                 {
@@ -125,14 +136,17 @@ public class Chef_Controls : MonoBehaviour
                 }
             }
 
-            // Otherwise, try the existing food preparation station.
+            // Try placing the ingredient on the prep station.
             if (prepStation != null &&
-                Vector3.Distance(transform.position,
-                    prepStation.transform.position) <= prepStationRange)
+                Vector3.Distance(
+                    transform.position,
+                    prepStation.transform.position
+                ) <= prepStationRange)
             {
                 GameObject ingredientToPlace = heldObj;
 
                 prepStation.AddIngredient(ingredientToPlace);
+
                 RestoreCollisionAfterRelease(ingredientToPlace);
 
                 heldObj = null;
@@ -144,10 +158,16 @@ public class Chef_Controls : MonoBehaviour
             return;
         }
 
-        // If not holding anything, collect finished food from the stove.
+        // NEW: Try taking an ingredient out of the prep station first.
+        if (TryTakeIngredientFromPrepStation())
+            return;
+
+        // Collect finished food from the stove.
         if (cookingStation != null &&
-            Vector3.Distance(transform.position,
-                cookingStation.transform.position) <= cookingStationRange)
+            Vector3.Distance(
+                transform.position,
+                cookingStation.transform.position
+            ) <= cookingStationRange)
         {
             GameObject cookedFood = cookingStation.TryTakeFood();
 
@@ -158,7 +178,7 @@ public class Chef_Controls : MonoBehaviour
             }
         }
 
-        // Existing ingredient-spawner pickup.
+        // Ingredient-spawner pickup.
         Ingredient_Spawner spawner = GetClosestIngredientSpawner();
 
         if (spawner != null)
@@ -172,8 +192,68 @@ public class Chef_Controls : MonoBehaviour
             }
         }
 
-        // Existing world-item pickup.
+        // World-item pickup.
         TryPickup();
+    }
+
+    private bool TryTakeIngredientFromPrepStation()
+    {
+        if (prepStation == null)
+            return false;
+
+        // Make sure the chef is close enough.
+        if (Vector3.Distance(
+            transform.position,
+            prepStation.transform.position
+        ) > prepStationRange)
+            return false;
+
+        // Do not remove ingredients during preparation.
+        if (prepStation.IsPreparing())
+            return false;
+
+        Collider[] hits = Physics.OverlapSphere(
+            prepStation.transform.position,
+            1.5f
+        );
+
+        foreach (Collider hit in hits)
+        {
+            Ingredient_Item ingredient =
+                hit.GetComponentInParent<Ingredient_Item>();
+
+            if (ingredient == null)
+                continue;
+
+            GameObject ingredientObject = ingredient.gameObject;
+
+            // Only allow actual ingredient objects.
+            if (!ingredientObject.CompareTag("Ingredient"))
+                continue;
+
+            Rigidbody ingredientRb =
+                ingredientObject.GetComponent<Rigidbody>();
+
+            if (ingredientRb == null)
+            {
+                Debug.LogWarning(
+                    "Ingredient needs a Rigidbody to be picked up!"
+                );
+                continue;
+            }
+
+            // Remove the ingredient from the station.
+            prepStation.RemoveIngredient(ingredientObject);
+
+            // Pick it up.
+            Pickup(ingredientObject);
+
+            Debug.Log("Ingredient removed from prep station.");
+
+            return true;
+        }
+
+        return false;
     }
 
     private void ReleaseHeldObjectForStation()
@@ -192,16 +272,20 @@ public class Chef_Controls : MonoBehaviour
             return;
 
         if (cookingStation != null &&
-            Vector3.Distance(transform.position,
-                cookingStation.transform.position) <= cookingStationRange)
+            Vector3.Distance(
+                transform.position,
+                cookingStation.transform.position
+            ) <= cookingStationRange)
         {
             cookingStation.HandlePrepButton();
             return;
         }
 
         if (prepStation != null &&
-            Vector3.Distance(transform.position,
-                prepStation.transform.position) <= prepStationRange)
+            Vector3.Distance(
+                transform.position,
+                prepStation.transform.position
+            ) <= prepStationRange)
         {
             prepStation.StartPreparationPress();
         }
@@ -209,7 +293,6 @@ public class Chef_Controls : MonoBehaviour
 
     public void OnRecipe(InputAction.CallbackContext context)
     {
-
         if (recipe_Book != null)
         {
             recipe_Book.SetActive(!recipe_Book.activeSelf);
@@ -221,7 +304,6 @@ public class Chef_Controls : MonoBehaviour
         if (!context.performed)
             return;
 
-        // Only open inventory when near the order drop-off.
         Collider[] hits = Physics.OverlapSphere(
             transform.position,
             interactionRange
@@ -271,20 +353,17 @@ public class Chef_Controls : MonoBehaviour
 
     void TryPickup()
     {
-        // Position the pickup area in front of the Chef
         Vector3 center =
             transform.position +
             transform.forward * (pickupRange * 0.5f) +
             Vector3.up * 0.5f;
 
-        // Half extents of the pickup box
         Vector3 halfExtents = new Vector3(
             pickupWidth * 0.5f,
             pickupHeight * 0.5f,
             pickupRange * 0.5f
         );
 
-        // Show pickup area in Scene view
         Collider[] hits = Physics.OverlapBox(
             center,
             halfExtents,
@@ -319,11 +398,13 @@ public class Chef_Controls : MonoBehaviour
         if (item == null || playerColliders == null)
             return;
 
-        Collider[] itemColliders = item.GetComponentsInChildren<Collider>();
+        Collider[] itemColliders =
+            item.GetComponentsInChildren<Collider>();
 
         foreach (Collider itemCol in itemColliders)
         {
-            if (itemCol == null) continue;
+            if (itemCol == null)
+                continue;
 
             foreach (Collider playerCol in playerColliders)
             {
@@ -338,13 +419,17 @@ public class Chef_Controls : MonoBehaviour
         if (item == null)
             return;
 
-        Collider[] itemColliders = item.GetComponentsInChildren<Collider>();
-        StartCoroutine(RestorePlayerCollisionWhenSeparated(itemColliders));
+        Collider[] itemColliders =
+            item.GetComponentsInChildren<Collider>();
+
+        StartCoroutine(
+            RestorePlayerCollisionWhenSeparated(itemColliders)
+        );
     }
 
-    private IEnumerator RestorePlayerCollisionWhenSeparated(Collider[] itemColliders)
+    private IEnumerator RestorePlayerCollisionWhenSeparated(
+        Collider[] itemColliders)
     {
-        // Keep collisions ignored until the object is no longer intersecting the player.
         while (true)
         {
             yield return new WaitForFixedUpdate();
@@ -354,12 +439,16 @@ public class Chef_Controls : MonoBehaviour
 
             foreach (Collider itemCol in itemColliders)
             {
-                if (itemCol == null || !itemCol.enabled || !itemCol.gameObject.activeInHierarchy)
+                if (itemCol == null ||
+                    !itemCol.enabled ||
+                    !itemCol.gameObject.activeInHierarchy)
                     continue;
 
                 foreach (Collider playerCol in playerColliders)
                 {
-                    if (playerCol == null || !playerCol.enabled || !playerCol.gameObject.activeInHierarchy)
+                    if (playerCol == null ||
+                        !playerCol.enabled ||
+                        !playerCol.gameObject.activeInHierarchy)
                         continue;
 
                     if (Physics.ComputePenetration(
@@ -387,7 +476,8 @@ public class Chef_Controls : MonoBehaviour
 
         foreach (Collider itemCol in itemColliders)
         {
-            if (itemCol == null) continue;
+            if (itemCol == null)
+                continue;
 
             foreach (Collider playerCol in playerColliders)
             {
@@ -399,8 +489,28 @@ public class Chef_Controls : MonoBehaviour
 
     void Pickup(GameObject obj)
     {
+        if (obj == null)
+            return;
+
+        Rigidbody rb = obj.GetComponent<Rigidbody>();
+
+        if (rb == null)
+        {
+            Debug.LogWarning(
+                "Cannot pick up " + obj.name +
+                " because it has no Rigidbody."
+            );
+            return;
+        }
+
+        if (hold == null)
+        {
+            Debug.LogError("Hold transform is not assigned!");
+            return;
+        }
+
         heldObj = obj;
-        heldRb = obj.GetComponent<Rigidbody>();
+        heldRb = rb;
 
         heldRb.useGravity = false;
         heldRb.linearDamping = 10f;
@@ -409,6 +519,7 @@ public class Chef_Controls : MonoBehaviour
         heldRb.transform.SetParent(hold);
         heldRb.transform.localPosition = Vector3.zero;
         heldRb.transform.localRotation = Quaternion.identity;
+
         SetItemPlayerCollision(obj, true);
     }
 
@@ -430,13 +541,11 @@ public class Chef_Controls : MonoBehaviour
         RestoreCollisionAfterRelease(droppedObject);
     }
 
-
     private void CheckForInteraction()
     {
         if (interactionPrompt == null)
             return;
 
-        // If holding an item, hide the prompt.
         if (heldObj != null)
         {
             interactionPrompt.Hide();
@@ -460,11 +569,12 @@ public class Chef_Controls : MonoBehaviour
             }
         }
 
-
-        // Cooking station
+        // Cooking station.
         if (cookingStation != null &&
-            Vector3.Distance(transform.position,
-                cookingStation.transform.position) <= cookingStationRange)
+            Vector3.Distance(
+                transform.position,
+                cookingStation.transform.position
+            ) <= cookingStationRange)
         {
             if (cookingStation.IsReadyToCollect())
             {
@@ -487,8 +597,10 @@ public class Chef_Controls : MonoBehaviour
 
         // Prep station.
         if (prepStation != null &&
-            Vector3.Distance(transform.position,
-                prepStation.transform.position) <= prepStationRange)
+            Vector3.Distance(
+                transform.position,
+                prepStation.transform.position
+            ) <= prepStationRange)
         {
             if (prepStation.HasIngredients())
             {
@@ -504,7 +616,7 @@ public class Chef_Controls : MonoBehaviour
             return;
         }
 
-        // Check ordinary world items and customers.
+        // World items and customers.
         Vector3 center =
             transform.position +
             transform.forward * (pickupRange * 0.5f) +
@@ -540,8 +652,6 @@ public class Chef_Controls : MonoBehaviour
         interactionPrompt.Hide();
     }
 
-
-
     private Ingredient_Spawner GetClosestIngredientSpawner()
     {
         Ingredient_Spawner closest = null;
@@ -566,11 +676,11 @@ public class Chef_Controls : MonoBehaviour
 
         return closest;
     }
+
     public GameObject GetHeldObject()
     {
         return heldObj;
     }
-
 
     public bool ReceiveOrderSlip(PhysicalOrderSlip slip)
     {
@@ -616,6 +726,4 @@ public class Chef_Controls : MonoBehaviour
 
         return received;
     }
-
-
 }

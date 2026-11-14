@@ -10,6 +10,7 @@ TagManager:
   - Audio
   - Customer
   - Food
+  - Ingredient
   layers:
   - Default
   - TransparentFX

@@ -1,7 +1,8 @@
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
 
 public class PrepFoodStation : MonoBehaviour
 {
@@ -9,13 +10,14 @@ public class PrepFoodStation : MonoBehaviour
 
     public Recipe[] recipes;
 
-    private List<Ingredient_Type> currentIngredients = new List<Ingredient_Type>();
+    private List<Ingredient_Type> currentIngredients =
+        new List<Ingredient_Type>();
 
-    private List<GameObject> placedIngredients = new List<GameObject>();
+    private List<GameObject> placedIngredients =
+        new List<GameObject>();
 
     [Header("Preparation")]
     [SerializeField] private float preparationTime = 5f;
-
 
     [Header("Ingredient Placement")]
     [SerializeField] private Transform snapPoint1;
@@ -26,6 +28,8 @@ public class PrepFoodStation : MonoBehaviour
     [SerializeField] private GameObject progressBarObject;
     [SerializeField] private Slider progressBar;
 
+    [Header("Ingredient Settings")]
+    [SerializeField] private string ingredientTag = "Ingredient";
 
     private bool isPreparing;
 
@@ -33,7 +37,7 @@ public class PrepFoodStation : MonoBehaviour
     private bool foodAtHandoffPoint = false;
 
     [SerializeField] private Transform tutorialHandoffPoint;
-    
+
     public bool HasRequiredTutorialIngredients()
     {
         return currentIngredients.Count >= 2;
@@ -49,22 +53,14 @@ public class PrepFoodStation : MonoBehaviour
         return tutorialHandoffPoint;
     }
 
-    void Awake()
+    private void Awake()
     {
-        audioManager = GameObject.FindGameObjectWithTag("Audio")
-            .GetComponent<AudioManager>();
+        GameObject audioObject =
+            GameObject.FindGameObjectWithTag("Audio");
+
+        if (audioObject != null)
+            audioManager = audioObject.GetComponent<AudioManager>();
     }
-   /* public void StartPreparation()
-    {
-        if (isPreparing)
-            return;
-
-        if (currentIngredients.Count < 2)
-            return;
-
-        StartCoroutine(PrepareIngredient());
-
-    }*/
 
     public void StartPreparationPress()
     {
@@ -84,11 +80,14 @@ public class PrepFoodStation : MonoBehaviour
     {
         isPreparing = true;
 
-        progressBarObject.SetActive(true);
-        progressBar.value = 0f;
+        if (progressBarObject != null)
+            progressBarObject.SetActive(true);
 
-        // Start preparing food sound
-        audioManager.PlayPreparingFood();
+        if (progressBar != null)
+            progressBar.value = 0f;
+
+        if (audioManager != null)
+            audioManager.PlayPreparingFood();
 
         float timer = 0f;
 
@@ -96,26 +95,28 @@ public class PrepFoodStation : MonoBehaviour
         {
             timer += Time.deltaTime;
 
-            progressBar.value = Mathf.Clamp01(
-                timer / preparationTime
-            );
+            if (progressBar != null)
+                progressBar.value =
+                    Mathf.Clamp01(timer / preparationTime);
 
             yield return null;
         }
 
-        progressBar.value = 1f;
+        if (progressBar != null)
+            progressBar.value = 1f;
 
-        // Stop the sound immediately when preparation is finished
-        audioManager.StopPreparingFood();
+        if (audioManager != null)
+            audioManager.StopPreparingFood();
 
         CheckRecipes();
 
-        progressBarObject.SetActive(false);
+        if (progressBarObject != null)
+            progressBarObject.SetActive(false);
 
         isPreparing = false;
     }
 
-    public void AddIngredient(GameObject I)
+    public void AddIngredient(GameObject ingredientObject)
     {
         if (isPreparing)
         {
@@ -123,19 +124,38 @@ public class PrepFoodStation : MonoBehaviour
             return;
         }
 
-        if (currentIngredients.Count >= 3)
+        if (ingredientObject == null)
+            return;
+
+        // Only allow objects with the Ingredient tag.
+        if (!ingredientObject.CompareTag(ingredientTag))
         {
-            Debug.Log("Station already has 3 ingredients.");
+            Debug.Log("Only Ingredient objects can be placed here.");
             return;
         }
 
-        Ingredient_Item ingredient = I.GetComponent<Ingredient_Item>();
+        // Make sure it has the correct component.
+        Ingredient_Item ingredient =
+            ingredientObject.GetComponent<Ingredient_Item>();
 
         if (ingredient == null)
         {
-            Debug.LogError(
-                I.name + " does not have an Ingredient_Item component!"
+            Debug.LogWarning(
+                ingredientObject.name +
+                " has the Ingredient tag but no Ingredient_Item component."
             );
+            return;
+        }
+
+        if (placedIngredients.Contains(ingredientObject))
+        {
+            Debug.Log("This ingredient is already on the station.");
+            return;
+        }
+
+        if (currentIngredients.Count >= 3)
+        {
+            Debug.Log("Station already has 3 ingredients.");
             return;
         }
 
@@ -147,43 +167,77 @@ public class PrepFoodStation : MonoBehaviour
             return;
         }
 
-        Debug.Log(
-            "SNAPPING " + I.name +
-            " TO " + snapPoint.name
-        );
-
-        // Remove from previous parent
-        I.transform.SetParent(null);
-
-        Rigidbody rb = I.GetComponent<Rigidbody>();
+        Rigidbody rb =
+            ingredientObject.GetComponent<Rigidbody>();
 
         if (rb != null)
         {
             rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
-
             rb.isKinematic = true;
             rb.useGravity = false;
         }
 
-        // Snap ingredient
-        I.transform.SetParent(snapPoint);
+        ingredientObject.transform.SetParent(snapPoint);
+        ingredientObject.transform.localPosition = Vector3.zero;
+        ingredientObject.transform.localRotation = Quaternion.identity;
 
-        I.transform.localPosition = Vector3.zero;
-        I.transform.localRotation = Quaternion.identity;
-
-        // Add ingredient
         currentIngredients.Add(ingredient.ingredientType);
-        placedIngredients.Add(I);
+        placedIngredients.Add(ingredientObject);
 
-        Debug.Log(
-            "Added ingredient: " +
-            ingredient.ingredientType
-        );
-
-        // DO NOT START PREPARATION HERE
+        Debug.Log("Added ingredient: " + ingredient.ingredientType);
     }
 
+    // Called when a player takes an ingredient off the station.
+    public void RemoveIngredient(GameObject ingredientObject)
+    {
+        if (ingredientObject == null)
+            return;
+
+        int index = placedIngredients.IndexOf(ingredientObject);
+
+        if (index == -1)
+            return;
+
+        if (isPreparing)
+        {
+            Debug.Log("Cannot remove ingredients while preparing.");
+            return;
+        }
+
+        placedIngredients.RemoveAt(index);
+        currentIngredients.RemoveAt(index);
+
+        Debug.Log("Removed ingredient from preparation station.");
+
+        // Reposition remaining ingredients into the correct slots.
+        RefreshIngredientPositions();
+    }
+
+    private void RefreshIngredientPositions()
+    {
+        Transform[] snapPoints =
+        {
+            snapPoint1,
+            snapPoint2,
+            snapPoint3
+        };
+
+        for (int i = 0; i < placedIngredients.Count; i++)
+        {
+            if (placedIngredients[i] == null)
+                continue;
+
+            Transform snapPoint = snapPoints[i];
+
+            if (snapPoint == null)
+                continue;
+
+            placedIngredients[i].transform.SetParent(snapPoint);
+            placedIngredients[i].transform.localPosition = Vector3.zero;
+            placedIngredients[i].transform.localRotation = Quaternion.identity;
+        }
+    }
 
     private Transform GetNextSnapPoint()
     {
@@ -191,44 +245,40 @@ public class PrepFoodStation : MonoBehaviour
         {
             case 0:
                 return snapPoint1;
-
             case 1:
                 return snapPoint2;
-
             case 2:
                 return snapPoint3;
-
             default:
                 return null;
         }
     }
 
-
-    void CheckRecipes()
+    private void CheckRecipes()
     {
         foreach (Recipe recipe in recipes)
         {
             if (RecipeMatches(recipe))
             {
                 MakeFood(recipe);
-
                 return;
             }
         }
+
         ClearIngredients();
     }
+
     private void MakeFood(Recipe recipe)
     {
         Debug.Log("Made " + recipe.food);
 
         tutorialFoodFinished = true;
 
-        Food_Spawner foodSpawner = GetComponent<Food_Spawner>();
+        Food_Spawner foodSpawner =
+            GetComponent<Food_Spawner>();
 
         if (foodSpawner != null)
-        {
             foodSpawner.SpawnFood(recipe.finishedFoodPrefab);
-        }
 
         ClearIngredients();
     }
@@ -238,9 +288,7 @@ public class PrepFoodStation : MonoBehaviour
         foreach (GameObject ingredient in placedIngredients)
         {
             if (ingredient != null)
-            {
                 Destroy(ingredient);
-            }
         }
 
         placedIngredients.Clear();
@@ -252,7 +300,8 @@ public class PrepFoodStation : MonoBehaviour
         if (recipe.ingredients.Length != currentIngredients.Count)
             return false;
 
-        List<Ingredient_Type> remainingIngredients = new List<Ingredient_Type>(currentIngredients);
+        List<Ingredient_Type> remainingIngredients =
+            new List<Ingredient_Type>(currentIngredients);
 
         foreach (Ingredient_Type requiredIngredient in recipe.ingredients)
         {
@@ -272,6 +321,4 @@ public class PrepFoodStation : MonoBehaviour
     {
         return isPreparing;
     }
-
 }
-
