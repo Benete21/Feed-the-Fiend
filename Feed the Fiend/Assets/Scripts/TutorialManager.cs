@@ -1,3 +1,4 @@
+
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -23,6 +24,7 @@ public class TutorialManager : MonoBehaviour
         public TutorialArrowLocation location;
         public Transform target;
     }
+
     [Header("Characters")]
     [SerializeField] private Chef_Controls chef;
     [SerializeField] private Waiter_Controls waiter;
@@ -47,7 +49,9 @@ public class TutorialManager : MonoBehaviour
 
     [Header("Tutorial Arrow")]
     [SerializeField] private TutorialArrow tutorialArrow;
-    [SerializeField] private List<ArrowTarget> arrowTargets = new List<ArrowTarget>();
+    [SerializeField]
+    private List<ArrowTarget> arrowTargets =
+        new List<ArrowTarget>();
 
     [Header("Dialogue UI")]
     [SerializeField] private GameObject dialoguePanel;
@@ -60,6 +64,11 @@ public class TutorialManager : MonoBehaviour
     [Header("Scene")]
     [SerializeField] private string playSceneName = "PlayScene";
 
+    // Dialogue and character control states.
+    private bool dialogueIsActive;
+    private bool chefSelected;
+    private bool waiterSelected;
+
 
     private void Start()
     {
@@ -71,6 +80,60 @@ public class TutorialManager : MonoBehaviour
         StartCoroutine(RunTutorial());
     }
 
+
+    // =========================================================
+    // PLAYER CONTROL / DIALOGUE FREEZE
+    // =========================================================
+
+    private void SetDialogueFreeze(bool freeze)
+    {
+        dialogueIsActive = freeze;
+        ApplyPlayerControlState();
+    }
+
+    private void ApplyPlayerControlState()
+    {
+        bool chefCanMove = chefSelected && !dialogueIsActive;
+        bool waiterCanMove = waiterSelected && !dialogueIsActive;
+
+        if (chef != null)
+            chef.enabled = chefCanMove;
+
+        if (waiter != null)
+            waiter.enabled = waiterCanMove;
+
+        SetPlayerInput(chefObject, chefCanMove);
+        SetPlayerInput(waiterObject, waiterCanMove);
+    }
+
+    private void SetPlayerInput(GameObject character, bool enableInput)
+    {
+        if (character == null)
+            return;
+
+        PlayerInput input = character.GetComponent<PlayerInput>();
+
+        if (input == null)
+            input = character.GetComponentInParent<PlayerInput>();
+
+        if (input == null)
+        {
+            Debug.LogWarning(
+                "PlayerInput component not found on " + character.name
+            );
+            return;
+        }
+
+        if (enableInput)
+            input.ActivateInput();
+        else
+            input.DeactivateInput();
+    }
+
+
+    // =========================================================
+    // MAIN TUTORIAL
+    // =========================================================
 
     private IEnumerator RunTutorial()
     {
@@ -100,11 +163,8 @@ public class TutorialManager : MonoBehaviour
         );
 
         yield return Dialogue(
-    "Go to the customer and press B to interact with them."
-);
-        /* yield return Dialogue(
-             "Follow the arrow to the customer."
-         );*/
+            "Go to the customer and press B to interact with them."
+        );
 
         ShowArrow(TutorialArrowLocation.Customer);
 
@@ -126,8 +186,6 @@ public class TutorialManager : MonoBehaviour
 
         ShowArrow(TutorialArrowLocation.OrderDropOff);
 
-        // The tutorial cannot switch to the chef until the waiter has
-        // successfully deposited the physical slip at the counter.
         yield return WaitForAction(() =>
             orderSlipDropOff != null &&
             orderSlipDropOff.HasOrders()
@@ -168,11 +226,9 @@ public class TutorialManager : MonoBehaviour
         );
 
         yield return Dialogue(
-    "Go to the Blue ingredient station."
-);
+            "Go to the Blue ingredient station."
+        );
 
-        // Remember what the chef was holding before this step.
-        // The tutorial only continues when a new object is picked up.
         GameObject objectBeforeIngredientA =
             chef != null ? chef.GetHeldObject() : null;
 
@@ -201,8 +257,6 @@ public class TutorialManager : MonoBehaviour
 
         ShowArrow(TutorialArrowLocation.PrepStation);
 
-        // Picking up an ingredient is not enough: the chef must place it
-        // into the preparation station and no longer be holding it.
         yield return WaitForAction(() =>
             chef != null &&
             chef.GetHeldObject() == null &&
@@ -224,11 +278,11 @@ public class TutorialManager : MonoBehaviour
         yield return Dialogue(
             "Now collect Ingredient B."
         );
-        yield return Dialogue(
-    "Go to the Yellow ingredient station."
-);
 
-        // Only count a new pickup for Ingredient B.
+        yield return Dialogue(
+            "Go to the Yellow ingredient station."
+        );
+
         GameObject objectBeforeIngredientB =
             chef != null ? chef.GetHeldObject() : null;
 
@@ -257,7 +311,6 @@ public class TutorialManager : MonoBehaviour
 
         ShowArrow(TutorialArrowLocation.PrepStation);
 
-        // Wait until Ingredient B has actually been placed as well.
         yield return WaitForAction(() =>
             chef != null &&
             chef.GetHeldObject() == null &&
@@ -346,8 +399,6 @@ public class TutorialManager : MonoBehaviour
 
         ShowArrow(TutorialArrowLocation.FoodHandoff);
 
-        // The waiter must take the food out of the handoff point.
-        // Merely holding some unrelated object does not complete this step.
         yield return WaitForAction(() =>
             waiter != null &&
             waiter.GetHeldObject() != null &&
@@ -376,7 +427,6 @@ public class TutorialManager : MonoBehaviour
         // =====================================================
         // FINISH
         // =====================================================
-
 
         yield return Dialogue(
             "You now know how to take orders, prepare food, and serve customers."
@@ -407,11 +457,10 @@ public class TutorialManager : MonoBehaviour
         if (chefObject != null)
             chefObject.SetActive(true);
 
-        if (waiter != null)
-            waiter.enabled = false;
+        chefSelected = true;
+        waiterSelected = false;
 
-        if (chef != null)
-            chef.enabled = true;
+        ApplyPlayerControlState();
     }
 
 
@@ -427,11 +476,10 @@ public class TutorialManager : MonoBehaviour
         if (waiterObject != null)
             waiterObject.SetActive(true);
 
-        if (chef != null)
-            chef.enabled = false;
+        chefSelected = false;
+        waiterSelected = true;
 
-        if (waiter != null)
-            waiter.enabled = true;
+        ApplyPlayerControlState();
     }
 
 
@@ -448,7 +496,8 @@ public class TutorialManager : MonoBehaviour
 
         foreach (ArrowTarget arrowTarget in arrowTargets)
         {
-            if (arrowTarget != null && arrowTarget.location == location)
+            if (arrowTarget != null &&
+                arrowTarget.location == location)
             {
                 target = arrowTarget.target;
                 break;
@@ -457,12 +506,15 @@ public class TutorialManager : MonoBehaviour
 
         if (target == null)
         {
-            Debug.LogWarning($"Tutorial arrow target '{location}' is not assigned in the TutorialManager list.", this);
+            Debug.LogWarning(
+                $"Tutorial arrow target '{location}' is not assigned in the TutorialManager list.",
+                this
+            );
+
             tutorialArrow.HideArrow();
             return;
         }
 
-        // The arrow times out independently; the tutorial still waits for the action.
         tutorialArrow.ShowArrow(target);
     }
 
@@ -470,9 +522,7 @@ public class TutorialManager : MonoBehaviour
     private void HideArrow()
     {
         if (tutorialArrow != null)
-        {
             tutorialArrow.HideArrow();
-        }
     }
 
 
@@ -480,9 +530,11 @@ public class TutorialManager : MonoBehaviour
     // DIALOGUE
     // =========================================================
 
-
     private IEnumerator Dialogue(string message)
     {
+        // Freeze both characters before showing dialogue.
+        SetDialogueFreeze(true);
+
         if (dialoguePanel != null)
             dialoguePanel.SetActive(true);
 
@@ -491,14 +543,14 @@ public class TutorialManager : MonoBehaviour
 
         dialogueText.text = "";
 
-        // Type the dialogue
+        // Type the dialogue.
         foreach (char letter in message)
         {
             dialogueText.text += letter;
             yield return new WaitForSeconds(textSpeed);
         }
 
-        // Show controller instruction
+        // Show controller instruction.
         if (continueText != null)
         {
             continueText.text = "Press X to continue";
@@ -521,9 +573,9 @@ public class TutorialManager : MonoBehaviour
         if (continueText != null)
             continueText.gameObject.SetActive(false);
 
+        // Unfreeze the currently selected character.
+        SetDialogueFreeze(false);
     }
-
-
 
 
     // =========================================================
@@ -561,14 +613,10 @@ public class TutorialManager : MonoBehaviour
         tutorialCustomer.OnOrderTaken += OrderFinished;
 
         if (tutorialCustomer.HasOrdered())
-        {
             orderTaken = true;
-        }
 
         while (!orderTaken)
-        {
             yield return null;
-        }
 
         tutorialCustomer.OnOrderTaken -= OrderFinished;
 
@@ -596,14 +644,11 @@ public class TutorialManager : MonoBehaviour
         tutorialCustomer.OnFoodDelivered += FoodDelivered;
 
         while (!delivered)
-        {
             yield return null;
-        }
 
         tutorialCustomer.OnFoodDelivered -= FoodDelivered;
 
         if (dialoguePanel != null)
             dialoguePanel.SetActive(true);
     }
-
 }

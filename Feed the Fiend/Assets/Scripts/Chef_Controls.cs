@@ -548,6 +548,14 @@ public class Chef_Controls : MonoBehaviour
 
         if (heldObj != null)
         {
+            // Show placement prompt when holding food near an empty table snap point.
+            if (heldObj.CompareTag("Food") &&
+                GetNearbyFoodSnapPoint() != null)
+            {
+                interactionPrompt.Show("B  PLACE FOOD");
+                return;
+            }
+
             interactionPrompt.Hide();
             return;
         }
@@ -725,5 +733,27 @@ public class Chef_Controls : MonoBehaviour
         }
 
         return received;
+    }
+    private FoodSnapPoint GetNearbyFoodSnapPoint()
+    {
+        Collider[] hits = Physics.OverlapSphere(
+            transform.position,
+            interactionRange
+        );
+
+        foreach (Collider hit in hits)
+        {
+            FoodSnapPoint snapPoint =
+                hit.GetComponentInParent<FoodSnapPoint>();
+
+            if (snapPoint == null)
+                continue;
+
+            // Only return snap points that are empty.
+            if (!snapPoint.HasFood())
+                return snapPoint;
+        }
+
+        return null;
     }
 }

@@ -1781,7 +1781,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9af675437ebe7ba4391adde535ef216c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractionUI
-  playerInput: {fileID: 1642685825}
   canvasGroup: {fileID: 502018568}
   animatedContent: {fileID: 502018567}
   keyText: {fileID: 2049757378}
@@ -4590,7 +4589,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9af675437ebe7ba4391adde535ef216c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractionUI
-  playerInput: {fileID: 1660470056}
   canvasGroup: {fileID: 973234937}
   animatedContent: {fileID: 973234936}
   keyText: {fileID: 1994650882}

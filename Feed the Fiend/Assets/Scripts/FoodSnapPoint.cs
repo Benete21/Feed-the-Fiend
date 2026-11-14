@@ -1,3 +1,4 @@
+
 using UnityEngine;
 
 public class FoodSnapPoint : MonoBehaviour
@@ -19,25 +20,19 @@ public class FoodSnapPoint : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        // Already have food
+        // Only accept objects with the Food tag.
         if (currentFood != null)
             return;
 
-        // ONLY accept FoodItems
-        FoodItems food = other.GetComponentInParent<FoodItems>();
-
-        if (food == null)
-        {
-            Debug.Log("Not food: " + other.gameObject.name);
+        if (!other.CompareTag("Food"))
             return;
-        }
 
-        SnapFood(food.gameObject);
+        SnapFood(other.gameObject);
     }
 
     private void SnapFood(GameObject food)
     {
-        if (currentFood != null)
+        if (currentFood != null || food == null)
             return;
 
         currentFood = food;
@@ -46,33 +41,32 @@ public class FoodSnapPoint : MonoBehaviour
             ? snapPoint
             : transform;
 
-        // Stop physics
+        Vector3 originalScale = food.transform.lossyScale;
+
         Rigidbody rb = food.GetComponent<Rigidbody>();
 
         if (rb != null)
         {
             rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
-
             rb.isKinematic = true;
             rb.useGravity = false;
         }
 
-        // Parent to snap point
-        food.transform.SetParent(target);
+        food.transform.SetParent(target, true);
 
-        // EXACT position
-        food.transform.localPosition = Vector3.zero;
+        food.transform.position = target.position;
+        food.transform.rotation = target.rotation;
 
-        // EXACT rotation
-        food.transform.localRotation = Quaternion.identity;
+        Vector3 parentScale = target.lossyScale;
 
-        Debug.Log(
-            "FOOD SNAPPED: " +
-            food.name +
-            " -> " +
-            target.name
+        food.transform.localScale = new Vector3(
+            parentScale.x != 0 ? originalScale.x / parentScale.x : originalScale.x,
+            parentScale.y != 0 ? originalScale.y / parentScale.y : originalScale.y,
+            parentScale.z != 0 ? originalScale.z / parentScale.z : originalScale.z
         );
+
+        Debug.Log("FOOD SNAPPED: " + food.name);
     }
 
     public GameObject TakeFood()
@@ -81,11 +75,9 @@ public class FoodSnapPoint : MonoBehaviour
             return null;
 
         GameObject food = currentFood;
-
         currentFood = null;
 
-        // Remove from snap point
-        food.transform.SetParent(null);
+        food.transform.SetParent(null, true);
 
         Rigidbody rb = food.GetComponent<Rigidbody>();
 
@@ -95,10 +87,7 @@ public class FoodSnapPoint : MonoBehaviour
             rb.useGravity = true;
         }
 
-        Debug.Log(
-            "FOOD TAKEN: " +
-            food.name
-        );
+        Debug.Log("FOOD TAKEN: " + food.name);
 
         return food;
     }
