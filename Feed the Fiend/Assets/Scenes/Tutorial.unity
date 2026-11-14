@@ -1781,6 +1781,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9af675437ebe7ba4391adde535ef216c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractionUI
+  playerInput: {fileID: 1642685825}
   canvasGroup: {fileID: 502018568}
   animatedContent: {fileID: 502018567}
   keyText: {fileID: 2049757378}
@@ -4589,6 +4590,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9af675437ebe7ba4391adde535ef216c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractionUI
+  playerInput: {fileID: 1660470056}
   canvasGroup: {fileID: 973234937}
   animatedContent: {fileID: 973234936}
   keyText: {fileID: 1994650882}
@@ -8313,7 +8315,7 @@ MonoBehaviour:
   interactionPrompt: {fileID: 973234938}
   interactionRange: 2.5
   recipe_Book: {fileID: 0}
-  orderInventory: {fileID: 0}
+  orderInventory: {fileID: 2062736656}
 --- !u!1 &1662327042
 GameObject:
   m_ObjectHideFlags: 0
@@ -17053,11 +17055,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TutCustomer
   orderTime: 3
-  tutorialFood: 2
+  tutorialFood: 8
   tableNumber: 1
   loadingBar: {fileID: 4553108509014105860}
   waitingExclamation: {fileID: 2212083007485704948}
-  foodDeliveryTrigger: {fileID: 0}
+  foodDeliveryTrigger: {fileID: 512435763026915564}
   currentOrder: 08000000
 --- !u!23 &823334102046996465
 MeshRenderer:
