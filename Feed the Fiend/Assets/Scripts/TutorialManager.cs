@@ -100,7 +100,7 @@ public class TutorialManager : MonoBehaviour
         );
 
         yield return Dialogue(
-    "Go to the customer and press A to interact with them."
+    "Go to the customer and press B to interact with them."
 );
         /* yield return Dialogue(
              "Follow the arrow to the customer."
@@ -277,7 +277,7 @@ public class TutorialManager : MonoBehaviour
         );
 
         yield return Dialogue(
-            "Press B to PREPARE the food."
+            "Press A to PREPARE the food."
         );
 
         yield return WaitForAction(() =>
@@ -501,7 +501,7 @@ public class TutorialManager : MonoBehaviour
         // Show controller instruction
         if (continueText != null)
         {
-            continueText.text = "Press Y to continue";
+            continueText.text = "Press X to continue";
             continueText.gameObject.SetActive(true);
         }
 

@@ -2,13 +2,9 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class InteractionUI : MonoBehaviour
 {
-    [Header("Player Input")]
-    [SerializeField] private PlayerInput playerInput;
-
     [Header("UI References")]
     [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] private RectTransform animatedContent;
@@ -23,6 +19,7 @@ public class InteractionUI : MonoBehaviour
     private bool isVisible;
 
     private string currentAction = "";
+    private string currentButton = "A";
 
     private void Awake()
     {
@@ -39,12 +36,6 @@ public class InteractionUI : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    private void Update()
-    {
-        if (isVisible)
-            UpdatePrompt();
-    }
-
     public void Show(string message)
     {
         if (string.IsNullOrWhiteSpace(message))
@@ -59,16 +50,13 @@ public class InteractionUI : MonoBehaviour
         if (parts.Length == 0)
             return;
 
-        // Keep the action supplied by the interaction script.
+        currentButton = parts[0];
         currentAction = parts.Length > 1 ? parts[1] : "";
 
-        if (actionText != null)
-            actionText.text = currentAction;
+        UpdatePrompt();
 
         if (!gameObject.activeSelf)
             gameObject.SetActive(true);
-
-        UpdatePrompt();
 
         if (isVisible)
             return;
@@ -80,51 +68,11 @@ public class InteractionUI : MonoBehaviour
     private void UpdatePrompt()
     {
         if (keyText != null)
-            keyText.text = GetInteractionButton();
+            keyText.text = currentButton;
+
+        if (actionText != null)
+            actionText.text = currentAction;
     }
-
-
-    private string GetInteractionButton()
-    {
-        if (playerInput == null)
-            return "?";
-
-        // Check the actual devices assigned to this player.
-        foreach (InputDevice device in playerInput.devices)
-        {
-            if (device is Keyboard)
-                return "E";
-
-            if (device is Gamepad)
-            {
-                string deviceName = device.displayName.ToLower();
-
-                if (deviceName.Contains("dualshock") ||
-                    deviceName.Contains("dualsense") ||
-                    deviceName.Contains("playstation"))
-                {
-                    return "Cross";
-                }
-
-                return "A";
-            }
-        }
-
-        // Fallback to the current control scheme.
-        string scheme = playerInput.currentControlScheme;
-
-        if (!string.IsNullOrEmpty(scheme))
-        {
-            if (scheme.ToLower().Contains("keyboard"))
-                return "E";
-
-            if (scheme.ToLower().Contains("gamepad"))
-                return "A";
-        }
-
-        return "?";
-    }
-
 
     public void Hide()
     {
@@ -156,7 +104,6 @@ public class InteractionUI : MonoBehaviour
             : Vector3.one;
 
         Vector3 endScale = Vector3.one * targetScale;
-
         float timer = 0f;
 
         while (timer < fadeDuration)
@@ -173,10 +120,8 @@ public class InteractionUI : MonoBehaviour
                 canvasGroup.alpha = Mathf.Lerp(startAlpha, targetAlpha, t);
 
             if (animatedContent != null)
-            {
                 animatedContent.localScale =
                     Vector3.Lerp(startScale, endScale, t);
-            }
 
             yield return null;
         }

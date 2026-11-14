@@ -424,6 +424,7 @@ public class Waiter_Controls : MonoBehaviour
     }
 
 
+
     private void CheckForInteraction()
     {
         if (interactionPrompt == null)
@@ -446,6 +447,32 @@ public class Waiter_Controls : MonoBehaviour
             transform.rotation
         );
 
+        // Check whether the waiter is holding an order slip.
+        if (heldObj != null)
+        {
+            PhysicalOrderSlip heldSlip =
+                heldObj.GetComponent<PhysicalOrderSlip>();
+
+            if (heldSlip != null)
+            {
+                // Only show the prompt when near an order drop-off counter.
+                foreach (Collider hit in hits)
+                {
+                    OrderSlipDropOff dropoff =
+                        hit.GetComponentInParent<OrderSlipDropOff>();
+
+                    if (dropoff != null)
+                    {
+                        interactionPrompt.Show("B  DROP OFF SLIP");
+                        return;
+                    }
+                }
+
+                interactionPrompt.Hide();
+                return;
+            }
+        }
+
         foreach (Collider hit in hits)
         {
             CustomerOrder customer =
@@ -453,10 +480,9 @@ public class Waiter_Controls : MonoBehaviour
 
             if (customer != null)
             {
-                // Customer is ready to take an order.
                 if (!customer.HasOrdered() && customer.waiting)
                 {
-                    interactionPrompt.Show("A  INTERACT");
+                    interactionPrompt.Show("B  INTERACT");
                     return;
                 }
 
@@ -465,37 +491,36 @@ public class Waiter_Controls : MonoBehaviour
                     if (heldObj != null &&
                         heldObj.GetComponentInChildren<FoodItems>() != null)
                     {
-                        interactionPrompt.Show("A  GIVE ORDER");
+                        interactionPrompt.Show("B  GIVE ORDER");
                         return;
                     }
 
                     continue;
                 }
+
                 continue;
             }
 
             // Ordinary items can only be picked up with empty hands.
             if (heldObj == null && hit.CompareTag("Item"))
             {
-                interactionPrompt.Show("A  PICK UP");
+                interactionPrompt.Show("B  PICK UP");
                 return;
             }
 
-            // Support other interactable objects.
             IInteractable interactable =
                 hit.GetComponentInParent<IInteractable>();
 
             if (interactable != null)
             {
-                interactionPrompt.Show(
-                    heldObj != null ? "A  INTERACT" : "A  INTERACT"
-                );
+                interactionPrompt.Show("B  INTERACT");
                 return;
             }
         }
 
         interactionPrompt.Hide();
     }
+
 
 
     private bool TryDropSlipAtCounter(PhysicalOrderSlip slip)

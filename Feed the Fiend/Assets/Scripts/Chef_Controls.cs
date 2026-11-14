@@ -564,7 +564,7 @@ public class Chef_Controls : MonoBehaviour
 
             if (dropoff != null)
             {
-                interactionPrompt.Show("X  VIEW ORDERS");
+                interactionPrompt.Show("Y  VIEW ORDERS");
                 return;
             }
         }
@@ -612,7 +612,7 @@ public class Chef_Controls : MonoBehaviour
         // Ingredient spawner.
         if (nearbySpawners.Count > 0)
         {
-            interactionPrompt.Show("A  PICK UP");
+            interactionPrompt.Show("B  PICK UP");
             return;
         }
 
@@ -638,13 +638,13 @@ public class Chef_Controls : MonoBehaviour
         {
             if (hit.CompareTag("Item"))
             {
-                interactionPrompt.Show("A  PICK UP");
+                interactionPrompt.Show("B  PICK UP");
                 return;
             }
 
             if (hit.CompareTag("Customer"))
             {
-                interactionPrompt.Show("A  INTERACT");
+                interactionPrompt.Show("B  INTERACT");
                 return;
             }
         }
