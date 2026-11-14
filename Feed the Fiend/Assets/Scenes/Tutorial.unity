@@ -2747,6 +2747,7 @@ MonoBehaviour:
   snapPoint3: {fileID: 0}
   progressBarObject: {fileID: 1217100385}
   progressBar: {fileID: 1286214786}
+  ingredientTag: Ingredient
   tutorialHandoffPoint: {fileID: 1291129554}
 --- !u!114 &680019448
 MonoBehaviour:
@@ -6263,9 +6264,9 @@ MonoBehaviour:
   - location: 3
     target: {fileID: 1114034570}
   - location: 4
-    target: {fileID: 0}
+    target: {fileID: 371274124}
   - location: 5
-    target: {fileID: 0}
+    target: {fileID: 545436408}
   dialoguePanel: {fileID: 1228336589}
   dialogueText: {fileID: 453949671}
   continueText: {fileID: 552499675}

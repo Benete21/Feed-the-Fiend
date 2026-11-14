@@ -2,9 +2,13 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class InteractionUI : MonoBehaviour
 {
+    [Header("Player Input")]
+    [SerializeField] private PlayerInput playerInput;
+
     [Header("UI References")]
     [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] private RectTransform animatedContent;
@@ -18,11 +22,16 @@ public class InteractionUI : MonoBehaviour
     private Coroutine animationCoroutine;
     private bool isVisible;
 
+    private string currentAction = "";
+
     private void Awake()
     {
-        canvasGroup.alpha = 0f;
-        canvasGroup.interactable = false;
-        canvasGroup.blocksRaycasts = false;
+        if (canvasGroup != null)
+        {
+            canvasGroup.alpha = 0f;
+            canvasGroup.interactable = false;
+            canvasGroup.blocksRaycasts = false;
+        }
 
         if (animatedContent != null)
             animatedContent.localScale = Vector3.one * hiddenScale;
@@ -42,8 +51,11 @@ public class InteractionUI : MonoBehaviour
         if (parts.Length == 0)
             return;
 
-        keyText.text = parts[0];
-        actionText.text = parts.Length > 1 ? parts[1] : "";
+        // Store the action text.
+        // The button will be determined by this player's controller.
+        currentAction = parts.Length > 1 ? parts[1] : "";
+
+        UpdatePrompt();
 
         if (!gameObject.activeSelf)
             gameObject.SetActive(true);
@@ -54,6 +66,57 @@ public class InteractionUI : MonoBehaviour
         isVisible = true;
         StartAnimation(1f, 1f);
     }
+
+    private void UpdatePrompt()
+    {
+        if (playerInput == null)
+            return;
+
+        string button = GetInteractionButton();
+
+        if (keyText != null)
+            keyText.text = button;
+
+        if (actionText != null)
+            actionText.text = currentAction;
+    }
+    private string GetInteractionButton()
+    {
+        if (playerInput == null)
+            return "?";
+
+        string scheme = playerInput.currentControlScheme;
+
+        // Keyboard controls
+        if (scheme == "Keyboard&Mouse" || scheme == "Keyboard")
+            return "E";
+
+        // Gamepad controls
+        if (scheme == "Gamepad")
+        {
+            foreach (InputDevice device in playerInput.devices)
+            {
+                if (device is Gamepad)
+                {
+                    // Detect PlayStation controllers by their device name.
+                    string deviceName = device.displayName.ToLower();
+
+                    if (deviceName.Contains("dualshock") ||
+                        deviceName.Contains("dualsense") ||
+                        deviceName.Contains("playstation"))
+                    {
+                        return "Cross";
+                    }
+
+                    // Default to Xbox-style controls.
+                    return "A";
+                }
+            }
+        }
+
+        return "?";
+    }
+
 
     public void Hide()
     {
@@ -76,7 +139,9 @@ public class InteractionUI : MonoBehaviour
 
     private IEnumerator AnimatePrompt(float targetAlpha, float targetScale)
     {
-        float startAlpha = canvasGroup.alpha;
+        float startAlpha = canvasGroup != null
+            ? canvasGroup.alpha
+            : 0f;
 
         Vector3 startScale = animatedContent != null
             ? animatedContent.localScale
@@ -90,10 +155,14 @@ public class InteractionUI : MonoBehaviour
         {
             timer += Time.deltaTime;
 
-            float t = Mathf.Clamp01(timer / fadeDuration);
+            float t = fadeDuration > 0f
+                ? Mathf.Clamp01(timer / fadeDuration)
+                : 1f;
+
             t = t * t * (3f - 2f * t);
 
-            canvasGroup.alpha = Mathf.Lerp(startAlpha, targetAlpha, t);
+            if (canvasGroup != null)
+                canvasGroup.alpha = Mathf.Lerp(startAlpha, targetAlpha, t);
 
             if (animatedContent != null)
             {
@@ -104,7 +173,8 @@ public class InteractionUI : MonoBehaviour
             yield return null;
         }
 
-        canvasGroup.alpha = targetAlpha;
+        if (canvasGroup != null)
+            canvasGroup.alpha = targetAlpha;
 
         if (animatedContent != null)
             animatedContent.localScale = endScale;
