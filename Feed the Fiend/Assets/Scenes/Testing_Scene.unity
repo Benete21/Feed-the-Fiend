@@ -3522,6 +3522,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 246820017}
   m_CullTransparentMesh: 1
+--- !u!1 &248836797
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 248836798}
+  m_Layer: 0
+  m_Name: DustPoint_Chef
+  m_TagString: Untagged
+  m_Icon: {fileID: 7250588514170254948, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &248836798
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 248836797}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.022, y: -0.624, z: -0.04}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1660470054}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &250592717
 GameObject:
   m_ObjectHideFlags: 0
@@ -27241,7 +27272,7 @@ RectTransform:
   m_Father: {fileID: 2045452113}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -27874,7 +27905,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!23 &1642685821
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -28389,6 +28420,7 @@ GameObject:
   - component: {fileID: 1660470059}
   - component: {fileID: 1660470060}
   - component: {fileID: 1660470061}
+  - component: {fileID: 1660470062}
   m_Layer: 0
   m_Name: Chef
   m_TagString: Chef
@@ -28468,6 +28500,7 @@ Transform:
   m_Children:
   - {fileID: 1155758643}
   - {fileID: 391919060}
+  - {fileID: 248836798}
   - {fileID: 1017333990}
   - {fileID: 2014965827}
   m_Father: {fileID: 0}
@@ -28756,6 +28789,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStatus
   slowMultiplier: 0.5
+--- !u!114 &1660470062
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1660470050}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 049b346aaa85e914583d513c8ba260b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Trail_Effect_Player
+  dustPrefab: {fileID: 2014141662043722474, guid: dd976443e7b84094293afe1f383ae653, type: 3}
+  dustPoint: {fileID: 248836798}
+  movementThreshold: 0.01
+  dustInterval: 0.12
+  particlesPerPuff: 4
 --- !u!1 &1662327042
 GameObject:
   m_ObjectHideFlags: 0
@@ -35390,7 +35440,7 @@ RectTransform:
   m_Father: {fileID: 468651544}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
