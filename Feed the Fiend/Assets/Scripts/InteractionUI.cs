@@ -39,9 +39,17 @@ public class InteractionUI : MonoBehaviour
         gameObject.SetActive(false);
     }
 
+    private void Update()
+    {
+        if (isVisible)
+            UpdatePrompt();
+    }
+
     public void Show(string message)
     {
-        // Expected format: "E  COOK" or "A  PICK UP"
+        if (string.IsNullOrWhiteSpace(message))
+            return;
+
         string[] parts = message.Split(
             new char[] { ' ' },
             2,
@@ -51,14 +59,16 @@ public class InteractionUI : MonoBehaviour
         if (parts.Length == 0)
             return;
 
-        // Store the action text.
-        // The button will be determined by this player's controller.
+        // Keep the action supplied by the interaction script.
         currentAction = parts.Length > 1 ? parts[1] : "";
 
-        UpdatePrompt();
+        if (actionText != null)
+            actionText.text = currentAction;
 
         if (!gameObject.activeSelf)
             gameObject.SetActive(true);
+
+        UpdatePrompt();
 
         if (isVisible)
             return;
@@ -69,17 +79,10 @@ public class InteractionUI : MonoBehaviour
 
     private void UpdatePrompt()
     {
-        if (playerInput == null)
-            return;
-
-        string button = GetInteractionButton();
-
         if (keyText != null)
-            keyText.text = button;
-
-        if (actionText != null)
-            actionText.text = currentAction;
+            keyText.text = GetInteractionButton();
     }
+
     private string GetInteractionButton()
     {
         if (playerInput == null)
@@ -87,18 +90,15 @@ public class InteractionUI : MonoBehaviour
 
         string scheme = playerInput.currentControlScheme;
 
-        // Keyboard controls
         if (scheme == "Keyboard&Mouse" || scheme == "Keyboard")
             return "E";
 
-        // Gamepad controls
         if (scheme == "Gamepad")
         {
             foreach (InputDevice device in playerInput.devices)
             {
                 if (device is Gamepad)
                 {
-                    // Detect PlayStation controllers by their device name.
                     string deviceName = device.displayName.ToLower();
 
                     if (deviceName.Contains("dualshock") ||
@@ -108,7 +108,6 @@ public class InteractionUI : MonoBehaviour
                         return "Cross";
                     }
 
-                    // Default to Xbox-style controls.
                     return "A";
                 }
             }
@@ -116,7 +115,6 @@ public class InteractionUI : MonoBehaviour
 
         return "?";
     }
-
 
     public void Hide()
     {
