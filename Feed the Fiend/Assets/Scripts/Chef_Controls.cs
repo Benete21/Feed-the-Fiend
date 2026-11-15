@@ -44,6 +44,12 @@ public class Chef_Controls : MonoBehaviour
     [Header("Order Inventory")]
     [SerializeField] private Chef_Order_Inventory orderInventory;
 
+    [Header("Animations")]
+    [SerializeField] private Animator animator;
+
+    private bool isWalking;
+    private bool isHolding;
+
     private void Awake()
     {
         playerStatus = GetComponent<PlayerStatus>();
@@ -52,6 +58,9 @@ public class Chef_Controls : MonoBehaviour
             playerStatus = GetComponentInParent<PlayerStatus>();
 
         playerColliders = GetComponentsInChildren<Collider>();
+
+        if (animator == null)
+            animator = GetComponentInChildren<Animator>();
     }
 
     private void Update()
@@ -85,6 +94,8 @@ public class Chef_Controls : MonoBehaviour
             heldObj.transform.position = hold.position;
             heldObj.transform.rotation = hold.rotation;
         }
+
+        UpdateAnimations();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -372,7 +383,9 @@ public class Chef_Controls : MonoBehaviour
 
         foreach (Collider hit in hits)
         {
-            if (!hit.CompareTag("Item"))
+            if (!hit.CompareTag("Item") &&
+                !hit.CompareTag("Food") &&
+                !hit.CompareTag("Ingredient"))
                 continue;
 
             Rigidbody rb = hit.attachedRigidbody;
@@ -572,7 +585,7 @@ public class Chef_Controls : MonoBehaviour
 
             if (dropoff != null)
             {
-                interactionPrompt.Show("Y  VIEW ORDERS");
+                interactionPrompt.Show("X  VIEW ORDERS");
                 return;
             }
         }
@@ -586,7 +599,7 @@ public class Chef_Controls : MonoBehaviour
         {
             if (cookingStation.IsReadyToCollect())
             {
-                interactionPrompt.Show("A  PICK UP");
+                interactionPrompt.Show("B  PICK UP");
                 return;
             }
 
@@ -598,7 +611,7 @@ public class Chef_Controls : MonoBehaviour
 
             if (cookingStation.IsReadyToCook())
             {
-                interactionPrompt.Show("B  COOK");
+                interactionPrompt.Show("A  COOK");
                 return;
             }
         }
@@ -612,7 +625,7 @@ public class Chef_Controls : MonoBehaviour
         {
             if (prepStation.HasIngredients())
             {
-                interactionPrompt.Show("B  PREPARE");
+                interactionPrompt.Show("A  PREPARE");
                 return;
             }
         }
@@ -644,7 +657,9 @@ public class Chef_Controls : MonoBehaviour
 
         foreach (Collider hit in hits)
         {
-            if (hit.CompareTag("Item"))
+            if (hit.CompareTag("Item") ||
+                hit.CompareTag("Food") ||
+                hit.CompareTag("Ingredient"))
             {
                 interactionPrompt.Show("B  PICK UP");
                 return;
@@ -755,5 +770,19 @@ public class Chef_Controls : MonoBehaviour
         }
 
         return null;
+    }
+    private void UpdateAnimations()
+    {
+        if (animator == null)
+        {
+            Debug.LogWarning("Chef Animator is missing!");
+            return;
+        }
+
+        isHolding = heldObj != null;
+        isWalking = moveInput.sqrMagnitude > 0.01f && !isHolding;
+
+        animator.SetBool("isWalking", isWalking);
+        animator.SetBool("isHolding", isHolding);
     }
 }
