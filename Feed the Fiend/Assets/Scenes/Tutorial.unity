@@ -18105,6 +18105,7 @@ MonoBehaviour:
   orderSlipUIPrefab: {fileID: 1763076267427154549, guid: e197aed7de8efcf44b49cba0ef977b4d, type: 3}
   interactionPrompt: {fileID: 502018566}
   interactionRange: 2.5
+  animator: {fileID: 0}
 --- !u!114 &1642685829
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18610,6 +18611,7 @@ MonoBehaviour:
   interactionRange: 2.5
   recipe_Book: {fileID: 0}
   orderInventory: {fileID: 2062736656}
+  animator: {fileID: 0}
 --- !u!1 &1662327042
 GameObject:
   m_ObjectHideFlags: 0
@@ -27983,8 +27985,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1.1413271, z: 1}
-  m_Center: {x: 0, y: 0.070663705, z: 0}
+  m_Size: {x: 1, y: 0.41166642, z: 0.17046358}
+  m_Center: {x: 0, y: 0.43549332, z: -0.03786741}
 --- !u!114 &2020617778
 MonoBehaviour:
   m_ObjectHideFlags: 0
