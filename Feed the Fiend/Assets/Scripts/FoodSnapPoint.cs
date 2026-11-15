@@ -20,14 +20,26 @@ public class FoodSnapPoint : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        // Only accept objects with the Food tag.
         if (currentFood != null)
             return;
 
-        if (!other.CompareTag("Food"))
-            return;
+        // Search the collider object and its parents for the Food tag.
+        Transform current = other.transform;
 
-        SnapFood(other.gameObject);
+        while (current != null)
+        {
+            if (current.CompareTag("Food"))
+            {
+                Debug.Log("Food detected by handoff point: " + current.name);
+
+                SnapFood(current.gameObject);
+                return;
+            }
+
+            current = current.parent;
+        }
+
+        Debug.Log("Object rejected by handoff point: " + other.name);
     }
 
     private void SnapFood(GameObject food)
