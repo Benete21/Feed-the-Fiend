@@ -212,8 +212,6 @@ public class Cooking_Station : MonoBehaviour
 
         Debug.Log("Food collected at its current cookedness.");
 
-        if (audioManager != null)
-            audioManager.StopCookingFood();
     }
 
     private void UpdateCookingTimer()
@@ -229,6 +227,10 @@ public class Cooking_Station : MonoBehaviour
 
             if (foodOnStove == null)
                 return;
+
+
+            if (audioManager != null)
+                audioManager.StopCookingFood();
         }
 
         // Gradually darken the finished food as it burns.
@@ -334,6 +336,10 @@ public class Cooking_Station : MonoBehaviour
         ApplyCookedness(0f);
 
         Debug.Log("Food is perfectly cooked!");
+
+
+        if (audioManager != null)
+            audioManager.StopCookingFood();
     }
 
     private void ApplyCookedness(float darkness)
@@ -386,9 +392,6 @@ public class Cooking_Station : MonoBehaviour
             else
                 cookingText.text = "BURNT!";
         }
-
-        if (audioManager != null)
-            audioManager.StopCookingFood();
     }
 
     public GameObject TryTakeFood()

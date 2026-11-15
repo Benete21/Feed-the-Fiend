@@ -49,10 +49,10 @@ public class AudioManager : MonoBehaviour
 
     public void PlayCookingFood()
     {
-        if (!preparingFoodSource.isPlaying)
+        if (!cookingFoodSource.isPlaying)
         {
             cookingFoodSource.clip = cookingFood;
-            cookingFoodSource.loop = true;
+            cookingFoodSource.loop = false;
             cookingFoodSource.Play();
         }
     }

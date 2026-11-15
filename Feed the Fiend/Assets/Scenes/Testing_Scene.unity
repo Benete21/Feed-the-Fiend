@@ -70250,7 +70250,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 5be8a415e4a60b344b904d1b8d2aac53, type: 3}
+  m_Sprite: {fileID: 21300000, guid: e5db684ba1b93b34d945c4f1fc385f53, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -82412,8 +82412,8 @@ MonoBehaviour:
   winScreenMusic: {fileID: 0}
   monsterAttackingWaiter: {fileID: 0}
   preparingFood: {fileID: 8300000, guid: 06ea217b5f4bdcf4ba3eba6a8460c577, type: 3}
-  cookingFood: {fileID: 8300000, guid: 7ffeb07f31403a142883dcb194af289d, type: 3}
-  monsterMoving: {fileID: 8300000, guid: 6fa88d2cf2debcd4f9a98ed940803f19, type: 3}
+  cookingFood: {fileID: 8300000, guid: 4d6a9b3cfc6fd1b4cb10727bb8b1de8f, type: 3}
+  monsterMoving: {fileID: 8300000, guid: 2aa66db2025985e4d9efe3260c09fd64, type: 3}
   monsterEnter: {fileID: 8300000, guid: 0d6e0d0b1c627394cb2a150e952bbf25, type: 3}
   preparingFoodSource: {fileID: 1483186735}
   cookingFoodSource: {fileID: 1483186735}
