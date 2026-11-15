@@ -14,7 +14,9 @@ public class AudioManager : MonoBehaviour
     public AudioClip winScreenMusic;
     public AudioClip monsterAttackingWaiter;
     public AudioClip preparingFood;
+    public AudioClip cookingFood;
     public AudioClip monsterMoving;
+    public AudioClip monsterEnter;
 
     private void Start()
     {
@@ -23,6 +25,9 @@ public class AudioManager : MonoBehaviour
     }
 
     public AudioSource preparingFoodSource;
+    public AudioSource cookingFoodSource;
+    public AudioSource monsterEnterSource;
+
 
     public void PlayPreparingFood()
     {
@@ -42,6 +47,33 @@ public class AudioManager : MonoBehaviour
         }
     }
 
+    public void PlayCookingFood()
+    {
+        if (!preparingFoodSource.isPlaying)
+        {
+            cookingFoodSource.clip = cookingFood;
+            cookingFoodSource.loop = true;
+            cookingFoodSource.Play();
+        }
+    }
+    public void StopCookingFood()
+    {
+        if (cookingFoodSource.isPlaying)
+        {
+            cookingFoodSource.Stop();
+        }
+    }
+
+    public void playMonsterEnter()
+    {
+        if (!preparingFoodSource.isPlaying)
+        {
+            monsterEnterSource.clip = monsterEnter;
+            monsterEnterSource.loop = false;
+            monsterEnterSource.Play();
+        }
+    }
+
     public void PlayMonsterMove()
     {
         // Only play if the previous clip has completely finished
@@ -52,6 +84,8 @@ public class AudioManager : MonoBehaviour
             monsterMoveSource.Play();
         }
     }
+
+   
 
     public void StopMonsterMove()
     {

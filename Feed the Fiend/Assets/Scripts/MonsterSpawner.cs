@@ -69,6 +69,17 @@ public class MonsterSpawner : MonoBehaviour
 
     private GameObject[] currentMonsterPrefabs;
 
+    private AudioManager audioManager;
+
+    private void Awake()
+    {
+        GameObject audioObject =
+            GameObject.FindGameObjectWithTag("Audio");
+
+        if (audioObject != null)
+            audioManager = audioObject.GetComponent<AudioManager>();
+    }
+
     void Start()
     {
         StartNewDay(currentDay);
@@ -187,6 +198,11 @@ public class MonsterSpawner : MonoBehaviour
             hit.position,
             entranceSpawnPoint.rotation
         );
+
+        if (audioManager != null)
+            audioManager.playMonsterEnter();
+
+
 
         MonsterAI monsterAI = monster.GetComponent<MonsterAI>();
 

@@ -82408,12 +82408,16 @@ MonoBehaviour:
   musicSource: {fileID: 1792051959}
   SFXSource: {fileID: 1483186735}
   monsterMoveSource: {fileID: 1483186735}
-  background: {fileID: 0}
+  background: {fileID: 8300000, guid: 5a74f20d975c4234fb9907f086473bc4, type: 3}
   winScreenMusic: {fileID: 0}
   monsterAttackingWaiter: {fileID: 0}
-  preparingFood: {fileID: 8300000, guid: 7ffeb07f31403a142883dcb194af289d, type: 3}
+  preparingFood: {fileID: 8300000, guid: 06ea217b5f4bdcf4ba3eba6a8460c577, type: 3}
+  cookingFood: {fileID: 8300000, guid: 7ffeb07f31403a142883dcb194af289d, type: 3}
   monsterMoving: {fileID: 8300000, guid: 6fa88d2cf2debcd4f9a98ed940803f19, type: 3}
+  monsterEnter: {fileID: 8300000, guid: 0d6e0d0b1c627394cb2a150e952bbf25, type: 3}
   preparingFoodSource: {fileID: 1483186735}
+  cookingFoodSource: {fileID: 1483186735}
+  monsterEnterSource: {fileID: 1483186735}
 --- !u!4 &1707939559
 Transform:
   m_ObjectHideFlags: 0
@@ -85909,7 +85913,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.05
   m_Pitch: 1
   Loop: 1
   Mute: 0

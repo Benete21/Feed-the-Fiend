@@ -46,6 +46,17 @@ public class Cooking_Station : MonoBehaviour
     public bool HasFoodOnStove => foodOnStove != null;
     public bool IsCooking => isCooking;
 
+    private AudioManager audioManager;
+
+    private void Awake()
+    {
+        GameObject audioObject =
+            GameObject.FindGameObjectWithTag("Audio");
+
+        if (audioObject != null)
+            audioManager = audioObject.GetComponent<AudioManager>();
+    }
+
     private void Start()
     {
         if (cookingUI != null)
@@ -179,6 +190,9 @@ public class Cooking_Station : MonoBehaviour
         UpdateCookingUI();
 
         Debug.Log("Cooking started: " + ingredient.ingredientType);
+
+        if (audioManager != null)
+            audioManager.PlayCookingFood();
     }
 
     private void TryCollectFood()
@@ -197,6 +211,9 @@ public class Cooking_Station : MonoBehaviour
             cookingUI.SetActive(false);
 
         Debug.Log("Food collected at its current cookedness.");
+
+        if (audioManager != null)
+            audioManager.StopCookingFood();
     }
 
     private void UpdateCookingTimer()
@@ -275,6 +292,7 @@ public class Cooking_Station : MonoBehaviour
 
             ResetStation();
             return;
+
         }
 
         Vector3 position = foodOnStove.transform.position;
@@ -306,6 +324,8 @@ public class Cooking_Station : MonoBehaviour
         }
 
         hasBecomeCookedFood = true;
+
+
 
         foodRenderers =
             foodOnStove.GetComponentsInChildren<Renderer>();
@@ -366,6 +386,9 @@ public class Cooking_Station : MonoBehaviour
             else
                 cookingText.text = "BURNT!";
         }
+
+        if (audioManager != null)
+            audioManager.StopCookingFood();
     }
 
     public GameObject TryTakeFood()
@@ -393,6 +416,7 @@ public class Cooking_Station : MonoBehaviour
         Debug.Log("Food collected from cooking station.");
 
         return result;
+
     }
 
     private void ResetStation()
