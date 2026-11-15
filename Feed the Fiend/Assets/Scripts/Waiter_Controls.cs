@@ -30,6 +30,11 @@ public class Waiter_Controls : MonoBehaviour
     [SerializeField] private InteractionUI interactionPrompt;
     [SerializeField] private float interactionRange = 2.5f;
 
+    [Header("Animations")]
+    [SerializeField] private Animator animator;
+
+    private bool isWalking;
+    private bool isHolding;
 
     private Order_Slip currentSlip;
     private PlayerStatus playerStatus;
@@ -42,12 +47,15 @@ public class Waiter_Controls : MonoBehaviour
             playerStatus = GetComponentInParent<PlayerStatus>();
 
         playerColliders = GetComponentsInChildren<Collider>();
+
+        if (animator == null)
+            animator = GetComponentInChildren<Animator>();
     }
 
     private void Update()
     {
-
         CheckForInteraction();
+
         Vector3 move = new Vector3(moveInput.x, 0, moveInput.y);
 
         float currentSpeed = moveSpeed;
@@ -62,13 +70,21 @@ public class Waiter_Controls : MonoBehaviour
         if (move != Vector3.zero)
         {
             Quaternion targetRotation = Quaternion.LookRotation(move);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotateSpeed * Time.deltaTime);
+
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                targetRotation,
+                rotateSpeed * Time.deltaTime
+            );
         }
-        if (heldObj != null)
+
+        if (heldObj != null && hold != null)
         {
             heldObj.transform.position = hold.position;
             heldObj.transform.rotation = hold.rotation;
         }
+
+        UpdateAnimations();
     }
 
     public void OnMovement(InputAction.CallbackContext context)
@@ -567,6 +583,18 @@ public class Waiter_Controls : MonoBehaviour
 
         Debug.Log("Move closer to the order drop-off counter.");
         return false;
+    }
+
+    private void UpdateAnimations()
+    {
+        if (animator == null)
+            return;
+
+        isHolding = heldObj != null;
+        isWalking = moveInput.sqrMagnitude > 0.01f;
+
+        animator.SetBool("isWalking", isWalking);
+        animator.SetBool("isHolding", isHolding);
     }
 
 }
