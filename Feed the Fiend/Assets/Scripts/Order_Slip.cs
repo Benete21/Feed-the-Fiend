@@ -1,3 +1,4 @@
+
 using TMPro;
 using UnityEngine;
 
@@ -11,8 +12,10 @@ public class Order_Slip : MonoBehaviour
 
         foreach (Food_Types food in order)
         {
-            orderText.text += food + "\n";
+            string displayName = food.ToString()
+                .Replace("_", " ");
+
+            orderText.text += displayName + "\n";
         }
     }
 }
-
