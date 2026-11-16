@@ -609,7 +609,7 @@ public class Chef_Controls : MonoBehaviour
 
             if (dropoff != null)
             {
-                interactionPrompt.Show("X  VIEW ORDERS");
+                interactionPrompt.Show("Y  VIEW ORDERS");
                 return;
             }
         }

@@ -139,6 +139,7 @@ public class Cooking_Station : MonoBehaviour
         }
 
         hasBecomeCookedFood = false;
+        cookingTimer = 0f;
 
         Debug.Log("Ingredient placed on stove: " +
                   ingredient.ingredientType);
@@ -201,15 +202,9 @@ public class Cooking_Station : MonoBehaviour
             return;
         }
 
-        isCooking = false;
-
-        if (audioManager != null)
-            audioManager.StopCookingFood();
-
-        if (cookingUI != null)
-            cookingUI.SetActive(false);
-
-        Debug.Log("Food collected at its current cookedness.");
+        // Keep cooking and the sound running.
+        // The chef must pick up the food to stop it.
+        Debug.Log("Food is ready to be collected!");
     }
 
     private void UpdateCookingTimer()
@@ -239,6 +234,7 @@ public class Cooking_Station : MonoBehaviour
             if (cookingUI != null)
                 cookingUI.SetActive(false);
 
+            // Stop sound because food has burnt.
             if (audioManager != null)
                 audioManager.StopCookingFood();
 
@@ -248,8 +244,6 @@ public class Cooking_Station : MonoBehaviour
 
     private CookableFood GetCurrentRecipe()
     {
-        // Keep using the recipe selected when the raw ingredient was placed.
-        // The cooked prefab may not have an Ingredient_Item component.
         return currentRecipe;
     }
 
@@ -260,7 +254,6 @@ public class Cooking_Station : MonoBehaviour
         if (recipe == null || recipe.cookedFoodPrefab == null)
         {
             Debug.LogWarning("Cooked food prefab is missing.");
-
             ResetStation();
             return;
         }
@@ -269,8 +262,8 @@ public class Cooking_Station : MonoBehaviour
 
         hasBecomeCookedFood = true;
 
-        if (audioManager != null)
-            audioManager.StopCookingFood();
+        // Do not stop the cooking sound here.
+        // It continues until collection or burning.
 
         Debug.Log("Food is perfectly cooked!");
     }
@@ -281,17 +274,22 @@ public class Cooking_Station : MonoBehaviour
 
         if (recipe == null)
         {
-            Debug.LogWarning("Cannot burn food: no cooking recipe is assigned to this ingredient.");
+            Debug.LogWarning("Cannot burn food: no cooking recipe is assigned.");
             return;
         }
 
         if (recipe.burntFoodPrefab == null)
         {
-            Debug.LogWarning("Burnt food prefab is missing for recipe: " + recipe.rawIngredeitnsType);
+            Debug.LogWarning(
+                "Burnt food prefab is missing for recipe: " +
+                recipe.rawIngredeitnsType
+            );
             return;
         }
 
         ReplaceFoodPrefab(recipe.burntFoodPrefab);
+
+        hasBecomeCookedFood = false;
 
         Debug.Log("Food replaced with burnt prefab!");
     }
@@ -344,7 +342,7 @@ public class Cooking_Station : MonoBehaviour
             if (cookingTimer < perfectCookTime)
                 cookingText.text = "Cooking...";
             else if (cookingTimer < burnTime)
-                cookingText.text = "PERFECT! Press Prep!";
+                cookingText.text = "PERFECT! Press B to collect!";
             else
                 cookingText.text = "BURNT!";
         }
@@ -352,11 +350,23 @@ public class Cooking_Station : MonoBehaviour
 
     public GameObject TryTakeFood()
     {
-        if (!playerNearby || isCooking || foodOnStove == null)
+        if (!playerNearby ||
+            foodOnStove == null ||
+            !hasBecomeCookedFood)
             return null;
+
+        // Stop cooking when chef collects the food.
+        isCooking = false;
+
+        if (audioManager != null)
+            audioManager.StopCookingFood();
+
+        if (cookingUI != null)
+            cookingUI.SetActive(false);
 
         GameObject result = foodOnStove;
 
+        // Clear the station.
         foodOnStove = null;
         currentRecipe = null;
         hasBecomeCookedFood = false;
@@ -370,9 +380,11 @@ public class Cooking_Station : MonoBehaviour
         {
             rb.isKinematic = false;
             rb.useGravity = true;
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
         }
 
-        Debug.Log("Food collected from cooking station.");
+        Debug.Log("Perfectly cooked food collected!");
 
         return result;
     }
@@ -416,7 +428,6 @@ public class Cooking_Station : MonoBehaviour
     public bool IsReadyToCollect()
     {
         return foodOnStove != null &&
-               !isCooking &&
                hasBecomeCookedFood;
     }
 }

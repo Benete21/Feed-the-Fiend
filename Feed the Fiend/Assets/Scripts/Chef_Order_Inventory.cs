@@ -43,7 +43,7 @@ public class Chef_Order_Inventory : MonoBehaviour
 
         if (foodOrder == null || foodOrder.Length == 0)
         {
-            Debug.LogWarning("Cannot receive an empty order.");
+            Debug.LogWarning("Cannot receive an empty order");
             return false;
         }
 
@@ -127,11 +127,11 @@ public class Chef_Order_Inventory : MonoBehaviour
                 string foodName = entry.food.ToString()
                     .Replace("_", " ");
 
-                text.AppendLine((i + 1) + ". " + foodName);
+                text.AppendLine((i + 1) + " " + foodName);
             }
             else
             {
-                text.AppendLine((i + 1) + ". Empty");
+                text.AppendLine((i + 1) + " Empty");
             }
         }
 
