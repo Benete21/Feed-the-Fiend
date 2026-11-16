@@ -78437,20 +78437,12 @@ MonoBehaviour:
   dayStartingDuration: 3
   Day1Finish: {fileID: 1182153932}
   Day2Finish: {fileID: 2087229021}
-  Day3Finish: {fileID: 1447237792}
   finishScreenDuration: 3
   dayDialogue: {fileID: 1662327045}
   minSpawn: 30
   maxSpawn: 50
   tables:
   - {fileID: 1883288311}
-  - {fileID: 1203589084}
-  - {fileID: 980208733}
-  - {fileID: 879739072}
-  - {fileID: 460691449}
-  - {fileID: 24086630}
-  - {fileID: 414401472}
-  - {fileID: 341402863}
   navMeshSearchRadius: 3
   dayText: {fileID: 1245073719}
   monsterText: {fileID: 1172412400}
