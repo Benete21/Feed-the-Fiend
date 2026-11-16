@@ -106,6 +106,7 @@ public class PlayerHP : MonoBehaviour
     }
 
 
+
     private void Die()
     {
         if (isStunned)
@@ -115,19 +116,23 @@ public class PlayerHP : MonoBehaviour
 
         isStunned = true;
 
-        if (audioManager != null)
-        {
-            Debug.Log("Playing waiter stunned sound!");
-            audioManager.PlayWaiterStunned();
-        }
-
         // Disable player movement
         DisablePlayerMovement();
 
-        // Play stun particles
+        // Play stun particles and audio together
         if (stunParticles != null)
         {
             stunParticles.Play();
+        }
+
+        if (audioManager != null)
+        {
+            audioManager.PlayWaiterStunned();
+            Debug.Log("Waiter stunned sound triggered alongside particles!");
+        }
+        else
+        {
+            Debug.LogError("AudioManager is missing!");
         }
 
         // Stop player physics movement
