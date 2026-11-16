@@ -1,9 +1,9 @@
+
 using UnityEngine;
 using UnityEngine.AI;
 
 public class MonsterAblilty : MonoBehaviour
 {
-
     public enum AbilityType
     {
         None,
@@ -84,7 +84,30 @@ public class MonsterAblilty : MonoBehaviour
         Vector3 position = transform.position;
         position.y += groundOffset;
 
-        Instantiate(prefab, position, Quaternion.identity);
+        GameObject spawnedTrail = Instantiate(
+            prefab,
+            position,
+            Quaternion.identity
+        );
+
+        Trail_Screen_Effect trailEffect =
+            spawnedTrail.GetComponent<Trail_Screen_Effect>();
+
+        if (trailEffect != null)
+        {
+            if (ability == AbilityType.ToxicTrail)
+            {
+                trailEffect.SetTrailType(
+                    Trail_Screen_Effect.TrailType.Toxic
+                );
+            }
+            else if (ability == AbilityType.FireTrail)
+            {
+                trailEffect.SetTrailType(
+                    Trail_Screen_Effect.TrailType.Fire
+                );
+            }
+        }
 
         lastDropPosition = transform.position;
         dropTimer = 0f;

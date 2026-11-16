@@ -53,8 +53,6 @@ public class FoodSnapPoint : MonoBehaviour
             ? snapPoint
             : transform;
 
-        Vector3 originalScale = food.transform.lossyScale;
-
         Rigidbody rb = food.GetComponent<Rigidbody>();
 
         if (rb != null)
@@ -65,18 +63,12 @@ public class FoodSnapPoint : MonoBehaviour
             rb.useGravity = false;
         }
 
+        // Preserve the food's original world scale.
         food.transform.SetParent(target, true);
 
+        // Snap position and rotation without changing scale.
         food.transform.position = target.position;
         food.transform.rotation = target.rotation;
-
-        Vector3 parentScale = target.lossyScale;
-
-        food.transform.localScale = new Vector3(
-            parentScale.x != 0 ? originalScale.x / parentScale.x : originalScale.x,
-            parentScale.y != 0 ? originalScale.y / parentScale.y : originalScale.y,
-            parentScale.z != 0 ? originalScale.z / parentScale.z : originalScale.z
-        );
 
         Debug.Log("FOOD SNAPPED: " + food.name);
     }
@@ -89,6 +81,7 @@ public class FoodSnapPoint : MonoBehaviour
         GameObject food = currentFood;
         currentFood = null;
 
+        // Preserve its world scale when removing it from the snap point.
         food.transform.SetParent(null, true);
 
         Rigidbody rb = food.GetComponent<Rigidbody>();
