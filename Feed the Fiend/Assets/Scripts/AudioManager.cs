@@ -32,6 +32,13 @@ public class AudioManager : MonoBehaviour
     public AudioSource dayCompleteSource;
     public AudioSource waiterStunnedSource;
 
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            PlayWaiterStunned();
+        }
+    }
 
     public void PlayPreparingFood()
     {
@@ -90,9 +97,10 @@ public class AudioManager : MonoBehaviour
 
     public void PlayWaiterStunned()
     {
-        if (waiterStunned != null && SFXSource != null)
+        if (waiterStunnedSource != null && waiterStunned != null)
         {
-            SFXSource.PlayOneShot(waiterStunned);
+            waiterStunnedSource.PlayOneShot(waiterStunned);
+            Debug.Log("Waiter stunned audio playing!");
         }
     }
 
