@@ -3348,14 +3348,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Cooking_Station
   cookableFoods:
   - rawIngredeitnsType: 0
-    finishedFoodPrefab: {fileID: 0}
+    cookedFoodPrefab: {fileID: 8928249166479819226, guid: 31296a8d5786db145bbfdf9eaf5cba2a, type: 3}
+    burntFoodPrefab: {fileID: 8928249166479819226, guid: dadf20bd6b5088546bcf9498cda2daaf, type: 3}
   - rawIngredeitnsType: 1
-    finishedFoodPrefab: {fileID: 0}
+    cookedFoodPrefab: {fileID: 7811312227833260416, guid: 0e9c2202f1db15c4ea43f424b20a3f09, type: 3}
+    burntFoodPrefab: {fileID: 7811312227833260416, guid: b8bf34c113a0bb3459bac333b572d0d5, type: 3}
   - rawIngredeitnsType: 2
-    finishedFoodPrefab: {fileID: 0}
+    cookedFoodPrefab: {fileID: 7811312227833260416, guid: e4649c9e0aac202469bdebc8284a6ab2, type: 3}
+    burntFoodPrefab: {fileID: 7811312227833260416, guid: f6a229d96af28e2499a8f1d5d8b95959, type: 3}
   perfectCookTime: 5
   burnTime: 8
-  burntDarkness: 0.639
   foodPoint: {fileID: 390484248}
   cookingUI: {fileID: 2143751782}
   cookingBar: {fileID: 1904239243}
@@ -82614,7 +82616,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1718993927}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -7.5}
+  m_LocalPosition: {x: 0, y: 0, z: -8.76}
   m_LocalScale: {x: 0.024193, y: 0.024193, z: 0.024193}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -82622,7 +82624,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -10.77, y: -13.62}
+  m_AnchoredPosition: {x: -10.77, y: -12.469998}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1718993929
@@ -92054,7 +92056,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1904239241}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -7.07}
+  m_LocalPosition: {x: 0, y: 0, z: -8.33}
   m_LocalScale: {x: 0.0227765, y: 0.0227765, z: 0.0227765}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -92065,7 +92067,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -11.07, y: -14.1}
+  m_AnchoredPosition: {x: -11.07, y: -12.95}
   m_SizeDelta: {x: 160, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1904239243
