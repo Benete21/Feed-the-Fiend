@@ -30,16 +30,22 @@ public class FoodSnapPoint : MonoBehaviour
         {
             if (current.CompareTag("Food"))
             {
-                Debug.Log("Food detected by handoff point: " + current.name);
+                GameObject food = current.gameObject;
 
-                SnapFood(current.gameObject);
+                Rigidbody rb = food.GetComponent<Rigidbody>();
+
+                // Only accept food that has been dropped.
+                if (rb != null && rb.isKinematic)
+                    return;
+
+                Debug.Log("Dropped food detected: " + food.name);
+
+                SnapFood(food);
                 return;
             }
 
             current = current.parent;
         }
-
-        Debug.Log("Object rejected by handoff point: " + other.name);
     }
 
     private void SnapFood(GameObject food)
@@ -63,10 +69,8 @@ public class FoodSnapPoint : MonoBehaviour
             rb.useGravity = false;
         }
 
-        // Preserve the food's original world scale.
         food.transform.SetParent(target, true);
 
-        // Snap position and rotation without changing scale.
         food.transform.position = target.position;
         food.transform.rotation = target.rotation;
 
@@ -81,7 +85,6 @@ public class FoodSnapPoint : MonoBehaviour
         GameObject food = currentFood;
         currentFood = null;
 
-        // Preserve its world scale when removing it from the snap point.
         food.transform.SetParent(null, true);
 
         Rigidbody rb = food.GetComponent<Rigidbody>();
