@@ -24,6 +24,17 @@ public class PlayerHP : MonoBehaviour
     private Rigidbody rb;
     private Waiter_Controls waiter;
 
+    private AudioManager audioManager;
+
+    private void Awake()
+    {
+        GameObject audioObject =
+            GameObject.FindGameObjectWithTag("Audio");
+
+        if (audioObject != null)
+            audioManager = audioObject.GetComponent<AudioManager>();
+    }
+
 
     private void Start()
     {
@@ -103,6 +114,12 @@ public class PlayerHP : MonoBehaviour
         Debug.Log("PLAYER STUNNED!");
 
         isStunned = true;
+
+        if (audioManager != null)
+        {
+            Debug.Log("Playing waiter stunned sound!");
+            audioManager.PlayWaiterStunned();
+        }
 
         // Disable player movement
         DisablePlayerMovement();

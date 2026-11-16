@@ -17,6 +17,8 @@ public class AudioManager : MonoBehaviour
     public AudioClip cookingFood;
     public AudioClip monsterMoving;
     public AudioClip monsterEnter;
+    public AudioClip dayComplete;
+    public AudioClip waiterStunned;
 
     private void Start()
     {
@@ -27,6 +29,8 @@ public class AudioManager : MonoBehaviour
     public AudioSource preparingFoodSource;
     public AudioSource cookingFoodSource;
     public AudioSource monsterEnterSource;
+    public AudioSource dayCompleteSource;
+    public AudioSource waiterStunnedSource;
 
 
     public void PlayPreparingFood()
@@ -71,6 +75,26 @@ public class AudioManager : MonoBehaviour
             monsterEnterSource.clip = monsterEnter;
             monsterEnterSource.loop = false;
             monsterEnterSource.Play();
+        }
+    }
+
+    public void PlayDayComplete()
+    {
+        if (!dayCompleteSource.isPlaying)
+        {
+            dayCompleteSource.clip = dayComplete;
+            dayCompleteSource.loop = false;
+            dayCompleteSource.Play();
+        }
+    }
+
+    public void PlayWaiterStunned()
+    {
+        if (!waiterStunnedSource.isPlaying)
+        {
+            waiterStunnedSource.clip = waiterStunned;
+            waiterStunnedSource.loop = false;
+            waiterStunnedSource.Play();
         }
     }
 

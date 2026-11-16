@@ -79715,9 +79715,13 @@ MonoBehaviour:
   cookingFood: {fileID: 8300000, guid: 4d6a9b3cfc6fd1b4cb10727bb8b1de8f, type: 3}
   monsterMoving: {fileID: 8300000, guid: 2aa66db2025985e4d9efe3260c09fd64, type: 3}
   monsterEnter: {fileID: 8300000, guid: 0d6e0d0b1c627394cb2a150e952bbf25, type: 3}
+  dayComplete: {fileID: 8300000, guid: d9cce50137e381e4f9da5cb627fb03b2, type: 3}
+  waiterStunned: {fileID: 8300000, guid: 098c00020ac1a364aabe817e93ea1528, type: 3}
   preparingFoodSource: {fileID: 1483186735}
   cookingFoodSource: {fileID: 1483186735}
   monsterEnterSource: {fileID: 1483186735}
+  dayCompleteSource: {fileID: 1483186735}
+  waiterStunnedSource: {fileID: 1483186735}
 --- !u!4 &1707939559
 Transform:
   m_ObjectHideFlags: 0

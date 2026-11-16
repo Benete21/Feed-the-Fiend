@@ -130,6 +130,8 @@ public class MonsterSpawner : MonoBehaviour
         {
             StartCoroutine(HandleDayComplete());
             return;
+
+
         }
 
         spawnCoroutine = StartCoroutine(SpawnMonstersOverTime());
@@ -269,6 +271,9 @@ public class MonsterSpawner : MonoBehaviour
         }
 
         Debug.Log("Day " + currentDay + " completed!");
+
+        if (audioManager != null)
+            audioManager.PlayDayComplete();
 
         // Show the correct end-of-day screen.
         GameObject finishScreen = null;
