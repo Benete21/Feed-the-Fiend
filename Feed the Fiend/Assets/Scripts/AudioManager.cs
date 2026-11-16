@@ -90,11 +90,9 @@ public class AudioManager : MonoBehaviour
 
     public void PlayWaiterStunned()
     {
-        if (!waiterStunnedSource.isPlaying)
+        if (waiterStunned != null && SFXSource != null)
         {
-            waiterStunnedSource.clip = waiterStunned;
-            waiterStunnedSource.loop = false;
-            waiterStunnedSource.Play();
+            SFXSource.PlayOneShot(waiterStunned);
         }
     }
 
