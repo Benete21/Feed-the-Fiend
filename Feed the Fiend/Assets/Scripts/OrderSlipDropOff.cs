@@ -1,7 +1,5 @@
 
 using System.Collections.Generic;
-using System.Text;
-using TMPro;
 using UnityEngine;
 
 public class OrderSlipDropOff : MonoBehaviour
@@ -14,7 +12,6 @@ public class OrderSlipDropOff : MonoBehaviour
 
     private readonly List<PhysicalOrderSlip> slips =
         new List<PhysicalOrderSlip>();
-
 
     public bool HasOrders()
     {
@@ -33,25 +30,15 @@ public class OrderSlipDropOff : MonoBehaviour
         if (slips.Contains(slip))
             return false;
 
-        if (slipPositions == null ||
-            slips.Count >= slipPositions.Length)
+        if (slipPositions == null || slipPositions.Length == 0)
         {
-            Debug.LogWarning("Order counter is full!");
+            Debug.LogWarning("No slip positions assigned!");
             return false;
         }
 
-        // Validate the slot before adding anything to inventory.
-        Transform slot = slipPositions[slips.Count];
-
-        if (slot == null)
+        if (chefInventory == null)
         {
-            Debug.LogError("A slip position is missing.");
-            return false;
-        }
-
-        if (chefInventory == null || !chefInventory.HasSpace())
-        {
-            Debug.LogWarning("Chef's inventory is full!");
+            Debug.LogError("Chef inventory is not assigned!");
             return false;
         }
 
@@ -63,7 +50,14 @@ public class OrderSlipDropOff : MonoBehaviour
             return false;
         }
 
-        // Add the order to the chef's inventory immediately.
+        // If the physical slip counter is full, remove the oldest slip.
+        if (slips.Count >= slipPositions.Length)
+        {
+            RemoveOldestSlip();
+        }
+
+        // If chef inventory is full, remove its oldest order.
+        // ReceiveOrder also handles this automatically.
         bool received = chefInventory.ReceiveOrder(
             order,
             slip.TableNumber
@@ -72,8 +66,10 @@ public class OrderSlipDropOff : MonoBehaviour
         if (!received)
             return false;
 
-        // Keep the physical slip on the counter.
+        // Add the new physical slip.
         slips.Add(slip);
+
+        RefreshSlipPositions();
 
         Rigidbody rb = slip.GetComponent<Rigidbody>();
 
@@ -90,37 +86,75 @@ public class OrderSlipDropOff : MonoBehaviour
         if (col != null)
             col.enabled = false;
 
-        slip.transform.SetParent(slot);
-        slip.transform.localPosition = Vector3.zero;
-        slip.transform.localRotation = Quaternion.identity;
-
-
         Debug.Log(
-            "Order added to chef inventory for Table " +
-            slip.TableNumber
+            "New order added for Table " + slip.TableNumber
         );
 
         return true;
     }
 
+    // Removes the oldest physical slip.
+    private void RemoveOldestSlip()
+    {
+        if (slips.Count == 0)
+            return;
+
+        PhysicalOrderSlip oldestSlip = slips[0];
+
+        if (oldestSlip != null)
+        {
+            int oldTableNumber = oldestSlip.TableNumber;
+
+            // Remove its corresponding chef inventory order.
+            chefInventory.CompleteOrderForTable(oldTableNumber);
+
+            Destroy(oldestSlip.gameObject);
+
+            Debug.Log(
+                "Removed oldest physical slip from Table " +
+                oldTableNumber
+            );
+        }
+
+        slips.RemoveAt(0);
+
+        RefreshSlipPositions();
+    }
+
+    // Reorganises the remaining slips after one is removed.
+    private void RefreshSlipPositions()
+    {
+        CleanupSlips();
+
+        for (int i = 0; i < slips.Count; i++)
+        {
+            if (slips[i] == null || slipPositions[i] == null)
+                continue;
+
+            slips[i].transform.SetParent(slipPositions[i]);
+            slips[i].transform.localPosition = Vector3.zero;
+            slips[i].transform.localRotation = Quaternion.identity;
+        }
+    }
 
     private void CleanupSlips()
     {
         slips.RemoveAll(slip => slip == null);
     }
 
- 
     public void RemoveSlipForTable(int tableNumber)
     {
         for (int i = slips.Count - 1; i >= 0; i--)
         {
             PhysicalOrderSlip slip = slips[i];
 
-            if (slip != null &&
-                slip.TableNumber == tableNumber)
+            if (slip != null && slip.TableNumber == tableNumber)
             {
                 slips.RemoveAt(i);
                 Destroy(slip.gameObject);
+
+                RefreshSlipPositions();
+
                 break;
             }
         }
