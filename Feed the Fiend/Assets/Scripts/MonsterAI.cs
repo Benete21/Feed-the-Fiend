@@ -1,5 +1,8 @@
+
 using UnityEngine;
 using UnityEngine.AI;
+using System.Collections;
+using System.Collections.Generic;
 
 public class MonsterAI : MonoBehaviour
 {
@@ -12,6 +15,19 @@ public class MonsterAI : MonoBehaviour
     public NavMeshAgent agent;
     public float walkSpeed = 2f;
     public float berserkSpeed = 5f;
+
+    [Header("Animations")]
+    [SerializeField] private Animator animator;
+
+    private bool isWalking;
+    private bool isSitting;
+
+    [Header("Sitting")]
+    [SerializeField] private float sittingRotationSpeed = 360f;
+
+    [Header("Chair Assignment")]
+    [SerializeField] private float chairRetryInterval = 2f;
+    private float chairRetryTimer;
 
     [Header("Wandering")]
     public bool wanderBeforeTable = true;
@@ -30,6 +46,7 @@ public class MonsterAI : MonoBehaviour
     public int assignedTableNumber = -1;
 
     private RestrauntTable assignedTable;
+    private Transform assignedChair;
 
     private bool hasReachedTable = false;
     public CustomerOrder order;
@@ -45,8 +62,6 @@ public class MonsterAI : MonoBehaviour
 
     [Header("Berserk")]
     public bool isBerserk = false;
-
-    // How long the monster can remain berserk
     public float berserkTimeLimit = 40f;
 
     private float berserkTimer;
@@ -69,19 +84,20 @@ public class MonsterAI : MonoBehaviour
 
     void Awake()
     {
-        audioManager =
-            GameObject.FindGameObjectWithTag("Audio")
-            .GetComponent<AudioManager>();
+        if (animator == null)
+            animator = GetComponentInChildren<Animator>();
 
-        // Remember where this monster spawned
+        GameObject audioObject =
+            GameObject.FindGameObjectWithTag("Audio");
+
+        if (audioObject != null)
+            audioManager = audioObject.GetComponent<AudioManager>();
+
         originalSpawnPosition = transform.position;
         originalSpawnRotation = transform.rotation;
 
-        // Hide happy UI
         if (happyUI != null)
-        {
             happyUI.SetActive(false);
-        }
     }
 
 
@@ -93,7 +109,15 @@ public class MonsterAI : MonoBehaviour
         if (order == null)
             order = GetComponent<CustomerOrder>();
 
+        if (agent == null)
+        {
+            Debug.LogError("NavMeshAgent is missing!");
+            enabled = false;
+            return;
+        }
+
         agent.speed = walkSpeed;
+        agent.updateRotation = true;
 
         if (wanderBeforeTable)
         {
@@ -107,13 +131,18 @@ public class MonsterAI : MonoBehaviour
         {
             ChooseRandomTable();
         }
+
+        UpdateAnimations();
     }
 
 
     void Update()
     {
         if (isSatisfied)
+        {
+            UpdateAnimations();
             return;
+        }
 
         if (isBerserk)
         {
@@ -131,6 +160,31 @@ public class MonsterAI : MonoBehaviour
         {
             RestaurantUpdate();
         }
+
+        UpdateAnimations();
+    }
+
+
+    // =========================================================
+    // ANIMATIONS
+    // =========================================================
+
+    void UpdateAnimations()
+    {
+        if (animator == null || agent == null)
+            return;
+
+        isSitting = hasReachedTable &&
+                    !isBerserk &&
+                    !isReturningToSpawn &&
+                    !isSatisfied;
+
+        isWalking = agent.velocity.sqrMagnitude > 0.05f &&
+                    !isSitting &&
+                    !isSatisfied;
+
+        animator.SetBool("isWalking", isWalking);
+        animator.SetBool("isSitting", isSitting);
     }
 
 
@@ -140,43 +194,83 @@ public class MonsterAI : MonoBehaviour
 
     void RestaurantUpdate()
     {
-        if (assignedTable == null)
-            return;
-
-        if (!agent.pathPending &&
-            agent.remainingDistance <= 0.5f)
+        // No chair assigned? Keep trying to find one.
+        if (assignedTable == null || assignedChair == null)
         {
-            agent.isStopped = true;
+            chairRetryTimer -= Time.deltaTime;
 
-            if (!hasReachedTable)
+            if (chairRetryTimer <= 0f)
             {
-                hasReachedTable = true;
-
-                Debug.Log(
-                    gameObject.name +
-                    " has arrived at Table " +
-                    assignedTableNumber
-                );
-
-                if (order != null)
-                {
-                    order.StartWaitingForOrder();
-                }
+                ChooseRandomTable();
             }
 
             return;
         }
 
-        agent.isStopped = false;
+        // Stay facing the table while sitting.
+        if (hasReachedTable)
+        {
+            FaceTable();
+            return;
+        }
 
-        agent.SetDestination(
-            assignedTable.transform.position
+        if (!agent.pathPending &&
+            agent.remainingDistance <= agent.stoppingDistance + 0.2f)
+        {
+            agent.isStopped = true;
+            agent.updateRotation = false;
+
+            hasReachedTable = true;
+
+            FaceTable();
+
+            Debug.Log(
+                gameObject.name +
+                " has arrived at Chair at Table " +
+                assignedTableNumber
+            );
+
+            if (order != null)
+                order.StartWaitingForOrder();
+
+            return;
+        }
+
+        agent.isStopped = false;
+        agent.updateRotation = true;
+
+        agent.SetDestination(assignedChair.position);
+    }
+
+
+    void FaceTable()
+    {
+        if (assignedTable == null)
+            return;
+
+        Vector3 direction =
+            assignedTable.transform.position - transform.position;
+
+        direction.y = 0f;
+
+        if (direction.sqrMagnitude < 0.001f)
+            return;
+
+        Quaternion targetRotation =
+            Quaternion.LookRotation(direction);
+
+        transform.rotation = Quaternion.RotateTowards(
+            transform.rotation,
+            targetRotation,
+            sittingRotationSpeed * Time.deltaTime
         );
     }
 
 
     void ChooseRandomTable()
     {
+        chairRetryTimer = chairRetryInterval;
+
         if (tables == null || tables.Length == 0)
         {
             Debug.LogWarning(
@@ -187,22 +281,20 @@ public class MonsterAI : MonoBehaviour
             return;
         }
 
-        System.Collections.Generic.List<RestrauntTable> availableTables =
-            new System.Collections.Generic.List<RestrauntTable>();
+        List<RestrauntTable> availableTables =
+            new List<RestrauntTable>();
 
         foreach (RestrauntTable table in tables)
         {
-            if (table != null && !table.isOccupied)
-            {
+            if (table != null && table.HasAvailableChair())
                 availableTables.Add(table);
-            }
         }
 
         if (availableTables.Count == 0)
         {
             Debug.Log(
-                "No available tables for " +
-                gameObject.name
+                gameObject.name +
+                " is waiting for an available chair."
             );
 
             return;
@@ -211,24 +303,28 @@ public class MonsterAI : MonoBehaviour
         int randomIndex =
             Random.Range(0, availableTables.Count);
 
-        assignedTable =
-            availableTables[randomIndex];
+        assignedTable = availableTables[randomIndex];
 
-        assignedTable.isOccupied = true;
+        if (!assignedTable.TryReserveChair(out assignedChair))
+        {
+            assignedTable = null;
+            return;
+        }
+
+        hasReachedTable = false;
 
         assignedTableNumber =
             assignedTable.tableNumber;
 
+        agent.isStopped = false;
+        agent.updateRotation = true;
+
+        agent.SetDestination(assignedChair.position);
+
         Debug.Log(
             gameObject.name +
-            " has been assigned to Table " +
+            " assigned to Chair at Table " +
             assignedTableNumber
-        );
-
-        agent.isStopped = false;
-
-        agent.SetDestination(
-            assignedTable.transform.position
         );
     }
 
@@ -242,10 +338,7 @@ public class MonsterAI : MonoBehaviour
         if (isSatisfied || isBerserk)
             return;
 
-        Debug.Log(
-            gameObject.name +
-            " is satisfied!"
-        );
+        Debug.Log(gameObject.name + " is satisfied!");
 
         isSatisfied = true;
 
@@ -256,45 +349,34 @@ public class MonsterAI : MonoBehaviour
         currentTarget = null;
 
         if (happyUI != null)
-        {
             happyUI.SetActive(true);
-        }
+
+        UpdateAnimations();
 
         StartCoroutine(SatisfiedRoutine());
     }
 
 
-    System.Collections.IEnumerator SatisfiedRoutine()
+    IEnumerator SatisfiedRoutine()
     {
-        Debug.Log(
-            gameObject.name +
-            " is happy and will leave in " +
-            satisfiedWaitTime +
-            " seconds."
-        );
-
-        yield return new WaitForSeconds(
-            satisfiedWaitTime
-        );
+        yield return new WaitForSeconds(satisfiedWaitTime);
 
         if (happyUI != null)
-        {
             happyUI.SetActive(false);
-        }
 
         isSatisfied = false;
 
         isReturningToSpawn = true;
 
         agent.speed = walkSpeed;
+        agent.updateRotation = true;
         agent.isStopped = false;
 
         SetSpawnDestination();
 
-        Debug.Log(
-            gameObject.name +
-            " is leaving the restaurant."
-        );
+        UpdateAnimations();
+
+        Debug.Log(gameObject.name + " is leaving the restaurant.");
     }
 
 
@@ -307,52 +389,38 @@ public class MonsterAI : MonoBehaviour
         Vector3 targetPosition;
 
         if (spawnPoint != null)
-        {
             targetPosition = spawnPoint.position;
-        }
         else
-        {
             targetPosition = originalSpawnPosition;
-        }
 
         if (!agent.pathPending &&
-            agent.remainingDistance <= 0.5f)
+            agent.remainingDistance <= agent.stoppingDistance + 0.2f)
         {
             agent.isStopped = true;
 
-            Debug.Log(
-                gameObject.name +
-                " has left the restaurant."
-            );
+            UpdateAnimations();
 
-            // Count the monster only after it reaches the exit.
+            Debug.Log(gameObject.name + " has left the restaurant.");
+
             if (monsterSpawner != null)
-            {
                 monsterSpawner.Served();
-            }
 
             Destroy(gameObject);
             return;
         }
 
         agent.isStopped = false;
+        agent.updateRotation = true;
         agent.SetDestination(targetPosition);
     }
+
 
     void SetSpawnDestination()
     {
         if (spawnPoint != null)
-        {
-            agent.SetDestination(
-                spawnPoint.position
-            );
-        }
+            agent.SetDestination(spawnPoint.position);
         else
-        {
-            agent.SetDestination(
-                originalSpawnPosition
-            );
-        }
+            agent.SetDestination(originalSpawnPosition);
     }
 
 
@@ -367,96 +435,66 @@ public class MonsterAI : MonoBehaviour
 
         isBerserk = true;
 
-        // Start the 40 second berserk timer
         berserkTimer = berserkTimeLimit;
 
-        Debug.Log(
-            "MONSTER HAS GONE BERSERK!"
-        );
+        Debug.Log("MONSTER HAS GONE BERSERK!");
 
         agent.speed = berserkSpeed;
+        agent.updateRotation = true;
 
         LeaveTable();
 
         FindNearestPlayer();
+
+        UpdateAnimations();
     }
 
 
     void BerserkUpdate()
     {
-        // Count down berserk time
         berserkTimer -= Time.deltaTime;
 
-        // 40 seconds have passed
         if (berserkTimer <= 0f)
         {
-            Debug.Log(
-                gameObject.name +
-                " survived its berserk attack time. Leaving restaurant."
-            );
-
             LeaveAfterBerserk();
             return;
         }
 
         attackTimer -= Time.deltaTime;
 
-        // Find a target if we don't have one
         if (currentTarget == null)
-        {
             FindNearestPlayer();
-        }
 
-        // No player found
         if (currentTarget == null)
-        {
             return;
-        }
 
-        // Check player's HP
         PlayerHP playerHealth =
             currentTarget.GetComponent<PlayerHP>();
 
-        if (playerHealth != null)
+        if (playerHealth != null &&
+            playerHealth.GetCurrentHealth() <= 0f)
         {
-            if (playerHealth.GetCurrentHealth() <= 0f)
-            {
-                Debug.Log(
-                    gameObject.name +
-                    " defeated the player! Leaving restaurant."
-                );
-
-                LeaveAfterBerserk();
-                return;
-            }
+            LeaveAfterBerserk();
+            return;
         }
 
         float distance =
-            Vector3.Distance(
-                transform.position,
-                currentTarget.position
-            );
+            Vector3.Distance(transform.position, currentTarget.position);
 
-        // Player is too far away
         if (distance > detectionRange)
         {
             currentTarget = null;
             return;
         }
 
-        // Move toward player
         if (distance > attackRange)
         {
             agent.isStopped = false;
 
-            agent.SetDestination(
-                currentTarget.position
-            );
+            agent.SetDestination(currentTarget.position);
 
             if (audioManager != null)
-            {
                 audioManager.PlayMonsterMove();
-            }
         }
         else
         {
@@ -465,9 +503,7 @@ public class MonsterAI : MonoBehaviour
             AttackPlayer();
 
             if (audioManager != null)
-            {
                 audioManager.StopMonsterMove();
-            }
         }
     }
 
@@ -481,10 +517,7 @@ public class MonsterAI : MonoBehaviour
         if (isReturningToSpawn)
             return;
 
-        Debug.Log(
-            gameObject.name +
-            " is finished berserking and is leaving."
-        );
+        Debug.Log(gameObject.name + " is leaving after berserk.");
 
         isBerserk = false;
 
@@ -493,12 +526,15 @@ public class MonsterAI : MonoBehaviour
         LeaveTable();
 
         agent.speed = walkSpeed;
+        agent.updateRotation = true;
 
         isReturningToSpawn = true;
 
         agent.isStopped = false;
 
         SetSpawnDestination();
+
+        UpdateAnimations();
     }
 
 
@@ -512,29 +548,25 @@ public class MonsterAI : MonoBehaviour
             GameObject.FindGameObjectsWithTag(playerTag);
 
         float closestDistance = Mathf.Infinity;
-
         Transform closestPlayer = null;
 
         foreach (GameObject player in players)
         {
             float distance =
-                Vector3.Distance(
-                    transform.position,
-                    player.transform.position
-                );
+                Vector3.Distance(transform.position, player.transform.position);
 
             if (distance < closestDistance &&
                 distance <= detectionRange)
             {
                 closestDistance = distance;
-
-                closestPlayer =
-                    player.transform;
+                closestPlayer = player.transform;
             }
         }
 
         currentTarget = closestPlayer;
     }
+
+
     void AttackPlayer()
     {
         if (attackTimer > 0f)
@@ -542,64 +574,67 @@ public class MonsterAI : MonoBehaviour
 
         attackTimer = attackCooldown;
 
-        Debug.Log(
-            "MONSTER ATTACKED THE PLAYER!"
-        );
+        Debug.Log("MONSTER ATTACKED THE PLAYER!");
 
         PlayerHP playerHealth =
             currentTarget.GetComponent<PlayerHP>();
 
         if (playerHealth != null)
         {
-            // Damage player
             playerHealth.TakeDamage(attackDamage);
 
-            // Push player away from monster
             Vector3 knockbackDirection =
                 currentTarget.position - transform.position;
 
-            playerHealth.Knockback(
-                knockbackDirection
-            );
+            playerHealth.Knockback(knockbackDirection);
 
-            // Check if player died
             if (playerHealth.GetCurrentHealth() <= 0f)
             {
-                Debug.Log(
-                    "PLAYER HAS BEEN DEFEATED!"
-                );
+                Debug.Log("PLAYER HAS BEEN DEFEATED!");
 
                 LeaveAfterBerserk();
             }
         }
     }
-        // =========================================================
-        // TABLE
-        // =========================================================
 
-        void LeaveTable()
+
+    // =========================================================
+    // TABLE
+    // =========================================================
+
+    void LeaveTable()
+    {
+        hasReachedTable = false;
+
+        if (assignedTable != null && assignedChair != null)
         {
-            if (assignedTable != null)
-            {
-                assignedTable.isOccupied = false;
-
-                assignedTable = null;
-
-                assignedTableNumber = -1;
-            }
+            assignedTable.ReleaseChair(assignedChair);
         }
 
+        assignedChair = null;
+        assignedTable = null;
 
-        private void OnDestroy()
-        {
-            LeaveTable();
-        }
+        assignedTableNumber = -1;
+
+        if (agent != null)
+            agent.updateRotation = true;
+    }
+
+
+    private void OnDestroy()
+    {
+        LeaveTable();
+    }
+
+
+    // =========================================================
+    // WANDERING
+    // =========================================================
 
     void WanderUpdate()
     {
         wanderTimer -= Time.deltaTime;
 
-        // Time to go to the assigned table
         if (wanderTimer <= 0f)
         {
             isWandering = false;
@@ -610,28 +645,27 @@ public class MonsterAI : MonoBehaviour
             return;
         }
 
-        // Wait before choosing another destination
         if (agent.pathPending)
             return;
 
-        if (agent.remainingDistance <= 0.5f)
+        if (agent.remainingDistance <= agent.stoppingDistance + 0.2f)
         {
             agent.isStopped = true;
 
             wanderWaitTimer -= Time.deltaTime;
 
             if (wanderWaitTimer <= 0f)
-            {
                 WanderToRandomPoint();
-            }
         }
     }
+
 
     void WanderToRandomPoint()
     {
         for (int i = 0; i < 10; i++)
         {
-            Vector3 randomOffset = Random.insideUnitSphere * wanderRadius;
+            Vector3 randomOffset =
+                Random.insideUnitSphere * wanderRadius;
 
             Vector3 randomPosition =
                 originalSpawnPosition + randomOffset;
@@ -645,6 +679,8 @@ public class MonsterAI : MonoBehaviour
                 NavMesh.AllAreas))
             {
                 agent.isStopped = false;
+                agent.updateRotation = true;
+
                 agent.SetDestination(hit.position);
 
                 wanderWaitTimer = Random.Range(
@@ -656,7 +692,6 @@ public class MonsterAI : MonoBehaviour
             }
         }
 
-        // If no suitable position is found, try again later.
         wanderWaitTimer = 1f;
     }
 }
