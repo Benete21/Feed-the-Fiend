@@ -1,3 +1,4 @@
+
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
@@ -6,7 +7,6 @@ using TMPro;
 
 public class MonsterSpawner : MonoBehaviour
 {
-
     [Header("Player Controls")]
     public MonoBehaviour player1Controls;
     public MonoBehaviour player2Controls;
@@ -34,18 +34,15 @@ public class MonsterSpawner : MonoBehaviour
     public GameObject DayStarting;
     public float dayStartingDuration = 3f;
 
-
     [Header("End Of Day Screens")]
     public GameObject Day1Finish;
     public GameObject Day2Finish;
-    public GameObject Day3Finish;
 
     [Header("Day Transition Dialogue")]
     public float finishScreenDuration = 3f;
     public Day_Dialogou dayDialogue;
 
     private bool dayCompletionStarted;
-
 
     [Header("Time")]
     public float minSpawn = 10f;
@@ -80,16 +77,16 @@ public class MonsterSpawner : MonoBehaviour
             audioManager = audioObject.GetComponent<AudioManager>();
     }
 
-    void Start()
+    private void Start()
     {
         StartNewDay(currentDay);
     }
 
-
     public void StartNewDay(int day)
     {
-            ClearMonsterTrails();
-            currentDay = day;
+        ClearMonsterTrails();
+
+        currentDay = day;
 
         if (spawnCoroutine != null)
         {
@@ -121,24 +118,18 @@ public class MonsterSpawner : MonoBehaviour
         if (Day2Finish != null)
             Day2Finish.SetActive(false);
 
-        if (Day3Finish != null)
-            Day3Finish.SetActive(false);
-
         UpdateUI();
 
         if (totalMonsters <= 0)
         {
             StartCoroutine(HandleDayComplete());
             return;
-
-
         }
 
         spawnCoroutine = StartCoroutine(SpawnMonstersOverTime());
     }
 
-
-    IEnumerator SpawnMonstersOverTime()
+    private IEnumerator SpawnMonstersOverTime()
     {
         for (int i = 0; i < totalMonsters; i++)
         {
@@ -154,7 +145,7 @@ public class MonsterSpawner : MonoBehaviour
         spawnCoroutine = null;
     }
 
-    void SpawnMonster()
+    private void SpawnMonster()
     {
         if (currentMonsterPrefabs == null ||
             currentMonsterPrefabs.Length == 0)
@@ -204,8 +195,6 @@ public class MonsterSpawner : MonoBehaviour
         if (audioManager != null)
             audioManager.playMonsterEnter();
 
-
-
         MonsterAI monsterAI = monster.GetComponent<MonsterAI>();
 
         if (monsterAI == null)
@@ -237,10 +226,8 @@ public class MonsterSpawner : MonoBehaviour
         }
     }
 
-
     public void Served()
     {
-        // Prevent completion from triggering more than once.
         if (dayCompletionStarted)
             return;
 
@@ -259,9 +246,9 @@ public class MonsterSpawner : MonoBehaviour
 
     private IEnumerator HandleDayComplete()
     {
-        dayCompletionStarted = true;
+        if (dayCompletionStarted == false)
+            dayCompletionStarted = true;
 
-        // Freeze both players immediately.
         FreezePlayers(true);
 
         if (spawnCoroutine != null)
@@ -275,15 +262,12 @@ public class MonsterSpawner : MonoBehaviour
         if (audioManager != null)
             audioManager.PlayDayComplete();
 
-        // Show the correct end-of-day screen.
         GameObject finishScreen = null;
 
         if (currentDay == 1)
             finishScreen = Day1Finish;
         else if (currentDay == 2)
             finishScreen = Day2Finish;
-        else if (currentDay == 3)
-            finishScreen = Day3Finish;
 
         if (finishScreen != null)
             finishScreen.SetActive(true);
@@ -301,10 +285,10 @@ public class MonsterSpawner : MonoBehaviour
             );
         }
 
-        // Stop after Day 3.
-        if (currentDay >= 3)
+        // Day 2 is the final day.
+        if (currentDay >= 2)
         {
-            Debug.Log("All three days completed!");
+            Debug.Log("All days completed! Day 2 was the final day.");
             yield break;
         }
 
@@ -317,27 +301,19 @@ public class MonsterSpawner : MonoBehaviour
         if (DayStarting != null)
             DayStarting.SetActive(false);
 
-        // Start the next day.
+        // Start Day 2.
         StartNewDay(currentDay + 1);
 
-        // Unfreeze both players after the starting UI finishes.
         FreezePlayers(false);
     }
-
-
-
 
     public void UpdateUI()
     {
         if (dayText != null)
-        {
             dayText.text = "Day " + currentDay;
-        }
 
         if (monsterText != null)
-        {
             monsterText.text = monstersLeft + " / " + totalMonsters;
-        }
 
         if (monsterProgressBar != null)
         {
@@ -349,9 +325,16 @@ public class MonsterSpawner : MonoBehaviour
 
     public void NextDay()
     {
+        if (currentDay >= 2)
+        {
+            Debug.Log("Day 2 is the final day!");
+            return;
+        }
+
         currentDay++;
         StartNewDay(currentDay);
     }
+
     private void FreezePlayers(bool freeze)
     {
         if (player1Controls != null)
@@ -361,7 +344,7 @@ public class MonsterSpawner : MonoBehaviour
             player2Controls.enabled = !freeze;
     }
 
-    void ClearMonsterTrails()
+    private void ClearMonsterTrails()
     {
         Monster_Trail[] trails =
             FindObjectsOfType<Monster_Trail>();

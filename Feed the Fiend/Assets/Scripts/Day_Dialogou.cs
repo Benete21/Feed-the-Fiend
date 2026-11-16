@@ -176,7 +176,7 @@ public class Day_Dialogou : MonoBehaviour
             case 1:
                 messages = new string[]
                 {
-                    "Finally, we finished the first day!",
+                    "Finally we finished the first day!",
                     "Running a restaurant is much harder than I thought",
                     "Lets get ready for Day 2"
                 };
