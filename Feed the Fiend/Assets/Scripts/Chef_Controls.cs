@@ -392,7 +392,14 @@ public class Chef_Controls : MonoBehaviour
 
             if (rb != null)
             {
-                Pickup(rb.gameObject);
+                GameObject pickedUpObject = rb.gameObject;
+
+                if (pickedUpObject.CompareTag("Food"))
+                {
+                    ClearFoodSnapPoint(pickedUpObject);
+                }
+
+                Pickup(pickedUpObject);
                 return;
             }
         }
@@ -801,5 +808,26 @@ public class Chef_Controls : MonoBehaviour
 
         animator.SetBool("isWalking", isWalking);
         animator.SetBool("isHolding", isHolding);
+    }
+
+    private void ClearFoodSnapPoint(GameObject food)
+    {
+        if (food == null)
+            return;
+
+        FoodSnapPoint[] snapPoints =
+            FindObjectsOfType<FoodSnapPoint>();
+
+        foreach (FoodSnapPoint snapPoint in snapPoints)
+        {
+            if (snapPoint != null &&
+                snapPoint.GetFood() == food)
+            {
+                snapPoint.ReleaseFood(food);
+
+                Debug.Log("Chef collected food from handoff.");
+                return;
+            }
+        }
     }
 }

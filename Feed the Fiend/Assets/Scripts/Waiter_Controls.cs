@@ -153,27 +153,9 @@ public class Waiter_Controls : MonoBehaviour
                 {
                     GameObject pickedUpObject = rb.gameObject;
 
-                    // If this food came from a handoff point, clear that point.
+                    // Free the handoff point if this food was resting on it.
                     if (pickedUpObject.CompareTag("Food"))
-                    {
-                        Collider[] nearbyHits = Physics.OverlapSphere(
-                            pickedUpObject.transform.position,
-                            0.5f
-                        );
-
-                        foreach (Collider nearbyHit in nearbyHits)
-                        {
-                            FoodSnapPoint snapPoint =
-                                nearbyHit.GetComponentInParent<FoodSnapPoint>();
-
-                            if (snapPoint != null &&
-                                snapPoint.GetFood() == pickedUpObject)
-                            {
-                                snapPoint.ReleaseFood(pickedUpObject);
-                                break;
-                            }
-                        }
-                    }
+                        ClearFoodSnapPoint(pickedUpObject);
 
                     Pickup(pickedUpObject);
                     return;
@@ -325,17 +307,30 @@ public class Waiter_Controls : MonoBehaviour
 
         GameObject droppedObject = heldObj;
 
+        heldRb.transform.SetParent(null, true);
         heldRb.useGravity = true;
         heldRb.linearDamping = 1f;
         heldRb.constraints = RigidbodyConstraints.None;
-        heldRb.transform.SetParent(null);
+        heldRb.linearVelocity = Vector3.zero;
+        heldRb.angularVelocity = Vector3.zero;
 
-        PhysicalOrderSlip orderSlip = droppedObject.GetComponent<PhysicalOrderSlip>();
+        PhysicalOrderSlip orderSlip =
+            droppedObject.GetComponent<PhysicalOrderSlip>();
+
         if (orderSlip != null)
             RemoveOrderSlip();
 
         heldObj = null;
         heldRb = null;
+
+        // Food can be placed back on an available handoff point.
+        if (droppedObject.CompareTag("Food"))
+        {
+            FoodSnapPoint snapPoint = GetNearbyFoodSnapPoint();
+
+            if (snapPoint != null && snapPoint.TrySnapFood(droppedObject))
+                Debug.Log("Waiter placed food back on the handoff.");
+        }
 
         RestoreCollisionAfterRelease(droppedObject);
     }
@@ -490,6 +485,16 @@ public class Waiter_Controls : MonoBehaviour
             transform.rotation
         );
 
+        // Show a placement prompt when carrying food near an empty handoff.
+        if (heldObj != null && heldObj.CompareTag("Food"))
+        {
+            if (GetNearbyFoodSnapPoint() != null)
+            {
+                interactionPrompt.Show("B  PLACE FOOD");
+                return;
+            }
+        }
+
         // Check whether the waiter is holding an order slip.
         if (heldObj != null)
         {
@@ -623,6 +628,44 @@ public class Waiter_Controls : MonoBehaviour
 
         animator.SetBool("isWalking", isWalking);
         animator.SetBool("isHolding", isHolding);
+    }
+
+    private FoodSnapPoint GetNearbyFoodSnapPoint()
+    {
+        Collider[] hits = Physics.OverlapSphere(
+            transform.position,
+            interactionRange
+        );
+
+        foreach (Collider hit in hits)
+        {
+            FoodSnapPoint snapPoint =
+                hit.GetComponentInParent<FoodSnapPoint>();
+
+            if (snapPoint != null && !snapPoint.HasFood())
+                return snapPoint;
+        }
+
+        return null;
+    }
+
+    private void ClearFoodSnapPoint(GameObject food)
+    {
+        if (food == null)
+            return;
+
+        FoodSnapPoint[] snapPoints =
+            FindObjectsOfType<FoodSnapPoint>();
+
+        foreach (FoodSnapPoint snapPoint in snapPoints)
+        {
+            if (snapPoint != null && snapPoint.GetFood() == food)
+            {
+                snapPoint.ReleaseFood(food);
+                Debug.Log("Waiter collected food from handoff.");
+                return;
+            }
+        }
     }
 
 }
