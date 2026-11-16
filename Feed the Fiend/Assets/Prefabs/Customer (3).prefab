@@ -609,9 +609,10 @@ Transform:
   m_LocalScale: {x: 1.7995, y: 1.0552181, z: 1.7777}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 6071875314798495498}
   - {fileID: 9104308735107574195}
   - {fileID: 6260932783322611732}
+  - {fileID: 6071875314798495498}
+  - {fileID: 4515327660011945170}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &4045816858611403690
@@ -744,6 +745,13 @@ MonoBehaviour:
   monsterAI: {fileID: 5033292532512605280}
   satisfied: {fileID: 0}
   isBerserk: 0
+  foodDeliveryPoint: {fileID: 0}
+  foodTravelDuration: 0.8
+  eatingEffectPoint: {fileID: 0}
+  eatingEffectPrefab: {fileID: 0}
+  eatingDuration: 2.5
+  chefInventory: {fileID: 0}
+  tableNumber: 1
 --- !u!114 &5033292532512605280
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -756,9 +764,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f4ae3216d483cd4fbd0cbd04d183222, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAI
+  monsterSpawner: {fileID: 0}
   agent: {fileID: 2619464325354288702}
   walkSpeed: 4
   berserkSpeed: 5
+  animator: {fileID: 0}
+  sittingRotationSpeed: 360
+  chairRetryInterval: 2
+  wanderBeforeTable: 1
+  wanderDuration: 7
+  wanderRadius: 5
+  minWanderWait: 1
+  maxWanderWait: 2
   tables:
   - {fileID: 0}
   - {fileID: 0}
@@ -1426,6 +1443,110 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1001 &4117156371990616889
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 3005736275393193567}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: a7fb86a6e9884e6499b47fb9022af76c, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.55570996
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: a7fb86a6e9884e6499b47fb9022af76c, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.94767135
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: a7fb86a6e9884e6499b47fb9022af76c, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.5625247
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: a7fb86a6e9884e6499b47fb9022af76c, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.02778613
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: a7fb86a6e9884e6499b47fb9022af76c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: a7fb86a6e9884e6499b47fb9022af76c, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.01593423
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: a7fb86a6e9884e6499b47fb9022af76c, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: a7fb86a6e9884e6499b47fb9022af76c, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: a7fb86a6e9884e6499b47fb9022af76c, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: a7fb86a6e9884e6499b47fb9022af76c, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: a7fb86a6e9884e6499b47fb9022af76c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: a7fb86a6e9884e6499b47fb9022af76c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: a7fb86a6e9884e6499b47fb9022af76c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: a7fb86a6e9884e6499b47fb9022af76c, type: 3}
+      propertyPath: m_Name
+      value: AnimatedSpiderMonster
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: a7fb86a6e9884e6499b47fb9022af76c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2982863913332887748}
+  m_SourcePrefab: {fileID: 100100000, guid: a7fb86a6e9884e6499b47fb9022af76c, type: 3}
+--- !u!1 &3882800218159294056 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: a7fb86a6e9884e6499b47fb9022af76c, type: 3}
+  m_PrefabInstance: {fileID: 4117156371990616889}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &2982863913332887748
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3882800218159294056}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 0937c42e1c13bb2419aa80f9bb82a390, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!4 &4515327660011945170 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a7fb86a6e9884e6499b47fb9022af76c, type: 3}
+  m_PrefabInstance: {fileID: 4117156371990616889}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &6037386534317613281
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1489,6 +1610,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 2450f1611861b804f8eb4187136f9278, type: 3}
       propertyPath: m_Name
       value: SpiderMonster
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 2450f1611861b804f8eb4187136f9278, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
