@@ -35,18 +35,26 @@ public class Chef_Order_Inventory : MonoBehaviour
 
     public bool ReceiveOrder(Food_Types[] foodOrder, int tableNumber)
     {
-        if (!HasSpace())
-        {
-            Debug.LogWarning("Chef's inventory is full!");
-            return false;
-        }
-
         if (foodOrder == null || foodOrder.Length == 0)
         {
             Debug.LogWarning("Cannot receive an empty order");
             return false;
         }
 
+        // If inventory is full, remove the oldest order first.
+        if (!HasSpace())
+        {
+            OrderEntry removedOrder = orders[0];
+
+            Debug.Log(
+                "Inventory full! Removing oldest order from Table "
+                + removedOrder.tableNumber
+            );
+
+            orders.RemoveAt(0);
+        }
+
+        // Add the new order.
         orders.Add(new OrderEntry
         {
             food = foodOrder[0],
@@ -55,9 +63,11 @@ public class Chef_Order_Inventory : MonoBehaviour
 
         RefreshUI();
 
-        Debug.Log("Order received for Table " + tableNumber);
+        Debug.Log("New order received for Table " + tableNumber);
+
         return true;
     }
+
 
     public bool HasSpace()
     {

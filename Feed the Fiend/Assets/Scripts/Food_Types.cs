@@ -14,5 +14,4 @@ public enum Food_Types
     Eyeball_Tenticle_Dish,
     Eyeball_Meat_Dish,
     Tenticle_Meat_Dish,
-    Eyeball_Tenticle_Meat_Dish
 }
