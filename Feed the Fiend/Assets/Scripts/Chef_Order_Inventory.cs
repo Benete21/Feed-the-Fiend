@@ -124,10 +124,10 @@ public class Chef_Order_Inventory : MonoBehaviour
             {
                 OrderEntry entry = orders[i];
 
-                text.AppendLine(
-                    (i + 1) + ". Table " +
-                    entry.tableNumber + " - " + entry.food
-                );
+                string foodName = entry.food.ToString()
+                    .Replace("_", " ");
+
+                text.AppendLine((i + 1) + ". " + foodName);
             }
             else
             {
@@ -137,4 +137,5 @@ public class Chef_Order_Inventory : MonoBehaviour
 
         inventoryText.text = text.ToString();
     }
+
 }

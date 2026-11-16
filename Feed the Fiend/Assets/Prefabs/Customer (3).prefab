@@ -793,6 +793,8 @@ MonoBehaviour:
   attackCooldown: 1.5
   isBerserk: 0
   berserkTimeLimit: 40
+  berserkSizeMultiplier: 1.15
+  berserkMaterial: {fileID: 2100000, guid: 9a3328b0ebe400148b32f49afb1263b3, type: 2}
   satisfiedWaitTime: 3
   hitFeedback: {fileID: 0}
   happyUI: {fileID: 4335631955996746973}

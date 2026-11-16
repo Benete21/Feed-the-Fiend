@@ -64,6 +64,14 @@ public class MonsterAI : MonoBehaviour
     public bool isBerserk = false;
     public float berserkTimeLimit = 40f;
 
+    [Header("Berserk Appearance")]
+    [SerializeField] private float berserkSizeMultiplier = 1.15f;
+    [SerializeField] private Material berserkMaterial;
+
+    private Vector3 originalScale;
+    private Renderer[] monsterRenderers;
+    private Material[][] originalMaterials;
+
     private float berserkTimer;
 
     [Header("Satisfied")]
@@ -101,6 +109,20 @@ public class MonsterAI : MonoBehaviour
 
         if (happyUI != null)
             happyUI.SetActive(false);
+
+        // Store the monster's original size.
+        originalScale = transform.localScale;
+
+        // Find all renderers, including those on child objects.
+        monsterRenderers = GetComponentsInChildren<Renderer>();
+
+        // Store the original materials for every renderer.
+        originalMaterials = new Material[monsterRenderers.Length][];
+
+        for (int i = 0; i < monsterRenderers.Length; i++)
+        {
+            originalMaterials[i] = monsterRenderers[i].sharedMaterials;
+        }
     }
 
 
@@ -440,6 +462,9 @@ public class MonsterAI : MonoBehaviour
 
         berserkTimer = berserkTimeLimit;
 
+        // Change monster appearance.
+        ApplyBerserkAppearance();
+
         Debug.Log("MONSTER HAS GONE BERSERK!");
 
         agent.speed = berserkSpeed;
@@ -525,6 +550,9 @@ public class MonsterAI : MonoBehaviour
         isBerserk = false;
 
         currentTarget = null;
+
+        // Restore the monster's original appearance.
+        RestoreOriginalAppearance();
 
         LeaveTable();
 
@@ -708,5 +736,51 @@ public class MonsterAI : MonoBehaviour
         }
 
         wanderWaitTimer = 1f;
+    }
+
+    private void ApplyBerserkAppearance()
+    {
+        // Increase monster size.
+        transform.localScale = originalScale * berserkSizeMultiplier;
+
+        // Change all monster materials.
+        if (berserkMaterial != null)
+        {
+            foreach (Renderer rend in monsterRenderers)
+            {
+                if (rend == null)
+                    continue;
+
+                Material[] newMaterials = new Material[rend.sharedMaterials.Length];
+
+                for (int i = 0; i < newMaterials.Length; i++)
+                {
+                    newMaterials[i] = berserkMaterial;
+                }
+
+                rend.sharedMaterials = newMaterials;
+            }
+        }
+        else
+        {
+            Debug.LogWarning(
+                "Berserk Material has not been assigned on " + gameObject.name
+            );
+        }
+    }
+
+    private void RestoreOriginalAppearance()
+    {
+        // Restore original size.
+        transform.localScale = originalScale;
+
+        // Restore original materials.
+        for (int i = 0; i < monsterRenderers.Length; i++)
+        {
+            if (monsterRenderers[i] != null)
+            {
+                monsterRenderers[i].sharedMaterials = originalMaterials[i];
+            }
+        }
     }
 }
