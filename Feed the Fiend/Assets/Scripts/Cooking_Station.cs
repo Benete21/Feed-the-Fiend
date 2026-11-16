@@ -37,6 +37,7 @@ public class Cooking_Station : MonoBehaviour
     private bool isCooking;
     private bool playerNearby;
     private bool hasBecomeCookedFood;
+    private CookableFood currentRecipe;
 
     private float cookingTimer;
 
@@ -98,18 +99,18 @@ public class Cooking_Station : MonoBehaviour
             return false;
         }
 
-        bool hasRecipe = false;
+        CookableFood matchingRecipe = null;
 
         foreach (CookableFood recipe in cookableFoods)
         {
             if (recipe.rawIngredeitnsType == ingredient.ingredientType)
             {
-                hasRecipe = true;
+                matchingRecipe = recipe;
                 break;
             }
         }
 
-        if (!hasRecipe)
+        if (matchingRecipe == null)
         {
             Debug.LogWarning(
                 "No cooking recipe for " + ingredient.ingredientType
@@ -118,6 +119,7 @@ public class Cooking_Station : MonoBehaviour
         }
 
         foodOnStove = ingredientObject;
+        currentRecipe = matchingRecipe;
 
         if (foodPoint != null)
         {
@@ -246,22 +248,9 @@ public class Cooking_Station : MonoBehaviour
 
     private CookableFood GetCurrentRecipe()
     {
-        if (foodOnStove == null)
-            return null;
-
-        Ingredient_Item ingredient =
-            foodOnStove.GetComponentInChildren<Ingredient_Item>();
-
-        if (ingredient == null)
-            return null;
-
-        foreach (CookableFood food in cookableFoods)
-        {
-            if (food.rawIngredeitnsType == ingredient.ingredientType)
-                return food;
-        }
-
-        return null;
+        // Keep using the recipe selected when the raw ingredient was placed.
+        // The cooked prefab may not have an Ingredient_Item component.
+        return currentRecipe;
     }
 
     private void CreateFinishedFood()
@@ -290,9 +279,15 @@ public class Cooking_Station : MonoBehaviour
     {
         CookableFood recipe = GetCurrentRecipe();
 
-        if (recipe == null || recipe.burntFoodPrefab == null)
+        if (recipe == null)
         {
-            Debug.LogWarning("Burnt food prefab is missing.");
+            Debug.LogWarning("Cannot burn food: no cooking recipe is assigned to this ingredient.");
+            return;
+        }
+
+        if (recipe.burntFoodPrefab == null)
+        {
+            Debug.LogWarning("Burnt food prefab is missing for recipe: " + recipe.rawIngredeitnsType);
             return;
         }
 
@@ -363,6 +358,7 @@ public class Cooking_Station : MonoBehaviour
         GameObject result = foodOnStove;
 
         foodOnStove = null;
+        currentRecipe = null;
         hasBecomeCookedFood = false;
         cookingTimer = 0f;
 
@@ -386,6 +382,7 @@ public class Cooking_Station : MonoBehaviour
         isCooking = false;
         cookingTimer = 0f;
         foodOnStove = null;
+        currentRecipe = null;
         hasBecomeCookedFood = false;
 
         if (audioManager != null)
