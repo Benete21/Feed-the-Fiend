@@ -10,43 +10,103 @@ public class Day_Dialogou : MonoBehaviour
     [SerializeField] private TMP_Text dialogueText;
     [SerializeField] private TMP_Text continueText;
 
+    [Header("Cooking Station Unlock")]
+    [SerializeField] private GameObject cookingUI;
+
+    [Header("Player Controls")]
+    [SerializeField] private MonoBehaviour[] playerControlScripts;
+
+    [Header("Monster Controls")]
+    [SerializeField] private MonoBehaviour monsterSpawner;
+    [SerializeField] private MonoBehaviour[] monsterControlScripts;
+
     [Header("Settings")]
     [SerializeField] private float textSpeed = 0.03f;
 
+    private void Awake()
+    {
+        // Stop spawning before the scene's Start methods run.
+        if (monsterSpawner != null)
+            monsterSpawner.enabled = false;
+    }
+
     private void Start()
     {
-        // Hide the dialogue panel before starting.
         if (dialoguePanel != null)
             dialoguePanel.SetActive(false);
 
-        // Play the introductory dialogue when the scene starts.
+        if (cookingUI != null)
+            cookingUI.SetActive(false);
+
         StartCoroutine(PlayStartDialogue());
+    }
+
+    private void SetPlayersFrozen(bool frozen)
+    {
+        if (playerControlScripts == null)
+            return;
+
+        foreach (MonoBehaviour control in playerControlScripts)
+        {
+            if (control != null)
+                control.enabled = !frozen;
+        }
+    }
+
+    private void SetMonstersFrozen(bool frozen)
+    {
+        if (monsterControlScripts == null)
+            return;
+
+        foreach (MonoBehaviour control in monsterControlScripts)
+        {
+            if (control != null)
+                control.enabled = !frozen;
+        }
+    }
+
+    private void SetMonsterSpawnerPaused(bool paused)
+    {
+        if (monsterSpawner != null)
+            monsterSpawner.enabled = !paused;
     }
 
     public IEnumerator PlayStartDialogue()
     {
+        SetPlayersFrozen(true);
+        SetMonstersFrozen(true);
+        SetMonsterSpawnerPaused(true);
+
         string[] messages =
         {
             "Welcome to your new restaurant, chef!",
-            "Your job is to prepare food and serve the monsters.",
-            "The restaurant will get busier as each day passes.",
-            "Get ready to cook, serve, and survive!"
+            "Your job is to prepare food and serve the monsters",
+            "The restaurant will get busier as each day passes",
+            "Get ready to cook serve and survive!"
         };
 
         if (dialoguePanel != null)
             dialoguePanel.SetActive(true);
 
         foreach (string message in messages)
-        {
             yield return ShowMessage(message);
-        }
 
         if (dialoguePanel != null)
             dialoguePanel.SetActive(false);
+
+        SetPlayersFrozen(false);
+        SetMonstersFrozen(false);
+
+        // Monsters can now start spawning.
+        SetMonsterSpawnerPaused(false);
     }
 
     public IEnumerator PlayDayEndDialogue(int completedDay)
     {
+        SetPlayersFrozen(true);
+        SetMonstersFrozen(true);
+        SetMonsterSpawnerPaused(true);
+
         string[] messages;
 
         switch (completedDay)
@@ -56,6 +116,8 @@ public class Day_Dialogou : MonoBehaviour
                 {
                     "Great work! Day 1 is complete!",
                     "The restaurant is getting busier.",
+                    "Good news, chef! We've unlocked a new cooking station!",
+                    "You can now use the new station to prepare even more food!",
                     "Get ready for Day 2. More monsters are coming!"
                 };
                 break;
@@ -93,10 +155,21 @@ public class Day_Dialogou : MonoBehaviour
         foreach (string message in messages)
         {
             yield return ShowMessage(message);
+
+            if (completedDay == 1 &&
+                message == "Good news, chef! We've unlocked a new cooking station!")
+            {
+                if (cookingUI != null)
+                    cookingUI.SetActive(true);
+            }
         }
 
         if (dialoguePanel != null)
             dialoguePanel.SetActive(false);
+
+        SetPlayersFrozen(false);
+        SetMonstersFrozen(false);
+        SetMonsterSpawnerPaused(false);
     }
 
     private IEnumerator ShowMessage(string message)
@@ -107,7 +180,6 @@ public class Day_Dialogou : MonoBehaviour
         if (dialogueText != null)
             dialogueText.text = "";
 
-        // Type out the dialogue one character at a time.
         foreach (char letter in message)
         {
             if (dialogueText != null)
@@ -116,7 +188,6 @@ public class Day_Dialogou : MonoBehaviour
             yield return new WaitForSeconds(textSpeed);
         }
 
-        // Keep the completed message on screen briefly.
         yield return new WaitForSeconds(2f);
     }
 }
