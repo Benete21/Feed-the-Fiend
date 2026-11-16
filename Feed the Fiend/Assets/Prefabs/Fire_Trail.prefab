@@ -32,6 +32,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8322369131497841743}
+  - {fileID: 566391303815967483}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &4940284269185759216
@@ -115,7 +116,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5697518365802996513}
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 0}
 --- !u!23 &1283933983777899982
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -187,3 +188,69 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1001 &24348267000059152
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 951172525804933452}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 79ab85a7bbdfb674a95fb602f4a4143a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.0053100586
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 79ab85a7bbdfb674a95fb602f4a4143a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 79ab85a7bbdfb674a95fb602f4a4143a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.023940086
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 79ab85a7bbdfb674a95fb602f4a4143a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071067
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 79ab85a7bbdfb674a95fb602f4a4143a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 79ab85a7bbdfb674a95fb602f4a4143a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 79ab85a7bbdfb674a95fb602f4a4143a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 79ab85a7bbdfb674a95fb602f4a4143a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 79ab85a7bbdfb674a95fb602f4a4143a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 79ab85a7bbdfb674a95fb602f4a4143a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: 79ab85a7bbdfb674a95fb602f4a4143a, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 6d4ee25cde4f8ee4b93369fb2e098e5f, type: 2}
+    - target: {fileID: 919132149155446097, guid: 79ab85a7bbdfb674a95fb602f4a4143a, type: 3}
+      propertyPath: m_Name
+      value: Slime_Puddle
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 79ab85a7bbdfb674a95fb602f4a4143a, type: 3}
+--- !u!4 &566391303815967483 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 79ab85a7bbdfb674a95fb602f4a4143a, type: 3}
+  m_PrefabInstance: {fileID: 24348267000059152}
+  m_PrefabAsset: {fileID: 0}
