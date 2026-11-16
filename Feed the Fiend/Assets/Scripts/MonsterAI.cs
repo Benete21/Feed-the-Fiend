@@ -69,6 +69,9 @@ public class MonsterAI : MonoBehaviour
     [Header("Satisfied")]
     public float satisfiedWaitTime = 3f;
 
+    [Header("Player Hit Feedback")]
+    [SerializeField] private HitFeedback hitFeedback;
+
     public GameObject happyUI;
     public Transform spawnPoint;
 
@@ -582,6 +585,18 @@ public class MonsterAI : MonoBehaviour
         if (playerHealth != null)
         {
             playerHealth.TakeDamage(attackDamage);
+
+            // Find the camera feedback component if it hasn't been assigned.
+            if (hitFeedback == null && Camera.main != null)
+            {
+                hitFeedback = Camera.main.GetComponent<HitFeedback>();
+            }
+
+            // Play camera shake and red screen effect.
+            if (hitFeedback != null)
+            {
+                hitFeedback.PlayHitEffect();
+            }
 
             Vector3 knockbackDirection =
                 currentTarget.position - transform.position;

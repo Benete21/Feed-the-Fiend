@@ -362,12 +362,16 @@ public class TutorialManager : MonoBehaviour
         );
 
         yield return Dialogue(
-            "Place the finished food in the handoff area."
+            "Take the finished food to the handoff area."
         );
 
         ShowArrow(TutorialArrowLocation.FoodHandoff);
 
+        // Wait until the chef has actually dropped the food.
+        // The food must also be registered at the handoff point.
         yield return WaitForAction(() =>
+            chef != null &&
+            chef.GetHeldObject() == null &&
             foodHandoffPoint != null &&
             foodHandoffPoint.HasFood()
         );
@@ -375,8 +379,13 @@ public class TutorialManager : MonoBehaviour
         HideArrow();
 
         yield return Dialogue(
-            "The waiter can now access the food."
+            "Perfect! You have dropped the food at the handoff point."
         );
+
+        yield return Dialogue(
+            "The waiter can now collect the food."
+        );
+
 
 
         // =====================================================

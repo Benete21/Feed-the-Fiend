@@ -30,16 +30,22 @@ public class FoodSnapPoint : MonoBehaviour
         {
             if (current.CompareTag("Food"))
             {
-                Debug.Log("Food detected by handoff point: " + current.name);
+                GameObject food = current.gameObject;
 
-                SnapFood(current.gameObject);
+                Rigidbody rb = food.GetComponent<Rigidbody>();
+
+                // Only accept food that has been dropped.
+                if (rb != null && rb.isKinematic)
+                    return;
+
+                Debug.Log("Dropped food detected: " + food.name);
+
+                SnapFood(food);
                 return;
             }
 
             current = current.parent;
         }
-
-        Debug.Log("Object rejected by handoff point: " + other.name);
     }
 
     private void SnapFood(GameObject food)
@@ -52,8 +58,6 @@ public class FoodSnapPoint : MonoBehaviour
         Transform target = snapPoint != null
             ? snapPoint
             : transform;
-
-        Vector3 originalScale = food.transform.lossyScale;
 
         Rigidbody rb = food.GetComponent<Rigidbody>();
 
@@ -69,14 +73,6 @@ public class FoodSnapPoint : MonoBehaviour
 
         food.transform.position = target.position;
         food.transform.rotation = target.rotation;
-
-        Vector3 parentScale = target.lossyScale;
-
-        food.transform.localScale = new Vector3(
-            parentScale.x != 0 ? originalScale.x / parentScale.x : originalScale.x,
-            parentScale.y != 0 ? originalScale.y / parentScale.y : originalScale.y,
-            parentScale.z != 0 ? originalScale.z / parentScale.z : originalScale.z
-        );
 
         Debug.Log("FOOD SNAPPED: " + food.name);
     }
