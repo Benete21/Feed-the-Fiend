@@ -146,7 +146,7 @@ public class TutorialManager : MonoBehaviour
         );
 
         yield return Dialogue(
-            "Let's learn how to take orders, prepare food, and serve customers"
+            "Let's learn how to take orders prepare food and serve customers"
         );
 
 
@@ -222,11 +222,11 @@ public class TutorialManager : MonoBehaviour
         // =====================================================
 
         yield return Dialogue(
-            "First, collect the Tentacle"
+            "First collect the Tentacle"
         );
 
         yield return Dialogue(
-            "Go to the Blue ingredient station."
+            "Go to the Blue ingredient station"
         );
 
         GameObject objectBeforeIngredientA =
@@ -280,7 +280,7 @@ public class TutorialManager : MonoBehaviour
         );
 
         yield return Dialogue(
-            "Go to the Yellow ingredient station."
+            "Go to the Yellow ingredient station"
         );
 
         GameObject objectBeforeIngredientB =

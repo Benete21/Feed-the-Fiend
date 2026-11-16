@@ -143,16 +143,43 @@ public class Waiter_Controls : MonoBehaviour
             }
 
             // Check for physical objects
-            if (hit.CompareTag("Item"))
+
+            // Check for physical objects, including handed-off food.
+            if (hit.CompareTag("Item") || hit.CompareTag("Food"))
             {
                 Rigidbody rb = hit.attachedRigidbody;
 
                 if (rb != null)
                 {
-                    Pickup(rb.gameObject);
+                    GameObject pickedUpObject = rb.gameObject;
+
+                    // If this food came from a handoff point, clear that point.
+                    if (pickedUpObject.CompareTag("Food"))
+                    {
+                        Collider[] nearbyHits = Physics.OverlapSphere(
+                            pickedUpObject.transform.position,
+                            0.5f
+                        );
+
+                        foreach (Collider nearbyHit in nearbyHits)
+                        {
+                            FoodSnapPoint snapPoint =
+                                nearbyHit.GetComponentInParent<FoodSnapPoint>();
+
+                            if (snapPoint != null &&
+                                snapPoint.GetFood() == pickedUpObject)
+                            {
+                                snapPoint.ReleaseFood(pickedUpObject);
+                                break;
+                            }
+                        }
+                    }
+
+                    Pickup(pickedUpObject);
                     return;
                 }
             }
+
         }
     }
 
@@ -518,7 +545,8 @@ public class Waiter_Controls : MonoBehaviour
             }
 
             // Ordinary items can only be picked up with empty hands.
-            if (heldObj == null && hit.CompareTag("Item"))
+            if (heldObj == null &&
+                (hit.CompareTag("Item") || hit.CompareTag("Food")))
             {
                 interactionPrompt.Show("B  PICK UP");
                 return;
