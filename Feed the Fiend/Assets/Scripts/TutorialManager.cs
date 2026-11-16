@@ -438,7 +438,7 @@ public class TutorialManager : MonoBehaviour
         // =====================================================
 
         yield return Dialogue(
-            "You now know how to take orders, prepare food, and serve customers"
+            "You now know how to take orders prepare food and serve customers"
         );
 
         yield return Dialogue(
