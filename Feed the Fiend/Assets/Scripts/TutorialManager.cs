@@ -146,7 +146,7 @@ public class TutorialManager : MonoBehaviour
         );
 
         yield return Dialogue(
-            "Let's learn how to take orders, prepare food, and serve customers."
+            "Let's learn how to take orders prepare food and serve customers"
         );
 
 
@@ -155,15 +155,15 @@ public class TutorialManager : MonoBehaviour
         // =====================================================
 
         yield return Dialogue(
-            "You are now controlling the waiter."
+            "You are now controlling the waiter"
         );
 
         yield return Dialogue(
-            "Your first job is to take the customer's order."
+            "Your first job is to take the customer's order"
         );
 
         yield return Dialogue(
-            "Go to the customer and press B to interact with them."
+            "Go to the customer and press B to interact with them"
         );
 
         ShowArrow(TutorialArrowLocation.Customer);
@@ -173,15 +173,15 @@ public class TutorialManager : MonoBehaviour
         HideArrow();
 
         yield return Dialogue(
-            "You have taken the customer's order."
+            "You have taken the customer's order"
         );
 
         yield return Dialogue(
-            "The order will appear on your order slip."
+            "The order will appear on your order slip"
         );
 
         yield return Dialogue(
-            "Take the order slip to the order drop-off counter."
+            "Take the order slip to the order drop-off counter"
         );
 
         ShowArrow(TutorialArrowLocation.OrderDropOff);
@@ -194,7 +194,7 @@ public class TutorialManager : MonoBehaviour
         HideArrow();
 
         yield return Dialogue(
-            "The order has been sent to the chef's inventory. You can now switch characters."
+            "The order has been sent to the slip inventory"
         );
 
 
@@ -203,17 +203,17 @@ public class TutorialManager : MonoBehaviour
         // =====================================================
 
         yield return Dialogue(
-            "Now we need to prepare the customer's food."
+            "Now we need to prepare the customer's food"
         );
 
         yield return Dialogue(
-            "Let's switch to the chef."
+            "Let's switch to the chef"
         );
 
         SwitchToChef();
 
         yield return Dialogue(
-            "You are now controlling the chef."
+            "You are now controlling the chef"
         );
 
 
@@ -222,11 +222,11 @@ public class TutorialManager : MonoBehaviour
         // =====================================================
 
         yield return Dialogue(
-            "First, collect Ingredient A."
+            "First collect the Tentacle"
         );
 
         yield return Dialogue(
-            "Go to the Blue ingredient station."
+            "Go to the Blue ingredient station"
         );
 
         GameObject objectBeforeIngredientA =
@@ -243,7 +243,7 @@ public class TutorialManager : MonoBehaviour
         HideArrow();
 
         yield return Dialogue(
-            "You picked up Ingredient A."
+            "You picked up the Tentacle"
         );
 
 
@@ -252,7 +252,7 @@ public class TutorialManager : MonoBehaviour
         // =====================================================
 
         yield return Dialogue(
-            "Take Ingredient A to the preparation station."
+            "Take the Tentacle to the preparation station"
         );
 
         ShowArrow(TutorialArrowLocation.PrepStation);
@@ -267,7 +267,7 @@ public class TutorialManager : MonoBehaviour
         HideArrow();
 
         yield return Dialogue(
-            "Ingredient A has been placed."
+            "The Tentacle has been placed"
         );
 
 
@@ -276,11 +276,11 @@ public class TutorialManager : MonoBehaviour
         // =====================================================
 
         yield return Dialogue(
-            "Now collect Ingredient B."
+            "Now collect the Rotten Meat"
         );
 
         yield return Dialogue(
-            "Go to the Yellow ingredient station."
+            "Go to the Yellow ingredient station"
         );
 
         GameObject objectBeforeIngredientB =
@@ -297,7 +297,7 @@ public class TutorialManager : MonoBehaviour
         HideArrow();
 
         yield return Dialogue(
-            "Excellent! You have Ingredient B."
+            "Excellent! You have the Rotten Meat"
         );
 
 
@@ -306,7 +306,7 @@ public class TutorialManager : MonoBehaviour
         // =====================================================
 
         yield return Dialogue(
-            "Bring Ingredient B to the preparation station."
+            "Bring the Rotten Meat to the preparation station"
         );
 
         ShowArrow(TutorialArrowLocation.PrepStation);
@@ -326,11 +326,11 @@ public class TutorialManager : MonoBehaviour
         // =====================================================
 
         yield return Dialogue(
-            "Both ingredients are ready."
+            "Both ingredients are ready"
         );
 
         yield return Dialogue(
-            "Press A to PREPARE the food."
+            "Press A to PREPARE the food"
         );
 
         yield return WaitForAction(() =>
@@ -339,11 +339,11 @@ public class TutorialManager : MonoBehaviour
         );
 
         yield return Dialogue(
-            "The food is now being prepared."
+            "The food is now being prepared"
         );
 
         yield return Dialogue(
-            "Wait for the preparation to finish."
+            "Wait for the preparation to finish"
         );
 
         yield return WaitForAction(() =>
@@ -362,7 +362,7 @@ public class TutorialManager : MonoBehaviour
         );
 
         yield return Dialogue(
-            "Take the finished food to the handoff area."
+            "Take the finished food to the handoff area"
         );
 
         ShowArrow(TutorialArrowLocation.FoodHandoff);
@@ -379,11 +379,11 @@ public class TutorialManager : MonoBehaviour
         HideArrow();
 
         yield return Dialogue(
-            "Perfect! You have dropped the food at the handoff point."
+            "Perfect! You have dropped the food at the handoff point"
         );
 
         yield return Dialogue(
-            "The waiter can now collect the food."
+            "The waiter can now collect the food"
         );
 
 
@@ -393,17 +393,17 @@ public class TutorialManager : MonoBehaviour
         // =====================================================
 
         yield return Dialogue(
-            "Let's switch back to the waiter."
+            "Let's switch back to the waiter"
         );
 
         SwitchToWaiter();
 
         yield return Dialogue(
-            "You are now controlling the waiter."
+            "You are now controlling the waiter"
         );
 
         yield return Dialogue(
-            "Collect the prepared food."
+            "Collect the prepared food"
         );
 
         ShowArrow(TutorialArrowLocation.FoodHandoff);
@@ -423,7 +423,7 @@ public class TutorialManager : MonoBehaviour
         // =====================================================
 
         yield return Dialogue(
-            "Now deliver the food to the customer."
+            "Now deliver the food to the customer"
         );
 
         ShowArrow(TutorialArrowLocation.Customer);
@@ -438,7 +438,7 @@ public class TutorialManager : MonoBehaviour
         // =====================================================
 
         yield return Dialogue(
-            "You now know how to take orders, prepare food, and serve customers."
+            "You now know how to take orders prepare food and serve customers"
         );
 
         yield return Dialogue(

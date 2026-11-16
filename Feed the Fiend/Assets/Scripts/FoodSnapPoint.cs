@@ -18,46 +18,20 @@ public class FoodSnapPoint : MonoBehaviour
         return currentFood;
     }
 
-    private void OnTriggerEnter(Collider other)
+    public bool TrySnapFood(GameObject food)
     {
-        if (currentFood != null)
-            return;
+        if (food == null || currentFood != null)
+            return false;
 
-        // Search the collider object and its parents for the Food tag.
-        Transform current = other.transform;
+        if (!food.CompareTag("Food"))
+            return false;
 
-        while (current != null)
-        {
-            if (current.CompareTag("Food"))
-            {
-                GameObject food = current.gameObject;
+        Transform target = snapPoint != null ? snapPoint : transform;
 
-                Rigidbody rb = food.GetComponent<Rigidbody>();
-
-                // Only accept food that has been dropped.
-                if (rb != null && rb.isKinematic)
-                    return;
-
-                Debug.Log("Dropped food detected: " + food.name);
-
-                SnapFood(food);
-                return;
-            }
-
-            current = current.parent;
-        }
-    }
-
-    private void SnapFood(GameObject food)
-    {
-        if (currentFood != null || food == null)
-            return;
-
-        currentFood = food;
-
-        Transform target = snapPoint != null
-            ? snapPoint
-            : transform;
+        // Keep the food independent of the snap point's scale.
+        food.transform.SetParent(null, true);
+        food.transform.position = target.position;
+        food.transform.rotation = target.rotation;
 
         Rigidbody rb = food.GetComponent<Rigidbody>();
 
@@ -65,38 +39,23 @@ public class FoodSnapPoint : MonoBehaviour
         {
             rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
-            rb.isKinematic = true;
-            rb.useGravity = false;
-        }
-
-        food.transform.SetParent(target, true);
-
-        food.transform.position = target.position;
-        food.transform.rotation = target.rotation;
-
-        Debug.Log("FOOD SNAPPED: " + food.name);
-    }
-
-    public GameObject TakeFood()
-    {
-        if (currentFood == null)
-            return null;
-
-        GameObject food = currentFood;
-        currentFood = null;
-
-        food.transform.SetParent(null, true);
-
-        Rigidbody rb = food.GetComponent<Rigidbody>();
-
-        if (rb != null)
-        {
             rb.isKinematic = false;
             rb.useGravity = true;
         }
 
-        Debug.Log("FOOD TAKEN: " + food.name);
+        currentFood = food;
 
-        return food;
+        Debug.Log("FOOD SNAPPED: " + food.name);
+        return true;
+    }
+
+    // Called when the waiter collects the food.
+    public void ReleaseFood(GameObject food)
+    {
+        if (currentFood != food)
+            return;
+
+        currentFood = null;
+        Debug.Log("FOOD TAKEN FROM HANDOFF: " + food.name);
     }
 }

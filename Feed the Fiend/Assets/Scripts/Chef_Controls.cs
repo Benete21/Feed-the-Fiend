@@ -536,6 +536,7 @@ public class Chef_Controls : MonoBehaviour
         SetItemPlayerCollision(obj, true);
     }
 
+
     void Drop()
     {
         if (heldRb == null)
@@ -543,16 +544,32 @@ public class Chef_Controls : MonoBehaviour
 
         GameObject droppedObject = heldObj;
 
+        // Release the object from the chef's hold point.
+        heldRb.transform.SetParent(null, true);
+
         heldRb.useGravity = true;
         heldRb.linearDamping = 1f;
         heldRb.constraints = RigidbodyConstraints.None;
-        heldRb.transform.SetParent(null);
+        heldRb.linearVelocity = Vector3.zero;
+        heldRb.angularVelocity = Vector3.zero;
 
         heldObj = null;
         heldRb = null;
 
+        // If this is food, try to place it at the handoff point.
+        if (droppedObject.CompareTag("Food"))
+        {
+            FoodSnapPoint snapPoint = GetNearbyFoodSnapPoint();
+
+            if (snapPoint != null && snapPoint.TrySnapFood(droppedObject))
+            {
+                Debug.Log("Chef successfully handed off the food.");
+            }
+        }
+
         RestoreCollisionAfterRelease(droppedObject);
     }
+
 
     private void CheckForInteraction()
     {
