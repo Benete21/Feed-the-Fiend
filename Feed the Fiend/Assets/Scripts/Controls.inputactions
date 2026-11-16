@@ -641,7 +641,7 @@
                 {
                     "name": "",
                     "id": "0f19508b-7e59-4955-81c1-215c366a80b6",
-                    "path": "<Gamepad>/select",
+                    "path": "<Gamepad>/start",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
